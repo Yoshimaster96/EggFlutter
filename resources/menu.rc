@@ -1,0 +1,109 @@
+#include "resources.h"
+
+IDM_MENU_MAIN MENU
+{
+	POPUP "File"
+	{
+		MENUITEM "Open\tCtrl+O", 1000
+		MENUITEM "Close\tCtrl+W", 1001, GRAYED
+		MENUITEM "Save\tCtrl+S", 1002, GRAYED
+		MENUITEM "Save As\tCtrl+Shift+S", 1003, GRAYED
+		MENUITEM "Quit\tCtrl+Q", 1004
+		MENUITEM SEPARATOR
+		MENUITEM "Open Level By ID\tAlt+O", 1010, GRAYED
+		MENUITEM "Import Level", 1012, GRAYED
+		MENUITEM "Export Level", 1013, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Next Level\tPg Up", 1011, GRAYED
+		MENUITEM "Previous Level\tPg Down", 1012, GRAYED
+	}
+	POPUP "Edit"
+	{
+		MENUITEM "Objects\tQ", 1100, CHECKED, GRAYED
+		//(dummy for alignment)
+		//(dummy for alignment)
+		MENUITEM "Sprites\tR", 1103, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Increase Z\t=", 1110, GRAYED
+		MENUITEM "Decrease Z\t-", 1111, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Edit Object Manual", 1120, GRAYED
+		MENUITEM "Edit Sprite Manual", 1121, GRAYED
+	}
+	POPUP "View"
+	{
+		MENUITEM "Objects\t1", 1200, CHECKED, GRAYED
+		MENUITEM "BG Layer 2\t2", 1201, CHECKED, GRAYED
+		MENUITEM "BG Layer 3\t3", 1202, CHECKED, GRAYED
+		MENUITEM "Sprites\t4", 1203, CHECKED, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Entrances\tF1", 1210, CHECKED, GRAYED
+		MENUITEM "Exits\tF2", 1211, GRAYED
+		MENUITEM "Grid\tF4", 1212, GRAYED
+		MENUITEM "Animation\tF6", 1213, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Object Hex Values", 1220, GRAYED
+		MENUITEM "Sprite Hex Values", 1223, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "[!] Blocks Active\tF8", 1230, GRAYED
+		MENUITEM "Egg Blocks Active\tF9", 1231, GRAYED
+	}
+	POPUP "Tools"
+	{
+		MENUITEM "Edit Main/Midway Entrance", 1300, GRAYED
+		MENUITEM "Edit Secondary Entrances", 1301, GRAYED
+		MENUITEM "Edit Screen Exits", 1302, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Edit Graphics/Animation", 1310, GRAYED
+		MENUITEM "Edit Level Header", 1311, GRAYED
+	}
+	POPUP "Window"
+	{
+		MENUITEM "Select Objects\tA", 1400, GRAYED
+		//(dummy for alignment)
+		//(dummy for alignment)
+		MENUITEM "Select Sprites\tF", 1403, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Select 8x8 Tiles", 1410, GRAYED
+		MENUITEM "Select 16x16 Tiles", 1411, GRAYED
+		MENUITEM "Edit Palette", 1412, GRAYED
+		MENUITEM "Edit Background", 1413, GRAYED
+	}
+}
+
+IDA_MENU_MAIN ACCELERATORS
+{
+	//File
+	"O", 1000, VIRTKEY, CONTROL
+	"W", 1001, VIRTKEY, CONTROL
+	"S", 1002, VIRTKEY, CONTROL
+	"S", 1003, VIRTKEY, CONTROL, SHIFT
+	"Q", 1004, VIRTKEY, CONTROL
+	"O", 1010, VIRTKEY, ALT
+	VK_PRIOR, 1011, VIRTKEY
+	VK_NEXT, 1012, VIRTKEY
+	//Edit
+	"Q", 1100, VIRTKEY
+	//(dummy for alignment)
+	//(dummy for alignment)
+	"R", 1103, VIRTKEY
+	VK_OEM_PLUS, 1110, VIRTKEY
+	VK_OEM_MINUS, 1111, VIRTKEY
+	//View
+	"1", 1200, VIRTKEY
+	"2", 1201, VIRTKEY
+	"3", 1202, VIRTKEY
+	"4", 1203, VIRTKEY
+	VK_F1, 1210, VIRTKEY
+	VK_F2, 1211, VIRTKEY
+	VK_F4, 1212, VIRTKEY
+	VK_F6, 1213, VIRTKEY
+	VK_F8, 1230, VIRTKEY
+	VK_F9, 1231, VIRTKEY
+	//Window
+	"A", 1400, VIRTKEY
+	//(dummy for alignment)
+	//(dummy for alignment)
+	"F", 1403, VIRTKEY
+}
+
