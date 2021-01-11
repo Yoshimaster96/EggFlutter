@@ -10,12 +10,12 @@ IDM_MENU_MAIN MENU
 		MENUITEM "Save As\tCtrl+Shift+S", 1003, GRAYED
 		MENUITEM "Quit\tCtrl+Q", 1004
 		MENUITEM SEPARATOR
-		MENUITEM "Open Level By ID\tAlt+O", 1010, GRAYED
-		MENUITEM "Import Level", 1012, GRAYED
-		MENUITEM "Export Level", 1013, GRAYED
+		MENUITEM "Import Level", 1010, GRAYED
+		MENUITEM "Export Level", 1011, GRAYED
 		MENUITEM SEPARATOR
-		MENUITEM "Next Level\tPg Up", 1011, GRAYED
-		MENUITEM "Previous Level\tPg Down", 1012, GRAYED
+		MENUITEM "Open Level By ID\tAlt+O", 1020, GRAYED
+		MENUITEM "Next Level\tPg Up", 1021, GRAYED
+		MENUITEM "Previous Level\tPg Down", 1022, GRAYED
 	}
 	POPUP "Edit"
 	{
@@ -43,6 +43,8 @@ IDM_MENU_MAIN MENU
 		MENUITEM "Animation\tF6", 1213, GRAYED
 		MENUITEM SEPARATOR
 		MENUITEM "Object Hex Values", 1220, GRAYED
+		//(dummy for alignment)
+		//(dummy for alignment)
 		MENUITEM "Sprite Hex Values", 1223, GRAYED
 		MENUITEM SEPARATOR
 		MENUITEM "[!] Blocks Active\tF8", 1230, GRAYED
@@ -51,11 +53,13 @@ IDM_MENU_MAIN MENU
 	POPUP "Tools"
 	{
 		MENUITEM "Edit Main/Midway Entrance", 1300, GRAYED
-		MENUITEM "Edit Secondary Entrances", 1301, GRAYED
-		MENUITEM "Edit Screen Exits", 1302, GRAYED
+		MENUITEM "Edit Screen Exits", 1301, GRAYED
 		MENUITEM SEPARATOR
 		MENUITEM "Edit Graphics/Animation", 1310, GRAYED
 		MENUITEM "Edit Level Header", 1311, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Edit Level Names", 1320, GRAYED
+		MENUITEM "Edit Messages", 1321, GRAYED
 	}
 	POPUP "Window"
 	{

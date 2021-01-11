@@ -9,6 +9,8 @@
 
 //Functions
 //TODO
+//Window
+//LRESULT CALLBACK WndProc_Map8(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif
 

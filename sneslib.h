@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <algorithm>
 #include <vector>
-#include <string>
 
 //Functions
 //Graphics functions
@@ -32,7 +31,7 @@ DWORD convAddr_PCtoSNES_YI(DWORD addr);
 DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size);
 DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD size);
 DWORD decompressLZ1(BYTE * dst,BYTE * src);
-DWORD decompressLZ16(BYTE * dst,BYTE * src);
+void decompressLZ16(BYTE * dst,BYTE * src,DWORD size);
 
 #endif
 

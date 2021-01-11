@@ -11,7 +11,9 @@
 //TODO
 
 //Functions
-//TODO
+//void loadSprites(BYTE * data);
+//Window
+//LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif
 

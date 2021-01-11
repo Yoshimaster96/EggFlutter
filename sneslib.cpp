@@ -197,13 +197,51 @@ DWORD convAddr_PCtoSNES_YI(DWORD addr) {
 ///////////////
 //Helper functions for reading/writing bitvalues (LZ16)
 DWORD readBits(BYTE * data,int bitOffset,int bitLength) {
-	//TODO
+	int byteOffset = 0;
+	DWORD value = 0;
+	for(int i=0; i<bitLength; i++) {
+		//Append bit
+		DWORD bit = (data[byteOffset]>>bitOffset)&1;
+		value |= bit<<i;
+		//Move to next bit
+		bitOffset++;
+		if(bitOffset==8) {
+			bitOffset = 0;
+			byteOffset++;
+		}
+	}
+	return value;
 }
-DWORD writeBits(BYTE * data,int bitOffset,int bitLength) {
-	//TODO
+void writeBits(BYTE * data,int bitOffset,int bitLength,DWORD value) {
+	int byteOffset = 0;
+	for(int i=0; i<bitLength; i++) {
+		//Set bit
+		data[byteOffset] &= ~(1<<bitOffset);
+		DWORD bit = (value>>i)&1;
+		data[byteOffset] |= bit<<bitOffset;
+		//Move to next bit
+		bitOffset++;
+		if(bitOffset==8) {
+			bitOffset = 0;
+			byteOffset++;
+		}
+	}
 }
 DWORD reverseBitOrder(DWORD value,int bitLength) {
-	//TODO
+	DWORD revVal = 0;
+	for(int i=0; i<bitLength; i++) {
+		DWORD bit = (value>>i)&1;
+		value |= bit<<(bitLength-i-1);
+	}
+}
+
+//Sort comparator for palette indexes (LZ16)
+typedef struct {
+	BYTE paletteIndex;
+	int numPixelsWithValue;
+} palette_sorter_t;
+bool paletteSorter_opLt(palette_sorter_t & lhs,palette_sorter_t & rhs) {
+	return (lhs.numPixelsWithValue<rhs.numPixelsWithValue);
 }
 
 //Compression/decompression
@@ -315,6 +353,10 @@ DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 	return dstOff;
 }
 DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD size) {
+	int srcOff = 0,dstOff = 0;
+	int srcBitOff = 0;
+	std::vector<palette_sorter_t> palette;
+	BYTE prevLine[0x80];
 	//TODO
 }
 DWORD decompressLZ1(BYTE * dst,BYTE * src) {
@@ -322,23 +364,104 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 	while(true) {
 		BYTE bc = src[srcOff++];
 		if(bc == 0xFF) break;
-		bool rle = bc&0x80;
-		int len = (bc&0x7F)+1;
-		//RLE mode
-		if(rle) {
-			BYTE b0 = src[srcOff++];
-			memset(&dst[dstOff],b0,len);
-			dstOff += len;
-		//Direct mode
-		} else {
-			memcpy(&dst[dstOff],&src[srcOff],len);
-			srcOff += len;
-			dstOff += len;
+		int cmd = bc>>5;
+		int len = (bc&0x1F)+1;
+		switch(cmd) {
+			//Command 0 (direct)
+			case 0: {
+				memcpy(&dst[dstOff],&src[srcOff],len);
+				srcOff += len;
+				dstOff += len;
+				break;
+			}
+			//Command 1 (byte fill)
+			case 1: {
+				BYTE b0 = src[srcOff++];
+				memset(&dst[dstOff],b0,len);
+				dstOff += len;
+				break;
+			}
+			//Command 2 (word fill)
+			case 2: {
+				BYTE b0 = src[srcOff++];
+				BYTE b1 = src[srcOff++];
+				for(int i = 0; i < len; i++) {
+					dst[dstOff++] = (i&1)?b1:b0;
+				}
+				break;
+			}
+			//Command 3 (byte fill incremented)
+			case 3: {
+				BYTE b0 = src[srcOff++];
+				for(int i = 0; i < len; i++) {
+					dst[dstOff++] = b0++;
+				}
+				break;
+			}
+			//Command 4 (copy)
+			case 4: {
+				int cpyOff = src[srcOff++]|(src[srcOff++]<<8);
+				memcpy(&dst[dstOff],&src[cpyOff],len);
+				srcOff += len;
+				dstOff += len;
+				break;
+			}
+			//Command 7 (long mode)
+			case 7: {
+				cmd = (bc>>2)&7;
+				len = ((bc&3)|src[srcOff++])+1;
+				switch(cmd) {
+					//Command 0 (direct)
+					case 0: {
+						memcpy(&dst[dstOff],&src[srcOff],len);
+						srcOff += len;
+						dstOff += len;
+						break;
+					}
+					//Command 1 (byte fill)
+					case 1: {
+						BYTE b0 = src[srcOff++];
+						memset(&dst[dstOff],b0,len);
+						dstOff += len;
+						break;
+					}
+					//Command 2 (word fill)
+					case 2: {
+						BYTE b0 = src[srcOff++];
+						BYTE b1 = src[srcOff++];
+						for(int i = 0; i < len; i++) {
+							dst[dstOff++] = (i&1)?b1:b0;
+						}
+						break;
+					}
+					//Command 3 (byte fill incremented)
+					case 3: {
+						BYTE b0 = src[srcOff++];
+						for(int i = 0; i < len; i++) {
+							dst[dstOff++] = b0++;
+						}
+						break;
+					}
+					//Command 4 (copy)
+					case 4: {
+						int cpyOff = src[srcOff++]|(src[srcOff++]<<8);
+						memcpy(&dst[dstOff],&src[cpyOff],len);
+						srcOff += len;
+						dstOff += len;
+						break;
+					}
+				}
+				break;
+			}
 		}
 	}
 	return dstOff;
 }
-DWORD decompressLZ16(BYTE * dst,BYTE * src) {
+void decompressLZ16(BYTE * dst,BYTE * src,DWORD size) {
+	int srcOff = 0,dstOff = 0;
+	int srcBitOff = 0;
+	BYTE palette[7];
+	BYTE prevLine[0x80];
 	//TODO
 }
 

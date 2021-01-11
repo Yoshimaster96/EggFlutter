@@ -3,12 +3,187 @@
 /////////////////
 //LEVEL LOADING//
 /////////////////
-//TODO
+void loadLevel() {
+	//TODO
+}
 
 ///////////
 //DIALOGS//
 ///////////
-//TODO
+//Helper functions for reading/writing hex values
+TCHAR strBuf_dlg[256];
+DWORD getHexVal_dlg(HWND hwnd,int control) {
+	GetDlgItemText(hwnd,control,strBuf_dlg,256);
+	DWORD ret;
+	_sntscanf(strBuf_dlg,sizeof(strBuf_dlg),"%X",&ret);
+	return ret;
+}
+void setHexVal_dlg(HWND hwnd,int control,DWORD val) {
+	_sntprintf(strBuf_dlg,sizeof(strBuf_dlg),"%X",val);
+	SetDlgItemText(hwnd,control,strBuf_dlg);
+}
+
+//Dialog functions
+LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//Limit to 2 characters
+			HWND hwndOpenByIdEt = GetDlgItem(hwnd,20);
+			SendMessage(hwndOpenByIdEt,EM_SETLIMITTEXT,2,0);
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					BYTE lev = getHexVal_dlg(hwnd,20);
+					if(lev>=0x00 && lev<=0xDD) {
+						//Set level ID and exit with code 1 (load level)
+						curLevel = lev;
+						EndDialog(hwnd,1);
+					} else {
+						//Have WM_CLOSE handle this
+						SendMessage(hwnd,WM_CLOSE,0,0);
+					}
+					break;
+				}
+			}
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditGfx(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
 
 //////////////
 //MENU STUFF//
@@ -17,6 +192,12 @@ bool hasSmcHeader;
 TCHAR strBuf_main[256];
 HMENU hmenuMain;
 HWND hwndMain;
+
+//View states
+bool vObj = true,vBg2 = true,vBg3 = true,vSp = true;
+bool vEnt = true,vExit = false,vGrid = false,vAnim = false;
+bool vObjHex = false,vSpHex = false;
+bool vSwA = false,vSwB = false;
 
 //Helper functions
 void updateMenu() {
@@ -37,12 +218,188 @@ inline BOOL promptSave() {
 }
 
 //Functions for menu items
-//TODO
+//File
+void onOpen() {
+	//TODO
+}
+void onClose() {
+	//TODO
+}
+void onSave() {
+	//TODO
+}
+void onSaveAs() {
+	//TODO
+}
+void onQuit() {
+	//Have WM_CLOSE handle this
+	SendMessage(hwndMain,WM_CLOSE,0,0);
+}
+void onImportLevel() {
+	//TODO
+}
+void onExportLevel() {
+	//TODO
+}
+void onOpenLevel() {
+	//Prompt save
+	if(isRomOpen && !isRomSaved) {
+		if(!promptSave()) return;
+	}
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId);
+	loadLevel();
+	//TODO
+}
+void onNextLevel() {
+	//Prompt save
+	if(isRomOpen && !isRomSaved) {
+		if(!promptSave()) return;
+	}
+	if(curLevel!=0xDD) {
+		curLevel++;
+		loadLevel();
+		//TODO
+	}
+}
+void onPrevLevel() {
+	//Prompt save
+	if(isRomOpen && !isRomSaved) {
+		if(!promptSave()) return;
+	}
+	if(curLevel) {
+		curLevel--;
+		loadLevel();
+		//TODO
+	}
+}
+//Edit
+void onEditObj() {
+	//TODO
+}
+void onEditSp() {
+	//TODO
+}
+void onIncZ() {
+	//TODO
+}
+void onDecZ() {
+	//TODO
+}
+void onManualObj() {
+	//TODO
+}
+void onManualSp() {
+	//TODO
+}
+//View
+void onViewObj() {
+	vObj = !vObj;
+	//TODO
+}
+void onViewBg2() {
+	vBg2 = !vBg2;
+	//TODO
+}
+void onViewBg3() {
+	vBg3 = !vBg3;
+	//TODO
+}
+void onViewSp() {
+	vSp = !vSp;
+	//TODO
+}
+void onViewEnt() {
+	vEnt = !vEnt;
+	//TODO
+}
+void onViewExit() {
+	vExit = !vExit;
+	//TODO
+}
+void onViewGrid() {
+	vGrid = !vGrid;
+	//TODO
+}
+void onViewAnim() {
+	vAnim = !vAnim;
+	//TODO
+}
+void onViewObjHex() {
+	vObjHex = !vObjHex;
+	//TODO
+}
+void onViewSpHex() {
+	vSpHex = !vSpHex;
+	//TODO
+}
+void onViewSwA() {
+	vSwA = !vSwA;
+	//TODO
+}
+void onViewSwB() {
+	vSwB = !vSwB;
+	//TODO
+}
+//Tools
+void onChgEnt() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances);
+	if(vEnt) {
+		//TODO
+	}
+}
+void onChgExit() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits);
+	if(vExit) {
+		//TODO
+	}
+}
+void onChgGfx() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_GFX),hwndMain,DlgProc_dEditGfx);
+	//TODO
+}
+void onChgHead() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader);
+}
+void onChgLevName() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,DlgProc_dEditLevNames);
+}
+void onChgLevMsg() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,DlgProc_dEditLevMessages);
+}
+//Window
+void onSelObj() {
+	//TODO
+}
+void onSelSp() {
+	//TODO
+}
+void onEditMap8() {
+	//TODO
+}
+void onEditMap16() {
+	//TODO
+}
+void onEditBg() {
+	//TODO
+}
+void onEditPal() {
+	//TODO
+}
 
 //Tables used for menu processing
-#define NUM_COMMANDS (10+6+12+5+6)
-const void (*cmMenuFunc[NUM_COMMANDS])() = {};
-int cmMenuCommand[NUM_COMMANDS] = {};
+#define NUM_COMMANDS (10+6+12+6+6)
+void (*cmMenuFunc[NUM_COMMANDS])() = {
+	onOpen,onClose,onSave,onSaveAs,onQuit,onImportLevel,onExportLevel,onOpenLevel,onNextLevel,onPrevLevel,
+	onEditObj,onEditSp,onIncZ,onDecZ,onManualObj,onManualSp,
+	onViewObj,onViewBg2,onViewBg3,onViewSp,onViewEnt,onViewExit,onViewGrid,onViewAnim,onViewObjHex,onViewSpHex,onViewSwA,onViewSwB,
+	onChgEnt,onChgExit,onChgGfx,onChgHead,onChgLevName,onChgLevMsg,
+	onSelObj,onSelSp,onEditMap8,onEditMap16,onEditBg,onEditPal};
+int cmMenuCommand[NUM_COMMANDS] = {
+	1000,1001,1002,1003,1004,1010,1011,1020,1021,1022,
+	1100,1103,1110,1111,1120,1121,
+	1200,1201,1202,1203,1210,1211,1212,1213,1220,1223,1230,1231,
+	1300,1301,1310,1311,1320,1321,
+	1400,1403,1410,1411,1412,1413};
 
 /////////////////////
 //MAIN WINDOW STUFF//
@@ -77,7 +434,9 @@ void drawSpHexVals() {
 }
 
 //Main drawing code
-//TODO
+void updateRect(RECT rect) {
+	//TODO
+}
 
 //Message loop function
 LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
@@ -111,7 +470,9 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		case WM_CLOSE: {
 			//Prompt save
-			//TODO
+			if(isRomOpen && !isRomSaved) {
+				if(!promptSave()) break;
+			}
 			//Destroy window(s)
 			DestroyWindow(hwnd);
 			break;
@@ -133,14 +494,19 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.cbSize		= sizeof(SCROLLINFO);
 			si.fMask		= SIF_RANGE|SIF_POS;
 			
-			xMaxScroll = std::max(0x1000-LOWORD(lParam),0);
+			int xNewMax = std::max(0x1000-LOWORD(lParam),0);
 			xCurScroll = std::min(xCurScroll,xMaxScroll);
+			int yNewMax = std::max(0x800-HIWORD(lParam),0);
+			yCurScroll = std::min(yCurScroll,yMaxScroll);
+			
+			xMaxScroll = xNewMax;
+			yMaxScroll = yNewMax;
+			if(xNewMax) yMaxScroll += GetSystemMetrics(SM_CYHSCROLL);
+			if(yNewMax) xMaxScroll += GetSystemMetrics(SM_CXVSCROLL);
+			
 			si.nMax			= xMaxScroll;
 			si.nPos			= xCurScroll;
 			SetScrollInfo(hwnd,SB_HORZ,&si,TRUE);
-			
-			yMaxScroll = std::max(0x800-HIWORD(lParam),0);
-			yCurScroll = std::min(yCurScroll,yMaxScroll);
 			si.nMax			= yMaxScroll;
 			si.nPos			= yCurScroll;
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);

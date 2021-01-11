@@ -11,7 +11,9 @@
 //TODO
 
 //Functions
-//TODO
+//void loadObjects(BYTE * data);
+//Window
+//LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif
 

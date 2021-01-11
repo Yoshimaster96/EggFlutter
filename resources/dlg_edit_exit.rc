@@ -1,0 +1,10 @@
+#include "resources.h"
+
+IDD_EDIT_EXIT DIALOGEX 0, 0, 120, 66
+STYLE WS_VISIBLE|WS_CAPTION|WS_SYSMENU|WS_POPUPWINDOW
+FONT 8, "MS Shell Dlg"
+CAPTION "Edit Screen Exits"
+{
+	//TODO
+}
+
