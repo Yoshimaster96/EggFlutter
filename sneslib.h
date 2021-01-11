@@ -29,9 +29,9 @@ DWORD convAddr_SNEStoPC_YI(DWORD addr);
 DWORD convAddr_PCtoSNES_YI(DWORD addr);
 //Compression
 DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size);
-DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD size);
+DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines);
 DWORD decompressLZ1(BYTE * dst,BYTE * src);
-void decompressLZ16(BYTE * dst,BYTE * src,DWORD size);
+void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines);
 
 #endif
 

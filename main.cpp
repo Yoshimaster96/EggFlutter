@@ -6,6 +6,9 @@
 void loadLevel() {
 	//TODO
 }
+void saveLevel() {
+	//TODO
+}
 
 ///////////
 //DIALOGS//
@@ -65,6 +68,26 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 	return 0;
 }
 LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		case WM_INITDIALOG: {
+			//Add icon
+			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//TODO
+			return TRUE;
+		}
+		case WM_CLOSE: {
+			//Exit with code 0 (do nothing)
+			EndDialog(hwnd,0);
+			break;
+		}
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+	}
+	return 0;
+}
+LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -194,6 +217,7 @@ HMENU hmenuMain;
 HWND hwndMain;
 
 //View states
+bool eObj = true,eSp = false;
 bool vObj = true,vBg2 = true,vBg3 = true,vSp = true;
 bool vEnt = true,vExit = false,vGrid = false,vAnim = false;
 bool vObjHex = false,vSpHex = false;
@@ -201,14 +225,74 @@ bool vSwA = false,vSwB = false;
 
 //Helper functions
 void updateMenu() {
+	UINT enableState = isRomOpen?0:MF_GRAYED;
 	//Enable/disable menu items
 	//that depend on ROM being open
-	//TODO
+	//File
+	EnableMenuItem(hmenuMain,1001,enableState);
+	EnableMenuItem(hmenuMain,1002,enableState);
+	EnableMenuItem(hmenuMain,1003,enableState);
+	EnableMenuItem(hmenuMain,1010,enableState);
+	EnableMenuItem(hmenuMain,1011,enableState);
+	EnableMenuItem(hmenuMain,1020,enableState);
+	EnableMenuItem(hmenuMain,1021,enableState);
+	EnableMenuItem(hmenuMain,1022,enableState);
+	//Edit
+	EnableMenuItem(hmenuMain,1100,enableState);
+	EnableMenuItem(hmenuMain,1103,enableState);
+	//View
+	EnableMenuItem(hmenuMain,1200,enableState);
+	EnableMenuItem(hmenuMain,1201,enableState);
+	EnableMenuItem(hmenuMain,1202,enableState);
+	EnableMenuItem(hmenuMain,1203,enableState);
+	EnableMenuItem(hmenuMain,1210,enableState);
+	EnableMenuItem(hmenuMain,1211,enableState);
+	EnableMenuItem(hmenuMain,1212,enableState);
+	EnableMenuItem(hmenuMain,1213,enableState);
+	EnableMenuItem(hmenuMain,1220,enableState);
+	EnableMenuItem(hmenuMain,1223,enableState);
+	EnableMenuItem(hmenuMain,1230,enableState);
+	EnableMenuItem(hmenuMain,1231,enableState);
+	//Tools
+	EnableMenuItem(hmenuMain,1300,enableState);
+	EnableMenuItem(hmenuMain,1301,enableState);
+	EnableMenuItem(hmenuMain,1302,enableState);
+	EnableMenuItem(hmenuMain,1310,enableState);
+	EnableMenuItem(hmenuMain,1311,enableState);
+	EnableMenuItem(hmenuMain,1320,enableState);
+	EnableMenuItem(hmenuMain,1321,enableState);
+	//Window
+	EnableMenuItem(hmenuMain,1400,enableState);
+	EnableMenuItem(hmenuMain,1403,enableState);
+	EnableMenuItem(hmenuMain,1410,enableState);
+	EnableMenuItem(hmenuMain,1411,enableState);
+	EnableMenuItem(hmenuMain,1412,enableState);
+	EnableMenuItem(hmenuMain,1413,enableState);
 	//Update Edit Object/Sprite check state
 	//and relevant enables/disables
-	//TODO
+	CheckMenuItem(hmenuMain,9100,eObj?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,9103,eSp?MF_CHECKED:0);
+	UINT enableObj = eObj?0:MF_GRAYED;
+	UINT enableSp = eSp?0:MF_GRAYED;
+	enableObj |= enableState;
+	enableSp |= enableState;
+	EnableMenuItem(hmenuMain,1110,enableObj);
+	EnableMenuItem(hmenuMain,1111,enableObj);
+	EnableMenuItem(hmenuMain,1120,enableObj);
+	EnableMenuItem(hmenuMain,1121,enableSp);
 	//Update checked state for View menu items
-	//TODO
+	CheckMenuItem(hmenuMain,1200,vObj?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1201,vBg2?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1202,vBg3?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1203,vSp?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1210,vEnt?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1211,vExit?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1212,vGrid?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1213,vAnim?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1220,vObjHex?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1221,vSpHex?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1230,vSwA?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1231,vSwB?MF_CHECKED:0);
 }
 inline BOOL prompt(LPCSTR title,LPCSTR msg) {
 	return (MessageBox(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
@@ -220,56 +304,96 @@ inline BOOL promptSave() {
 //Functions for menu items
 //File
 void onOpen() {
+	//Prompt save
+	if(isRomOpen && !isRomSaved) {
+		if(!promptSave()) return;
+	}
 	//TODO
 }
 void onClose() {
-	//TODO
+	//Prompt save
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		//TODO
+	}
 }
 void onSave() {
-	//TODO
+	//Prompt save
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		//TODO
+	}
 }
 void onSaveAs() {
-	//TODO
+	//Prompt save
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		//TODO
+	}
 }
 void onQuit() {
 	//Have WM_CLOSE handle this
 	SendMessage(hwndMain,WM_CLOSE,0,0);
 }
 void onImportLevel() {
-	//TODO
+	//Prompt save
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		//TODO
+	}
 }
 void onExportLevel() {
-	//TODO
+	//Prompt save
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		//TODO
+	}
 }
 void onOpenLevel() {
 	//Prompt save
-	if(isRomOpen && !isRomSaved) {
-		if(!promptSave()) return;
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId);
+		loadLevel();
+		SendMessage(hwndMain,2000,0,0);
 	}
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId);
-	loadLevel();
-	//TODO
 }
 void onNextLevel() {
 	//Prompt save
-	if(isRomOpen && !isRomSaved) {
-		if(!promptSave()) return;
-	}
-	if(curLevel!=0xDD) {
-		curLevel++;
-		loadLevel();
-		//TODO
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		if(curLevel!=0xDD) {
+			curLevel++;
+			loadLevel();
+			SendMessage(hwndMain,2000,0,0);
+		}
 	}
 }
 void onPrevLevel() {
 	//Prompt save
-	if(isRomOpen && !isRomSaved) {
-		if(!promptSave()) return;
-	}
-	if(curLevel) {
-		curLevel--;
-		loadLevel();
-		//TODO
+	if(isRomOpen) {
+		if(!isRomSaved) {
+			if(!promptSave()) return;
+		}
+		if(curLevel) {
+			curLevel--;
+			loadLevel();
+			SendMessage(hwndMain,2000,0,0);
+		}
 	}
 }
 //Edit
@@ -295,54 +419,74 @@ void onManualSp() {
 void onViewObj() {
 	vObj = !vObj;
 	//TODO
+	updateMenu();
+	//TODO
 }
 void onViewBg2() {
 	vBg2 = !vBg2;
+	updateMenu();
 	//TODO
 }
 void onViewBg3() {
 	vBg3 = !vBg3;
+	updateMenu();
 	//TODO
 }
 void onViewSp() {
 	vSp = !vSp;
 	//TODO
+	updateMenu();
+	//TODO
 }
 void onViewEnt() {
 	vEnt = !vEnt;
+	updateMenu();
 	//TODO
 }
 void onViewExit() {
 	vExit = !vExit;
+	updateMenu();
 	//TODO
 }
 void onViewGrid() {
 	vGrid = !vGrid;
+	updateMenu();
 	//TODO
 }
 void onViewAnim() {
 	vAnim = !vAnim;
+	updateMenu();
 	//TODO
 }
 void onViewObjHex() {
 	vObjHex = !vObjHex;
+	updateMenu();
 	//TODO
 }
 void onViewSpHex() {
 	vSpHex = !vSpHex;
+	updateMenu();
 	//TODO
 }
 void onViewSwA() {
 	vSwA = !vSwA;
+	updateMenu();
 	//TODO
 }
 void onViewSwB() {
 	vSwB = !vSwB;
+	updateMenu();
 	//TODO
 }
 //Tools
 void onChgEnt() {
 	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances);
+	if(vEnt) {
+		//TODO
+	}
+}
+void onChgEnt2() {
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2);
 	if(vEnt) {
 		//TODO
 	}
@@ -387,19 +531,49 @@ void onEditPal() {
 }
 
 //Tables used for menu processing
-#define NUM_COMMANDS (10+6+12+6+6)
+#define NUM_COMMANDS (10+6+12+7+6)
 void (*cmMenuFunc[NUM_COMMANDS])() = {
-	onOpen,onClose,onSave,onSaveAs,onQuit,onImportLevel,onExportLevel,onOpenLevel,onNextLevel,onPrevLevel,
-	onEditObj,onEditSp,onIncZ,onDecZ,onManualObj,onManualSp,
-	onViewObj,onViewBg2,onViewBg3,onViewSp,onViewEnt,onViewExit,onViewGrid,onViewAnim,onViewObjHex,onViewSpHex,onViewSwA,onViewSwB,
-	onChgEnt,onChgExit,onChgGfx,onChgHead,onChgLevName,onChgLevMsg,
-	onSelObj,onSelSp,onEditMap8,onEditMap16,onEditBg,onEditPal};
+//File
+	onOpen,onClose,onSave,onSaveAs,onQuit,
+	onImportLevel,onExportLevel,
+	onOpenLevel,onNextLevel,onPrevLevel,
+//Edit
+	onEditObj,onEditSp,
+	onIncZ,onDecZ,
+	onManualObj,onManualSp,
+//View
+	onViewObj,onViewBg2,onViewBg3,onViewSp,
+	onViewEnt,onViewExit,onViewGrid,onViewAnim,
+	onViewObjHex,onViewSpHex,
+	onViewSwA,onViewSwB,
+//Tools
+	onChgEnt,onChgEnt2,onChgExit,
+	onChgGfx,onChgHead,
+	onChgLevName,onChgLevMsg,
+//Window
+	onSelObj,onSelSp,
+	onEditMap8,onEditMap16,onEditPal,onEditBg};
 int cmMenuCommand[NUM_COMMANDS] = {
-	1000,1001,1002,1003,1004,1010,1011,1020,1021,1022,
-	1100,1103,1110,1111,1120,1121,
-	1200,1201,1202,1203,1210,1211,1212,1213,1220,1223,1230,1231,
-	1300,1301,1310,1311,1320,1321,
-	1400,1403,1410,1411,1412,1413};
+//File
+	1000,1001,1002,1003,1004,
+	1010,1011,
+	1020,1021,1022,
+//Edit
+	1100,1103,
+	1110,1111,
+	1120,1121,
+//View
+	1200,1201,1202,1203,
+	1210,1211,1212,1213,
+	1220,1223,
+	1230,1231,
+//Tools
+	1300,1301,1302,
+	1310,1311,
+	1320,1321,
+//Window
+	1400,1403,
+	1410,1411,1412,1413};
 
 /////////////////////
 //MAIN WINDOW STUFF//
@@ -417,25 +591,52 @@ int 			yCurScroll = 0,yMaxScroll = 0;
 //TODO
 
 //Extra UI drawing stuff
-void drawEntrances() {
+void drawEntrances(RECT rect) {
 	//TODO
 }
-void drawExits() {
+void drawExits(RECT rect) {
 	//TODO
 }
-void drawGrid() {
+void drawGrid(RECT rect) {
 	//TODO
 }
-void drawObjHexVals() {
+void drawObjHexVals(RECT rect) {
 	//TODO
 }
-void drawSpHexVals() {
+void drawSpHexVals(RECT rect) {
 	//TODO
 }
 
 //Main drawing code
 void updateRect(RECT rect) {
+	//Draw layer 3 (if priority below)
 	//TODO
+	//Draw layer 2
+	//TODO
+	//Draw layer 3 (if priority above)
+	//TODO
+	//Draw objects
+	//TODO
+	if(vObjHex) {
+		drawObjHexVals(rect);
+	}
+	//Draw sprites
+	//TODO
+	if(vSpHex) {
+		drawSpHexVals(rect);
+	}
+	//Draw entrances
+	if(vEnt) {
+		drawEntrances(rect);
+	}
+	//Draw exits
+	if(vExit) {
+		drawExits(rect);
+	}
+	//Draw grid
+	if(vGrid) {
+		drawGrid(rect);
+	}
 }
 
 //Message loop function

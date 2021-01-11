@@ -32,36 +32,50 @@ void initAllocTable() {
 }
 DWORD romAlloc(DWORD size) {
 	//Goal: Find smallest contiguous block of ROM that is at least `size` bytes
-	DWORD smallestBufSize = 0x200000;
-	DWORD smallestBufOffset = 0x200000;
+	int smallestBufSize = 0x200000;
+	int smallestBufOffset = 0x200000;
 	//Check region immediately at start of extended region
-	DWORD smallestAllocOffset0 = 0x3F0000;
+	int smallestAllocOffset0 = 0x3F0000;
 	for(int i=0; i<0x2000; i++) {
 		if(allocOffs[i] && allocOffs[i]<smallestAllocOffset0) {
 			smallestAllocOffset0 = allocOffs[i];
 		}
 	}
-	DWORD thisSize0 = smallestAllocOffset0-0x200000;
+	int thisSize0 = smallestAllocOffset0-0x200000;
 	if(thisSize0<smallestBufSize && thisSize0>=size) {
 		smallestBufSize = thisSize0;
 		smallestBufOffset = 0x200000;
 	}
     //Check region at end of ROM
-	DWORD smallestAllocOffset1 = 0x200000;
-	DWORD smallestAllocSize1 = 0;
+	int smallestAllocOffset1 = 0x200000;
 	for(int i=0; i<0x2000; i++) {
-		if(allocOffs[i]>smallestAllocOffset1) {
-			smallestAllocOffset1 = allocOffs[i];
-			smallestAllocSize1 = allocSizes[i];
+		int blockEnd = allocOffs[i]+allocSizes[i];
+		if(blockEnd>smallestAllocOffset1) {
+			smallestAllocOffset1 = blockEnd;
 		}
 	}
-	DWORD thisSize1 = 0x3F0000-(smallestAllocOffset1+smallestAllocSize1);
+	int thisSize1 = 0x3F0000-smallestAllocOffset1;
 	if(thisSize1<smallestBufSize && thisSize1>=size) {
 		smallestBufSize = thisSize1;
 		smallestBufOffset = smallestAllocOffset1;
 	}
     //Check inbetweens
-	//TODO
+    for(int i=0; i<0x2000; i++) {
+    	if(allocOffs[i]) {
+    		int blockEnd = allocOffs[i]+allocSizes[i];
+    		int nextBlockStart = 0x3F0000;
+    		for(int j=0; j<0x2000; j++) {
+    			if(allocOffs[j] && allocOffs[j]<nextBlockStart && allocOffs[j]>=blockEnd) {
+    				nextBlockStart = allocOffs[j];
+				}
+			}
+			int thisSize = nextBlockStart-blockEnd;
+			if(thisSize<smallestBufSize && thisSize>=size) {
+				smallestBufSize = thisSize;
+				smallestBufOffset = blockEnd;
+			}
+		}
+	}
     //Return result
 	return smallestBufOffset;
 }

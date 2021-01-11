@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=0000000000000000001000000
-UnitCount=29
+UnitCount=30
 
 [VersionInfo]
 Major=1
@@ -111,26 +111,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=map16.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit8]
-FileName=map16.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit9]
 FileName=map8.cpp
 CompileCpp=1
 Folder=
@@ -140,7 +120,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit8]
 FileName=map8.h
 CompileCpp=1
 Folder=
@@ -150,27 +130,27 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit9]
+FileName=map16.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=map16.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit11]
-FileName=background.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit12]
-FileName=background.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit13]
 FileName=palette.cpp
 CompileCpp=1
 Folder=
@@ -180,8 +160,28 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit14]
+[Unit12]
 FileName=palette.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=background.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=background.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -230,7 +230,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit22]
+[Unit19]
 FileName=resources\resources.h
 CompileCpp=1
 Folder=resources
@@ -240,17 +240,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
-FileName=resources\icon_main.ico
-Folder=resources
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit20]
-FileName=resources\icons.rc
+FileName=resources\menu.rc
 Folder=resources
 Compile=1
 Link=0
@@ -259,9 +250,18 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit21]
-FileName=resources\menu.rc
+FileName=resources\icons.rc
 Folder=resources
 Compile=1
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit22]
+FileName=resources\icon_main.ico
+Folder=resources
+Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
@@ -323,6 +323,15 @@ BuildCmd=
 
 [Unit29]
 FileName=resources\dlg_edit_lev_msg.rc
+Folder=resources
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=resources\dlg_edit_entrance2.rc
 Folder=resources
 Compile=1
 Link=1

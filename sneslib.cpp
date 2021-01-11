@@ -172,19 +172,16 @@ void drawTileBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * t
 //ADDRESS CONVERSION//
 //////////////////////
 DWORD convAddr_SNEStoPC_YI(DWORD addr) {
-	if(addr&0x800000) {
-		//TODO
-		return 0;
-	} else if(addr&0x400000) {
-		return addr&0x3FFFFF;
+	int hi = (addr&0x800000)?0x200000:0;
+	if(addr&0x400000) {
+		return hi|(addr&0x3FFFFF);
 	} else {
-		return (addr&0x7FFF)|((addr&0x7F0000)>>1);
+		return hi|(addr&0x7FFF)|((addr&0x7F0000)>>1);
 	}
 }
 DWORD convAddr_PCtoSNES_YI(DWORD addr) {
 	if(addr>0x200000) {
-		//TODO
-		return 0;
+		return addr+0xA00000;
 	} else if(addr>0xC0000) {
 		return addr|0x400000;
 	} else {
@@ -248,7 +245,7 @@ bool paletteSorter_opLt(palette_sorter_t & lhs,palette_sorter_t & rhs) {
 DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 	int srcOff = 0,dstOff = 0;
 	int directStart = 0,directLen = 0;
-	while(srcOff < size) {
+	while(srcOff<size) {
 		int cmd1len = 0,cmd1rel = 0;
 		int cmd2len = 0,cmd2rel = 0;
 		int cmd3len = 0,cmd3rel = 0;
@@ -256,13 +253,13 @@ DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 		//Determine max length for command 1 (byte fill)
 		BYTE basis1 = src[srcOff];
 		int offs1 = 1;
-		while(true) {
+		while((srcOff+offs1)<size) {
 			if(src[srcOff+offs1] != basis1) break;
 			cmd1len++;
 			offs1++;
 		}
-		if(cmd1len > 1024) cmd1len = 1024;
-		if(cmd1len < 32) {
+		if(cmd1len>1024) cmd1len = 1024;
+		if(cmd1len<32) {
 			cmd1rel = cmd1len-2;
 		} else {
 			cmd1rel = cmd1len-3;
@@ -270,13 +267,13 @@ DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 		//Determine max length for command 2 (word fill)
 		BYTE basis2 = src[srcOff+1];
 		int offs2 = 2;
-		while(true) {
+		while((srcOff+offs2)<size) {
 			if(src[srcOff+offs2] != ((offs2&1)?basis2:basis1)) break;
 			cmd2len++;
 			offs2++;
 		}
-		if(cmd2len > 1024) cmd2len = 1024;
-		if(cmd2len < 32) {
+		if(cmd2len>1024) cmd2len = 1024;
+		if(cmd2len<32) {
 			cmd2rel = cmd2len-3;
 		} else {
 			cmd2rel = cmd2len-4;
@@ -284,63 +281,148 @@ DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 		//Determine max length for command 3 (byte fill incremented)
 		BYTE basis3 = basis1+1;
 		int offs3 = 1;
-		while(true) {
+		while((srcOff+offs3)<size) {
 			if(src[srcOff+offs3] != basis3) break;
 			cmd3len++;
 			basis3++;
 			offs3++;
 		}
-		if(cmd3len > 1024) cmd3len = 1024;
-		if(cmd3len < 32) {
+		if(cmd3len>1024) cmd3len = 1024;
+		if(cmd3len<32) {
 			cmd3rel = cmd3len-2;
 		} else {
 			cmd3rel = cmd3len-3;
 		}
 		//Determine max length for command 4 (copy)
-		//TODO
-		if(cmd4len > 1024) cmd4len = 1024;
-		if(cmd4len < 32) {
+		int offs4 = 0;
+		for(int i=0; i<dstOff; i++) {
+			int j = 0;
+			while((i+j)<dstOff && (srcOff+i)<size) {
+				if(dst[i]!=src[srcOff+i]) break;
+				j++;
+				if(j>cmd4len) {
+					cmd4len = j;
+					offs4 = i;
+				}
+			}
+		}
+		if(cmd4len>1024) cmd4len = 1024;
+		if(cmd4len<32) {
 			cmd4rel = cmd4len-3;
 		} else {
 			cmd4rel = cmd4len-4;
 		}
 		//Output command which saves the most space (if any)
-		if(cmd1rel > cmd2rel && cmd1rel > cmd3rel && cmd1rel > cmd4rel && cmd1rel > 0) {
+		if(cmd1rel>cmd2rel && cmd1rel>cmd3rel && cmd1rel>cmd4rel && cmd1rel>0) {
 			//Output previous direct bytes
-			//TODO
+			while(directLen>0) {
+				int thisLen = directLen;
+				if(thisLen>1024) thisLen = 1024;
+				if(thisLen<32) {
+					dst[dstOff++] = thisLen-1;
+				} else {
+					dst[dstOff++] = 0xE0|((thisLen-1)>>8);
+					dst[dstOff++] = (thisLen-1)&0xFF;
+				}
+				memcpy(&dst[dstOff],&src[directStart],thisLen);
+				dstOff += thisLen;
+				directLen -= thisLen;
+				directStart += thisLen;
+			}
 			//Output command 1 (byte fill)
-			if(cmd1len < 32) {
-				//TODO
+			if(cmd1len<32) {
+				dst[dstOff++] = 0x20|(cmd1len-1);
 			} else {
-				//TODO
+				dst[dstOff++] = 0xE4|((cmd1len-1)>>8);
+				dst[dstOff++] = (cmd1len-1)&0xFF;
 			}
-		} else if(cmd2rel > cmd3rel && cmd2rel > cmd4rel && cmd2rel > 0) {
+			dst[dstOff++] = basis1;
+			directLen = 0;
+			srcOff += cmd1len;
+			directStart = srcOff;
+		} else if(cmd2rel>cmd3rel && cmd2rel>cmd4rel && cmd2rel>0) {
 			//Output previous direct bytes
-			//TODO
+			while(directLen>0) {
+				int thisLen = directLen;
+				if(thisLen>1024) thisLen = 1024;
+				if(thisLen<32) {
+					dst[dstOff++] = thisLen-1;
+				} else {
+					dst[dstOff++] = 0xE0|((thisLen-1)>>8);
+					dst[dstOff++] = (thisLen-1)&0xFF;
+				}
+				memcpy(&dst[dstOff],&src[directStart],thisLen);
+				dstOff += thisLen;
+				directLen -= thisLen;
+				directStart += thisLen;
+			}
 			//Output command 2 (word fill)
-			if(cmd2len < 32) {
-				//TODO
+			if(cmd2len<32) {
+				dst[dstOff++] = 0x40|(cmd1len-1);
 			} else {
-				//TODO
+				dst[dstOff++] = 0xE8|((cmd1len-1)>>8);
+				dst[dstOff++] = (cmd1len-1)&0xFF;
 			}
-		} else if(cmd3rel > cmd4rel && cmd3rel > 0) {
+			dst[dstOff++] = basis1;
+			dst[dstOff++] = basis2;
+			directLen = 0;
+			srcOff += cmd2len;
+			directStart = srcOff;
+		} else if(cmd3rel>cmd4rel && cmd3rel>0) {
 			//Output previous direct bytes
-			//TODO
+			while(directLen>0) {
+				int thisLen = directLen;
+				if(thisLen>1024) thisLen = 1024;
+				if(thisLen<32) {
+					dst[dstOff++] = thisLen-1;
+				} else {
+					dst[dstOff++] = 0xE0|((thisLen-1)>>8);
+					dst[dstOff++] = (thisLen-1)&0xFF;
+				}
+				memcpy(&dst[dstOff],&src[directStart],thisLen);
+				dstOff += thisLen;
+				directLen -= thisLen;
+				directStart += thisLen;
+			}
 			//Output command 3 (byte fill incremented)
-			if(cmd3len < 32) {
-				//TODO
+			if(cmd1len<32) {
+				dst[dstOff++] = 0x60|(cmd1len-1);
 			} else {
-				//TODO
+				dst[dstOff++] = 0xEC|((cmd1len-1)>>8);
+				dst[dstOff++] = (cmd1len-1)&0xFF;
 			}
-		} else if(cmd4rel > 0) {
+			dst[dstOff++] = basis1;
+			directLen = 0;
+			srcOff += cmd3len;
+			directStart = srcOff;
+		} else if(cmd4rel>0) {
 			//Output previous direct bytes
-			//TODO
-			//Output command 4 (copy)
-			if(cmd4len < 32) {
-				//TODO
-			} else {
-				//TODO
+			while(directLen>0) {
+				int thisLen = directLen;
+				if(thisLen>1024) thisLen = 1024;
+				if(thisLen<32) {
+					dst[dstOff++] = thisLen-1;
+				} else {
+					dst[dstOff++] = 0xE0|((thisLen-1)>>8);
+					dst[dstOff++] = (thisLen-1)&0xFF;
+				}
+				memcpy(&dst[dstOff],&src[directStart],thisLen);
+				dstOff += thisLen;
+				directLen -= thisLen;
+				directStart += thisLen;
 			}
+			//Output command 4 (copy)
+			if(cmd4len<32) {
+				dst[dstOff++] = 0x80|(cmd1len-1);
+			} else {
+				dst[dstOff++] = 0xF0|((cmd1len-1)>>8);
+				dst[dstOff++] = (cmd1len-1)&0xFF;
+			}
+			dst[dstOff++] = offs4&0xFF;
+			dst[dstOff++] = offs4>>8;
+			directLen = 0;
+			srcOff += cmd4len;
+			directStart = srcOff;
 		//Otherwise, mark as direct and move on
 		} else {
 			directLen++;
@@ -348,13 +430,26 @@ DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 		}
 	}
 	//Output remaining direct bytes and add terminator
-	//TODO
+	while(directLen>0) {
+		int thisLen = directLen;
+		if(thisLen>1024) thisLen = 1024;
+		if(thisLen<32) {
+			dst[dstOff++] = thisLen-1;
+		} else {
+			dst[dstOff++] = 0xE0|((thisLen-1)>>8);
+			dst[dstOff++] = (thisLen-1)&0xFF;
+		}
+		memcpy(&dst[dstOff],&src[directStart],thisLen);
+		dstOff += thisLen;
+		directLen -= thisLen;
+		directStart += thisLen;
+	}
 	dst[dstOff++] = 0xFF;
 	return dstOff;
 }
-DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD size) {
-	int srcOff = 0,dstOff = 0;
-	int srcBitOff = 0;
+DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
+	int srcOff = 0,dstOff = 3;
+	int dstBitOff = 4;
 	std::vector<palette_sorter_t> palette;
 	BYTE prevLine[0x80];
 	//TODO
@@ -385,7 +480,7 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 			case 2: {
 				BYTE b0 = src[srcOff++];
 				BYTE b1 = src[srcOff++];
-				for(int i = 0; i < len; i++) {
+				for(int i=0; i<len; i++) {
 					dst[dstOff++] = (i&1)?b1:b0;
 				}
 				break;
@@ -393,7 +488,7 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 			//Command 3 (byte fill incremented)
 			case 3: {
 				BYTE b0 = src[srcOff++];
-				for(int i = 0; i < len; i++) {
+				for(int i=0; i<len; i++) {
 					dst[dstOff++] = b0++;
 				}
 				break;
@@ -429,7 +524,7 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 					case 2: {
 						BYTE b0 = src[srcOff++];
 						BYTE b1 = src[srcOff++];
-						for(int i = 0; i < len; i++) {
+						for(int i=0; i<len; i++) {
 							dst[dstOff++] = (i&1)?b1:b0;
 						}
 						break;
@@ -437,7 +532,7 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 					//Command 3 (byte fill incremented)
 					case 3: {
 						BYTE b0 = src[srcOff++];
-						for(int i = 0; i < len; i++) {
+						for(int i=0; i<len; i++) {
 							dst[dstOff++] = b0++;
 						}
 						break;
@@ -457,9 +552,9 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 	}
 	return dstOff;
 }
-void decompressLZ16(BYTE * dst,BYTE * src,DWORD size) {
-	int srcOff = 0,dstOff = 0;
-	int srcBitOff = 0;
+void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
+	int srcOff = 3,dstOff = 0;
+	int srcBitOff = 4;
 	BYTE palette[7];
 	BYTE prevLine[0x80];
 	//TODO

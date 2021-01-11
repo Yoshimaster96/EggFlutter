@@ -53,7 +53,8 @@ IDM_MENU_MAIN MENU
 	POPUP "Tools"
 	{
 		MENUITEM "Edit Main/Midway Entrance", 1300, GRAYED
-		MENUITEM "Edit Screen Exits", 1301, GRAYED
+		MENUITEM "Edit Other Entrances", 1301, GRAYED
+		MENUITEM "Edit Screen Exits", 1302, GRAYED
 		MENUITEM SEPARATOR
 		MENUITEM "Edit Graphics/Animation", 1310, GRAYED
 		MENUITEM "Edit Level Header", 1311, GRAYED
