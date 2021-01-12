@@ -452,6 +452,7 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	int dstBitOff = 4;
 	std::vector<palette_sorter_t> palette;
 	BYTE prevLine[0x80];
+	memset(prevLine,0,0x80);
 	//Init palette table
 	for(int i=0; i<16; i++) {
 		palette_sorter_t entry;
@@ -467,21 +468,30 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	std::sort(palette.begin(),palette.end(),paletteSorter_opLt);
 	//For each line, check whether type 0 or type 1 is the smallest
 	for(int j=0; j<numLines; j++) {
-		int cmdlen0 = 0,cmdlen1 = 0;
-		//Determine size for line type 0
-		//TODO
-		//Determine size for line type 1 (skipped if this is the first line)
-		if(j) {
+		BYTE curLine[0x80];
+		//Construct current line buffer
+		for(int i=0; i<0x80; i++) {
 			//TODO
 		}
-		//Use smallest (unless first line in which case type 0 is always used)
-		if(j==0 || cmdlen0<cmdlen1) {
+		BYTE tempBuf0[0x100],tempBuf1[0x100];
+		int tempOff0 = 0,tempOff1 = 0;
+		int tempBitOff0 = 0,tempBitOff1 = 0;
+		//Determine size for line type 0
+		for(int i=0x7F; i>=0;) {
+			//TODO
+		}
+		//Determine size for line type 1
+		for(int i=0x7F; i>=0;) {
+			//TODO
+		}
+		//Use smallest type
+		if(cmdlen0<cmdlen1) {
 			//TODO
 		} else {
 			//TODO
 		}
 	}
-	return dstOff;
+	return dstBitOff?(dstOff+1):dstOff;
 }
 DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 	int srcOff = 0,dstOff = 0;
@@ -606,7 +616,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		}
 		//Line type 1
 		if(lineType) {
-			for(int i=0x80; i>=0;) {
+			for(int i=0x7F; i>=0;) {
 				//Get length
 				int cmdlen = 0,cmdbits = 0;
 				while(true) {
@@ -640,12 +650,42 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 				switch(cmd) {
 					//Command 0 (copy from previous line until color change, for n sections)
 					case 0: {
-						//TODO
+						//Determine the number of pixels taken up by n sections
+						int si = i;
+						int cpylen = 0;
+						int curidx = -1,numsects = -1;
+						while(si>=0) {
+							int thisIdx = prevLine[si--];
+							if(thisIdx!=curidx) {
+								numsects++;
+								if(numsects>cmdlen) break;
+								curidx = thisIdx;
+							}
+							cpylen++;
+						}
+						//Copy pixels over
+						memcpy(&curLine[i-cpylen+1],&prevLine[i-cpylen+1],cpylen);
 						break;
 					}
 					//Command 1 (copy from previous line until color change, plus n pixels*)
 					case 1: {
-						//TODO
+						//Determine the number of pixels taken up by this section
+						int si = i;
+						int cpylen = 0;
+						int curidx = -1,numsects = -1;
+						while(si>=0) {
+							int thisIdx = prevLine[si--];
+							if(thisIdx!=curidx) {
+								numsects++;
+								if(numsects>1) break;
+								curidx = thisIdx;
+							}
+							cpylen++;
+						}
+						//Copy pixels over
+						memset(&curLine[i-(cpylen+cmdlen)+1],curidx);
+						//Intentionally bork previous buffer to replicate original behavior
+						prevLine[i-(cpylen+cmdlen)] = prevLine[i-cpylen];
 						break;
 					}
 					//Command 2 (RLE mode)
@@ -677,7 +717,23 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					}
 					//Command 3 (copy from previous line until color change, minus n pixels*)
 					case 3: {
-						//TODO
+						//Determine the number of pixels taken up by this section
+						int si = i;
+						int cpylen = 0;
+						int curidx = -1,numsects = -1;
+						while(si>=0) {
+							int thisIdx = prevLine[si--];
+							if(thisIdx!=curidx) {
+								numsects++;
+								if(numsects>1) break;
+								curidx = thisIdx;
+							}
+							cpylen++;
+						}
+						//Copy pixels over
+						memset(&curLine[i-(cpylen-cmdlen)+1],curidx);
+						//Intentionally bork previous buffer to replicate original behavior
+						prevLine[i-(cpylen-cmdlen)] = prevLine[i-cpylen];
 						break;
 					}
 				}
@@ -733,7 +789,9 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 			}
 		}
 		//Output line
-		//TODO
+		for(int i=0; i<0x80; i++) {
+			//TODO
+		}
 		//Set previous line buffer
 		memcpy(prevLine,curLine,0x80);
 	}
