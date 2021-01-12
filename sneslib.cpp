@@ -452,7 +452,36 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	int dstBitOff = 4;
 	std::vector<palette_sorter_t> palette;
 	BYTE prevLine[0x80];
-	//TODO
+	//Init palette table
+	for(int i=0; i<16; i++) {
+		palette_sorter_t entry;
+		entry.paletteIndex = i;
+		entry.numPixelsWithValue = 0;
+		palette.push_back(entry);
+	}
+	//Count pixels (NOTE: Here we are assuming numLines is a multiple of 8 for simplicity)
+	for(int i=0; i<(numLines<<7); i++) {
+		palette[src[i]].numPixelsWithValue++;
+	}
+	//Sort palette
+	std::sort(palette.begin(),palette.end(),paletteSorter_opLt);
+	//For each line, check whether type 0 or type 1 is the smallest
+	for(int j=0; j<numLines; j++) {
+		int cmdlen0 = 0,cmdlen1 = 0;
+		//Determine size for line type 0
+		//TODO
+		//Determine size for line type 1 (skipped if this is the first line)
+		if(j) {
+			//TODO
+		}
+		//Use smallest (unless first line in which case type 0 is always used)
+		if(j==0 || cmdlen0<cmdlen1) {
+			//TODO
+		} else {
+			//TODO
+		}
+	}
+	return dstOff;
 }
 DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 	int srcOff = 0,dstOff = 0;
@@ -557,6 +586,156 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	int srcBitOff = 4;
 	BYTE palette[7];
 	BYTE prevLine[0x80];
-	//TODO
+	memset(prevLine,0,0x80);
+	//Get palette
+	palette[0] = src[0]&0xF;
+	palette[1] = src[0]>>4;
+	palette[2] = src[1]&0xF;
+	palette[3] = src[1]>>4;
+	palette[4] = src[2]&0xF;
+	palette[5] = src[2]>>4;
+	palette[6] = src[3]&0xF;
+	for(int j=0; j<numLines; j++) {
+		BYTE curLine[0x80];
+		//Get line type and adjust bit offset
+		int lineType = readBits(&src[srcOff],srcBitOff,1);
+		srcBitOff++;
+		if(srcBitOff>=8) {
+			srcBitOff -= 8;
+			srcOff++;
+		}
+		//Line type 1
+		if(lineType) {
+			for(int i=0x80; i>=0;) {
+				//Get length
+				int cmdlen = 0,cmdbits = 0;
+				while(true) {
+					//Get last bit flag and adjust bit offset
+					int flag = readBits(&src[srcOff],srcBitOff,1);
+					srcBitOff++;
+					if(srcBitOff>=8) {
+						srcBitOff -= 8;
+						srcOff++;
+					}
+					if(flag==0) break;
+					//Get actual bit and adjust bit offset
+					int bit = readBits(&src[srcOff],srcBitOff,1);
+					srcBitOff++;
+					if(srcBitOff>=8) {
+						srcBitOff -= 8;
+						srcOff++;
+					}
+					cmdlen |= bit<<cmdbits;
+					cmdbits++;
+				}
+				cmdlen |= 1<<cmdbits;
+				//Get command and adjust bit offset
+				int cmd = readBits(&src[srcOff],srcBitOff,2);
+				srcBitOff += 2;
+				if(srcBitOff>=8) {
+					srcBitOff -= 8;
+					srcOff++;
+				}
+				//Process command
+				switch(cmd) {
+					//Command 0 (copy from previous line until color change, for n sections)
+					case 0: {
+						//TODO
+						break;
+					}
+					//Command 1 (copy from previous line until color change, plus n pixels*)
+					case 1: {
+						//TODO
+						break;
+					}
+					//Command 2 (RLE mode)
+					case 2: {
+						//Get color index and adjust bit offset
+						int cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,3),3);
+						srcBitOff += 3;
+						if(srcBitOff>=8) {
+							srcBitOff -= 8;
+							srcOff++;
+						}
+						//If index is 7, get actual color and adjust bit offset
+						if(cidx==7) {
+							cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,4),4);
+							srcBitOff += 4;
+							if(srcBitOff>=8) {
+								srcBitOff -= 8;
+								srcOff++;
+							}
+						//Otherwise, get color from palette
+						} else {
+							cidx = palette[cidx];
+						}
+						//Output RLE pixels
+						for(int n=0; n<cmdlen; n++) {
+							curLine[i--] = cidx;
+						}
+						break;
+					}
+					//Command 3 (copy from previous line until color change, minus n pixels*)
+					case 3: {
+						//TODO
+						break;
+					}
+				}
+			}
+		//Line type 0
+		} else {
+			for(int i=0x80; i>=0;) {
+				//Get length
+				int cmdlen = 0,cmdbits = 0;
+				while(true) {
+					//Get last bit flag and adjust bit offset
+					int flag = readBits(&src[srcOff],srcBitOff,1);
+					srcBitOff++;
+					if(srcBitOff>=8) {
+						srcBitOff -= 8;
+						srcOff++;
+					}
+					if(flag==0) break;
+					//Get actual bit and adjust bit offset
+					int bit = readBits(&src[srcOff],srcBitOff,1);
+					srcBitOff++;
+					if(srcBitOff>=8) {
+						srcBitOff -= 8;
+						srcOff++;
+					}
+					cmdlen |= bit<<cmdbits;
+					cmdbits++;
+				}
+				cmdlen |= 1<<cmdbits;
+				//Get color index and adjust bit offset
+				int cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,3),3);
+				srcBitOff += 3;
+				if(srcBitOff>=8) {
+					srcBitOff -= 8;
+					srcOff++;
+				}
+				//If index is 7, get actual color and adjust bit offset
+				if(cidx==7) {
+					cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,4),4);
+					srcBitOff += 4;
+					if(srcBitOff>=8) {
+						srcBitOff -= 8;
+						srcOff++;
+					}
+				//Otherwise, get color from palette
+				} else {
+					cidx = palette[cidx];
+				}
+				//Output RLE pixels
+				for(int n=0; n<cmdlen; n++) {
+					curLine[i--] = cidx;
+				}
+			}
+		}
+		//Output line
+		//TODO
+		//Set previous line buffer
+		memcpy(prevLine,curLine,0x80);
+	}
 }
 
