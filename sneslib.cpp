@@ -491,8 +491,40 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 				if(thisIdx!=curidx) break;
 				curlen++;
 			}
-			//Create RLE entry
+			//Create RLE entry and adjust bit offset
+			int curidxp = curidx;
+			bool curuse = false;
+			for(int n=0; n<7; n++) {
+				if(curidx==palette[n].paletteIndex) {
+					curidxp = n;
+					curuse = true;
+				}
+			}
+			//Output length value and adjust bit offset
 			//TODO
+			if(curuse) {
+				//Output palette index and adjust bit offset
+				writeBits(&tempBuf0[tempOff0],tempBitOff0,3,reverseBitOrder(curidxp,3));
+				tempBitOff0 += 3;
+				if(tempBitOff0>=8) {
+					tempBitOff0 -= 8;
+					tempOff0++;
+				}
+			} else {
+				//Output color index and adjust bit offset
+				writeBits(&tempBuf0[tempOff0],tempBitOff0,3,7);
+				tempBitOff0 += 3;
+				if(tempBitOff0>=8) {
+					tempBitOff0 -= 8;
+					tempOff0++;
+				}
+				writeBits(&tempBuf0[tempOff0],tempBitOff0,4,reverseBitOrder(curidxp,4));
+				tempBitOff0 += 4;
+				if(tempBitOff0>=8) {
+					tempBitOff0 -= 8;
+					tempOff0++;
+				}
+			}
 		}
 		//Try compression for line type 1
 		for(int i=0x7F; i>=0;) {
@@ -514,19 +546,67 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 				if(thisIdx!=curidx) break;
 				curlen++;
 			}
-			//If colors are different, create RLE entry
+			//If colors are different, create RLE entry and adjust bit offset
 			if(previdx!=curidx) {
+				writeBits(&tempBuf1[tempOff1],tempBitOff1,2,2);
+				tempBitOff1 += 2;
+				if(tempBitOff1>=8) {
+					tempBitOff1 -= 8;
+					tempOff1++;
+				}
+				//Create RLE entry and adjust bit offset
+				int curidxp = curidx;
+				bool curuse = false;
+				for(int n=0; n<7; n++) {
+					if(curidx==palette[n].paletteIndex) {
+						curidxp = n;
+						curuse = true;
+					}
+				}
+				//Output length value and adjust bit offset
 				//TODO
-			//If colors match but length is different, create plus/minus entry
-			} else if(prevlen!=curlen) {
-				if(curlen>prevlen) {
+				if(curuse) {
+					//Output palette index and adjust bit offset
 					//TODO
 				} else {
+					//Output color index and adjust bit offset
+					//TODO
+				}
+				//TODO
+			//If colors match but length is different, create plus/minus entry and adjust bit offset
+			} else if(prevlen!=curlen) {
+				if(curlen>prevlen) {
+					writeBits(&tempBuf1[tempOff1],tempBitOff1,2,1);
+					tempBitOff1 += 2;
+					if(tempBitOff1>=8) {
+						tempBitOff1 -= 8;
+						tempOff1++;
+					}
+					//Output length value and adjust bit offset
+					//TODO
+					//TODO
+				} else {
+					writeBits(&tempBuf1[tempOff1],tempBitOff1,2,3);
+					tempBitOff1 += 2;
+					if(tempBitOff1>=8) {
+						tempBitOff1 -= 8;
+						tempOff1++;
+					}
+					//Output length value and adjust bit offset
+					//TODO
 					//TODO
 				}
 			//If both color and length match, determine how many sections can be copied
 			} else {
 				int numsects = 1;
+				//TODO
+				//Create copy entry and adjust bit offset
+				writeBits(&tempBuf1[tempOff1],tempBitOff1,2,0);
+				tempBitOff1 += 2;
+				if(tempBitOff1>=8) {
+					tempBitOff1 -= 8;
+					tempOff1++;
+				}
 				//TODO
 			}
 		}
