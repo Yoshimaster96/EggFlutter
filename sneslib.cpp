@@ -193,42 +193,104 @@ DWORD convAddr_PCtoSNES_YI(DWORD addr) {
 //COMPRESSION//
 ///////////////
 //Helper functions for reading/writing bitvalues (LZ16)
-DWORD readBits(BYTE * data,int bitOffset,int bitLength) {
-	int byteOffset = 0;
+DWORD readBitsLSB(BYTE * data,int * offset,int * bitOffset,int bitLength) {
 	DWORD value = 0;
 	for(int i=0; i<bitLength; i++) {
 		//Append bit
-		DWORD bit = (data[byteOffset]>>bitOffset)&1;
+		DWORD bit = (data[*offset]>>*bitOffset)&1;
 		value |= bit<<i;
 		//Move to next bit
-		bitOffset++;
-		if(bitOffset==8) {
-			bitOffset = 0;
-			byteOffset++;
+		*bitOffset++;
+		if(*bitOffset==8) {
+			*bitOffset = 0;
+			*offset++;
 		}
 	}
 	return value;
 }
-void writeBits(BYTE * data,int bitOffset,int bitLength,DWORD value) {
-	int byteOffset = 0;
+DWORD readBitsMSB(BYTE * data,int * offset,int * bitOffset,int bitLength) {
+	DWORD value = 0;
+	for(int i=0; i<bitLength; i++) {
+		//Append bit
+		DWORD bit = (data[*offset]>>*bitOffset)&1;
+		value |= bit<<(bitLength-1-i);
+		//Move to next bit
+		*bitOffset++;
+		if(*bitOffset==8) {
+			*bitOffset = 0;
+			*offset++;
+		}
+	}
+	return value;
+}
+void writeBitsLSB(BYTE * data,int * offset,int * bitOffset,int bitLength,DWORD value) {
 	for(int i=0; i<bitLength; i++) {
 		//Set bit
-		data[byteOffset] &= ~(1<<bitOffset);
+		data[*offset] &= ~(1<<*bitOffset);
 		DWORD bit = (value>>i)&1;
-		data[byteOffset] |= bit<<bitOffset;
+		data[*offset] |= bit<<*bitOffset;
 		//Move to next bit
-		bitOffset++;
-		if(bitOffset==8) {
-			bitOffset = 0;
-			byteOffset++;
+		*bitOffset++;
+		if(*bitOffset==8) {
+			*bitOffset = 0;
+			*offset++;
 		}
 	}
 }
-DWORD reverseBitOrder(DWORD value,int bitLength) {
-	DWORD revVal = 0;
+void writeBitsMSB(BYTE * data,int * offset,int * bitOffset,int bitLength,DWORD value) {
 	for(int i=0; i<bitLength; i++) {
-		DWORD bit = (value>>i)&1;
-		value |= bit<<(bitLength-i-1);
+		//Set bit
+		data[*offset] &= ~(1<<*bitOffset);
+		DWORD bit = (value>>(bitLength-1-i))&1;
+		data[*offset] |= bit<<*bitOffset;
+		//Move to next bit
+		*bitOffset++;
+		if(*bitOffset==8) {
+			*bitOffset = 0;
+			*offset++;
+		}
+	}
+}
+DWORD readVariableSize(BYTE * data,int * offset,int * bitOffset) {
+	DWORD value = 0;
+	int bitLength = 0;
+	while(true) {
+		DWORD flag = readBitsLSB(data,offset,bitOffset,1);
+		if(flag==0) break;
+		DWORD bit = readBitsLSB(data,offset,bitOffset,1);
+		value |= bit<<bitLength;
+		bitLength++;
+	}
+	value |= 1<<bitLength;
+}
+void writeVariableSize(BYTE * data,int * offset,int * bitOffset,DWORD value) {
+	int bitLength = 7;
+	DWORD bitMask = 0x80;
+	while(bitLength>=0) {
+		if(value&bitMask) break;
+		bitLength--;
+		bitMask >>= 1;
+	}
+	for(int i=0; i<bitLength; i++) {
+		writeBitsLSB(data,offset,bitOffset,1,1);
+		writeBitsLSB(data,offset,bitOffset,1,(value>>i)&1);
+	}
+	writeBitsLSB(data,offset,bitOffset,1,0);
+}
+DWORD readColor(BYTE * data,int * offset,int * bitOffset) {
+	int palidx = readBitsMSB(data,offset,bitOffset,3);
+	if(palidx==7) {
+		return readBitsMSB(data,offset,bitOffset,4);
+	} else {
+		return palidx|0x10;
+	}
+}
+void writeColor(BYTE * data,int * offset,int * bitOffset,DWORD value) {
+	if(value&0x10) {
+		writeBitsMSB(data,offset,bitOffset,3,value&7);
+	} else {
+		writeBitsMSB(data,offset,bitOffset,3,7);
+		writeBitsMSB(data,offset,bitOffset,4,value);
 	}
 }
 
@@ -486,12 +548,12 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 			//Determine the number of pixels taken up by this section
 			int curlen = 0;
 			int curidx = curLine[i--];
-			while(si>=0) {
+			while(i>=0) {
 				int thisIdx = curLine[i--];
 				if(thisIdx!=curidx) break;
 				curlen++;
 			}
-			//Create RLE entry and adjust bit offset
+			//Create RLE entry
 			int curidxp = curidx;
 			bool curuse = false;
 			for(int n=0; n<7; n++) {
@@ -500,31 +562,11 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					curuse = true;
 				}
 			}
-			//Output length value and adjust bit offset
-			//TODO
 			if(curuse) {
-				//Output palette index and adjust bit offset
-				writeBits(&tempBuf0[tempOff0],tempBitOff0,3,reverseBitOrder(curidxp,3));
-				tempBitOff0 += 3;
-				if(tempBitOff0>=8) {
-					tempBitOff0 -= 8;
-					tempOff0++;
-				}
-			} else {
-				//Output color index and adjust bit offset
-				writeBits(&tempBuf0[tempOff0],tempBitOff0,3,7);
-				tempBitOff0 += 3;
-				if(tempBitOff0>=8) {
-					tempBitOff0 -= 8;
-					tempOff0++;
-				}
-				writeBits(&tempBuf0[tempOff0],tempBitOff0,4,reverseBitOrder(curidxp,4));
-				tempBitOff0 += 4;
-				if(tempBitOff0>=8) {
-					tempBitOff0 -= 8;
-					tempOff0++;
-				}
+				curidxp |= 0x10;
 			}
+			writeVariableSize(tempBuf0,&tempOff0,&tempBitOff0,curlen);
+			writeColor(tempBuf0,&tempOff0,&tempBitOff0,curidxp);
 		}
 		//Try compression for line type 1
 		for(int i=0x7F; i>=0;) {
@@ -548,13 +590,7 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 			}
 			//If colors are different, create RLE entry and adjust bit offset
 			if(previdx!=curidx) {
-				writeBits(&tempBuf1[tempOff1],tempBitOff1,2,2);
-				tempBitOff1 += 2;
-				if(tempBitOff1>=8) {
-					tempBitOff1 -= 8;
-					tempOff1++;
-				}
-				//Create RLE entry and adjust bit offset
+				writeBitsLSB(tempBuf1,&tempOff1,&tempBitOff1,2,2);
 				int curidxp = curidx;
 				bool curuse = false;
 				for(int n=0; n<7; n++) {
@@ -563,51 +599,41 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						curuse = true;
 					}
 				}
-				//Output length value and adjust bit offset
-				//TODO
 				if(curuse) {
-					//Output palette index and adjust bit offset
-					//TODO
-				} else {
-					//Output color index and adjust bit offset
-					//TODO
+					curidxp |= 0x10;
 				}
-				//TODO
+				writeVariableSize(tempBuf1,&tempOff1,&tempBitOff1,curlen);
+				writeColor(tempBuf1,&tempOff1,&tempBitOff1,curidxp);
+				i -= curlen;
 			//If colors match but length is different, create plus/minus entry and adjust bit offset
 			} else if(prevlen!=curlen) {
-				if(curlen>prevlen) {
-					writeBits(&tempBuf1[tempOff1],tempBitOff1,2,1);
-					tempBitOff1 += 2;
-					if(tempBitOff1>=8) {
-						tempBitOff1 -= 8;
-						tempOff1++;
+				int curidxp = curidx;
+				bool curuse = false;
+				for(int n=0; n<7; n++) {
+					if(curidx==palette[n].paletteIndex) {
+						curidxp = n;
+						curuse = true;
 					}
-					//Output length value and adjust bit offset
-					//TODO
-					//TODO
-				} else {
-					writeBits(&tempBuf1[tempOff1],tempBitOff1,2,3);
-					tempBitOff1 += 2;
-					if(tempBitOff1>=8) {
-						tempBitOff1 -= 8;
-						tempOff1++;
-					}
-					//Output length value and adjust bit offset
-					//TODO
-					//TODO
 				}
+				if(curuse) {
+					curidxp |= 0x10;
+				}
+				if(curlen>prevlen) {
+					writeBitsLSB(tempBuf1,&tempOff1,&tempBitOff1,2,1);
+					writeVariableSize(tempBuf1,&tempOff1,&tempBitOff1,curlen-prevlen);
+				} else {
+					writeBitsLSB(tempBuf1,&tempOff1,&tempBitOff1,2,3);
+					writeVariableSize(tempBuf1,&tempOff1,&tempBitOff1,prevlen-curlen);
+				}
+				writeColor(tempBuf1,&tempOff1,&tempBitOff1,curidxp);
+				i -= curlen;
 			//If both color and length match, determine how many sections can be copied
 			} else {
 				int numsects = 1;
 				//TODO
-				//Create copy entry and adjust bit offset
-				writeBits(&tempBuf1[tempOff1],tempBitOff1,2,0);
-				tempBitOff1 += 2;
-				if(tempBitOff1>=8) {
-					tempBitOff1 -= 8;
-					tempOff1++;
-				}
-				//TODO
+				writeVariableSize(tempBuf1,&tempOff1,&tempBitOff1,numsects);
+				writeBitsLSB(tempBuf1,&tempOff1,&tempBitOff1,2,0);
+				i -= curlen;
 			}
 		}
 		//Output line type which is the smallest
@@ -616,27 +642,19 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		if(cmdlen0<=cmdlen1) {
 			//Output data for line type 0
 			for(int n=0; n<tempOff0; n++) {
-				writeBits(&dst[dstOff],dstBitOff,8,tempBuf0[n]);
+				writeBitsLSB(dst,&dstOff,&dstBitOff,8,tempBuf0[n]);
 			}
-			writeBits(&dst[dstOff],dstBitOff,tempBitOff0,tempBuf0[tempOff0]);
-			dstBitOff += tempBitOff0;
-			if(dstBitOff>=8) {
-				dstBitOff -= 8;
-				dstOff++;
+			if(tempBitOff0) {
+				writeBitsLSB(dst,&dstOff,&dstBitOff,tempBitOff0,tempBuf0[tempOff0]);
 			}
-			dstOff += tempOff0;
 		} else {
 			//Output data for line type 1
 			for(int n=0; n<tempOff1; n++) {
-				writeBits(&dst[dstOff],dstBitOff,8,tempBuf1[n]);
+				writeBitsLSB(dst,&dstOff,&dstBitOff,8,tempBuf1[n]);
 			}
-			writeBits(&dst[dstOff],dstBitOff,tempBitOff1,tempBuf1[tempOff1]);
-			dstBitOff += tempBitOff1;
-			if(dstBitOff>=8) {
-				dstBitOff -= 8;
-				dstOff++;
+			if(tempBitOff1) {
+				writeBitsLSB(dst,&dstOff,&dstBitOff,tempBitOff1,tempBuf1[tempOff1]);
 			}
-			dstOff += tempOff1;
 		}
 	}
 	return dstBitOff?(dstOff+1):dstOff;
@@ -755,45 +773,15 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	palette[6] = src[3]&0xF;
 	for(int j=0; j<numLines; j++) {
 		BYTE curLine[0x80];
-		//Get line type and adjust bit offset
-		int lineType = readBits(&src[srcOff],srcBitOff,1);
-		srcBitOff++;
-		if(srcBitOff>=8) {
-			srcBitOff -= 8;
-			srcOff++;
-		}
+		//Get line type
+		int lineType = readBitsLSB(src,&srcOff,&srcBitOff,1);
 		//Line type 1
 		if(lineType) {
 			for(int i=0x7F; i>=0;) {
 				//Get length
-				int cmdlen = 0,cmdbits = 0;
-				while(true) {
-					//Get last bit flag and adjust bit offset
-					int flag = readBits(&src[srcOff],srcBitOff,1);
-					srcBitOff++;
-					if(srcBitOff>=8) {
-						srcBitOff -= 8;
-						srcOff++;
-					}
-					if(flag==0) break;
-					//Get actual bit and adjust bit offset
-					int bit = readBits(&src[srcOff],srcBitOff,1);
-					srcBitOff++;
-					if(srcBitOff>=8) {
-						srcBitOff -= 8;
-						srcOff++;
-					}
-					cmdlen |= bit<<cmdbits;
-					cmdbits++;
-				}
-				cmdlen |= 1<<cmdbits;
-				//Get command and adjust bit offset
-				int cmd = readBits(&src[srcOff],srcBitOff,2);
-				srcBitOff += 2;
-				if(srcBitOff>=8) {
-					srcBitOff -= 8;
-					srcOff++;
-				}
+				int cmdlen = readVariableSize(src,&srcOff,&srcBitOff);
+				//Get command
+				int cmd = readBitsLSB(src,&srcOff,&srcBitOff,2);
 				//Process command
 				switch(cmd) {
 					//Command 0 (copy from previous line until color change, for n sections)
@@ -820,14 +808,10 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						//Determine the number of pixels taken up by this section
 						int si = i;
 						int cpylen = 0;
-						int curidx = -1,numsects = -1;
+						int curidx = curLine[si--];
 						while(si>=0) {
-							int thisIdx = prevLine[si--];
-							if(thisIdx!=curidx) {
-								numsects++;
-								if(numsects>1) break;
-								curidx = thisIdx;
-							}
+							int thisIdx = curLine[si--];
+							if(thisIdx!=curidx) break;
 							cpylen++;
 						}
 						//Copy pixels over
@@ -838,24 +822,10 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					}
 					//Command 2 (RLE mode)
 					case 2: {
-						//Get color index and adjust bit offset
-						int cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,3),3);
-						srcBitOff += 3;
-						if(srcBitOff>=8) {
-							srcBitOff -= 8;
-							srcOff++;
-						}
-						//If index is 7, get actual color and adjust bit offset
-						if(cidx==7) {
-							cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,4),4);
-							srcBitOff += 4;
-							if(srcBitOff>=8) {
-								srcBitOff -= 8;
-								srcOff++;
-							}
-						//Otherwise, get color from palette
-						} else {
-							cidx = palette[cidx];
+						//Get color index
+						int cidx = readColor(src,&srcOff,&srcBitOff);
+						if(cidx&0x10) {
+							cidx = palette[cidx&7];
 						}
 						//Output RLE pixels
 						for(int n=0; n<cmdlen; n++) {
@@ -868,14 +838,10 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						//Determine the number of pixels taken up by this section
 						int si = i;
 						int cpylen = 0;
-						int curidx = -1,numsects = -1;
+						int curidx = curLine[si--];
 						while(si>=0) {
-							int thisIdx = prevLine[si--];
-							if(thisIdx!=curidx) {
-								numsects++;
-								if(numsects>1) break;
-								curidx = thisIdx;
-							}
+							int thisIdx = curLine[si--];
+							if(thisIdx!=curidx) break;
 							cpylen++;
 						}
 						//Copy pixels over
@@ -890,45 +856,11 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		} else {
 			for(int i=0x80; i>=0;) {
 				//Get length
-				int cmdlen = 0,cmdbits = 0;
-				while(true) {
-					//Get last bit flag and adjust bit offset
-					int flag = readBits(&src[srcOff],srcBitOff,1);
-					srcBitOff++;
-					if(srcBitOff>=8) {
-						srcBitOff -= 8;
-						srcOff++;
-					}
-					if(flag==0) break;
-					//Get actual bit and adjust bit offset
-					int bit = readBits(&src[srcOff],srcBitOff,1);
-					srcBitOff++;
-					if(srcBitOff>=8) {
-						srcBitOff -= 8;
-						srcOff++;
-					}
-					cmdlen |= bit<<cmdbits;
-					cmdbits++;
-				}
-				cmdlen |= 1<<cmdbits;
-				//Get color index and adjust bit offset
-				int cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,3),3);
-				srcBitOff += 3;
-				if(srcBitOff>=8) {
-					srcBitOff -= 8;
-					srcOff++;
-				}
-				//If index is 7, get actual color and adjust bit offset
-				if(cidx==7) {
-					cidx = reverseBitOrder(readBits(&src[srcOff],srcBitOff,4),4);
-					srcBitOff += 4;
-					if(srcBitOff>=8) {
-						srcBitOff -= 8;
-						srcOff++;
-					}
-				//Otherwise, get color from palette
-				} else {
-					cidx = palette[cidx];
+				int cmdlen = readVariableSize(src,&srcOff,&srcBitOff);
+				//Get color index
+				int cidx = readColor(src,&srcOff,&srcBitOff);
+				if(cidx&0x10) {
+					cidx = palette[cidx&7];
 				}
 				//Output RLE pixels
 				for(int n=0; n<cmdlen; n++) {
