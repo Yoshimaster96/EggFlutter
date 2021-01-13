@@ -212,7 +212,7 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 //MENU STUFF//
 //////////////
 bool hasSmcHeader;
-TCHAR strBuf_main[256];
+TCHAR strBuf_main[256],strBuf2_main[256];
 HMENU hmenuMain;
 HWND hwndMain;
 
@@ -270,8 +270,8 @@ void updateMenu() {
 	EnableMenuItem(hmenuMain,1413,enableState);
 	//Update Edit Object/Sprite check state
 	//and relevant enables/disables
-	CheckMenuItem(hmenuMain,9100,eObj?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,9103,eSp?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1100,eObj?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1103,eSp?MF_CHECKED:0);
 	UINT enableObj = eObj?0:MF_GRAYED;
 	UINT enableSp = eSp?0:MF_GRAYED;
 	enableObj |= enableState;
@@ -308,7 +308,37 @@ void onOpen() {
 	if(isRomOpen && !isRomSaved) {
 		if(!promptSave()) return;
 	}
-	//TODO
+	OPENFILENAME ofn;
+	memset(&ofn,0,sizeof(OPENFILENAME));
+	memset(strBuf_main,0,sizeof(strBuf_main));
+	ofn.lStructSize	 = sizeof(OPENFILENAME);
+	ofn.hwndOwner	 = hwndMain;
+	ofn.lpstrFile	 = strBuf_main;
+	ofn.nMaxFile	 = sizeof(strBuf_main);
+	ofn.lpstrTitle	 = "Open ROM";
+	ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
+	ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
+	if(GetOpenFileName(&ofn)) {
+		hasSmcHeader = (strBuf_main[ofn.nFileExtension+1] == 'm');
+		//Load ROM
+		memset(romBuf,0,0x400000);
+		FILE * fp = _tfopen(strBuf_main,"rb");
+		fseek(fp,0,SEEK_END);
+		long fileSize = ftell(fp);
+		fseek(fp,(fileSize&0x200)?0x200:0,SEEK_SET);
+		fread(romBuf,1,fileSize&(~0x200),fp);
+		fclose(fp);
+		//Check ROM
+		if(checkRom()) {
+			initAllocTable();
+			isRomOpen = true;
+			isRomSaved = true;
+			updateMenu();
+			//Load level
+			loadLevel();
+			SendMessage(hwndMain,2000,0,0);
+		}
+	}
 }
 void onClose() {
 	//Prompt save
@@ -316,25 +346,53 @@ void onClose() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
+		isRomOpen = false;
+		updateMenu();
 		//TODO
 	}
 }
 void onSave() {
-	//Prompt save
 	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
+		//Save level
+		saveLevel();
+		//Save ROM
+		FILE * fp = _tfopen(strBuf_main,"wb");
+		if(hasSmcHeader) {
+			for(int i=0; i<0x200; i++) {
+				putc(0,fp);
+			}
 		}
-		//TODO
+		fwrite(romBuf,1,0x400000,fp);
+		fclose(fp);
+		isRomSaved = true;
 	}
 }
 void onSaveAs() {
-	//Prompt save
 	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
+		OPENFILENAME ofn;
+		memset(&ofn,0,sizeof(OPENFILENAME));
+		memset(strBuf_main,0,sizeof(strBuf_main));
+		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		ofn.hwndOwner	 = hwndMain;
+		ofn.lpstrFile	 = strBuf_main;
+		ofn.nMaxFile	 = sizeof(strBuf_main);
+		ofn.lpstrTitle	 = "Save ROM";
+		ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
+		if(GetSaveFileName(&ofn)) {
+			hasSmcHeader = (strBuf_main[ofn.nFileExtension+1] == 'm');
+			//Save level
+			saveLevel();
+			//Save ROM
+			FILE * fp = _tfopen(strBuf_main,"wb");
+			if(hasSmcHeader) {
+				for(int i=0; i<0x200; i++) {
+					putc(0,fp);
+				}
+			}
+			fwrite(romBuf,1,0x400000,fp);
+			fclose(fp);
+			isRomSaved = true;
 		}
-		//TODO
 	}
 }
 void onQuit() {
@@ -347,16 +405,35 @@ void onImportLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		//TODO
+		OPENFILENAME ofn;
+		memset(&ofn,0,sizeof(OPENFILENAME));
+		memset(strBuf2_main,0,sizeof(strBuf2_main));
+		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		ofn.hwndOwner	 = hwndMain;
+		ofn.lpstrFile	 = strBuf2_main;
+		ofn.nMaxFile	 = sizeof(strBuf2_main);
+		ofn.lpstrTitle	 = "Open Level File";
+		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
+		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
+		if(GetOpenFileName(&ofn)) {
+			//TODO
+		}
 	}
 }
 void onExportLevel() {
-	//Prompt save
 	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
+		OPENFILENAME ofn;
+		memset(&ofn,0,sizeof(OPENFILENAME));
+		memset(strBuf2_main,0,sizeof(strBuf2_main));
+		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		ofn.hwndOwner	 = hwndMain;
+		ofn.lpstrFile	 = strBuf2_main;
+		ofn.nMaxFile	 = sizeof(strBuf2_main);
+		ofn.lpstrTitle	 = "Save Level File";
+		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
+		if(GetSaveFileName(&ofn)) {
+			//TODO
 		}
-		//TODO
 	}
 }
 void onOpenLevel() {
@@ -365,9 +442,10 @@ void onOpenLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId);
-		loadLevel();
-		SendMessage(hwndMain,2000,0,0);
+		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
+			loadLevel();
+			SendMessage(hwndMain,2000,0,0);
+		}
 	}
 }
 void onNextLevel() {
@@ -399,8 +477,16 @@ void onPrevLevel() {
 //Edit
 void onEditObj() {
 	//TODO
+	eObj = true;
+	eSp = false;
+	updateMenu();
+	//TODO
 }
 void onEditSp() {
+	//TODO
+	eSp = true;
+	eObj = false;
+	updateMenu();
 	//TODO
 }
 void onIncZ() {
@@ -480,26 +566,24 @@ void onViewSwB() {
 }
 //Tools
 void onChgEnt() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances);
-	if(vEnt) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances) && vEnt) {
 		//TODO
 	}
 }
 void onChgEnt2() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2);
-	if(vEnt) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2) && vEnt) {
 		//TODO
 	}
 }
 void onChgExit() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits);
-	if(vExit) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits) && vExit) {
 		//TODO
 	}
 }
 void onChgGfx() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_GFX),hwndMain,DlgProc_dEditGfx);
-	//TODO
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_GFX),hwndMain,DlgProc_dEditGfx)) {
+		//TODO
+	}
 }
 void onChgHead() {
 	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader);
@@ -591,19 +675,24 @@ int 			yCurScroll = 0,yMaxScroll = 0;
 //TODO
 
 //Extra UI drawing stuff
-void drawEntrances(RECT rect) {
+void dispEntrances(RECT rect) {
 	//TODO
 }
-void drawExits(RECT rect) {
+void dispExits(RECT rect) {
+	//Draw screen borders
+	//TODO
+	//Highlight screens which have exits
+	//TODO
+	//Draw screen exit info text
 	//TODO
 }
-void drawGrid(RECT rect) {
+void dispGrid(RECT rect) {
 	//TODO
 }
-void drawObjHexVals(RECT rect) {
+void dispObjHexVals(RECT rect) {
 	//TODO
 }
-void drawSpHexVals(RECT rect) {
+void dispSpHexVals(RECT rect) {
 	//TODO
 }
 
@@ -613,29 +702,31 @@ void updateRect(RECT rect) {
 	//TODO
 	//Draw layer 2
 	//TODO
-	//Draw layer 3 (if priority above)
+	//Draw layer 3 (if priority middle)
 	//TODO
 	//Draw objects
 	//TODO
 	if(vObjHex) {
-		drawObjHexVals(rect);
+		dispObjHexVals(rect);
 	}
 	//Draw sprites
 	//TODO
 	if(vSpHex) {
-		drawSpHexVals(rect);
+		dispSpHexVals(rect);
 	}
+	//Draw layer 3 (if priority above)
+	//TODO
 	//Draw entrances
 	if(vEnt) {
-		drawEntrances(rect);
+		dispEntrances(rect);
 	}
 	//Draw exits
 	if(vExit) {
-		drawExits(rect);
+		dispExits(rect);
 	}
 	//Draw grid
 	if(vGrid) {
-		drawGrid(rect);
+		dispGrid(rect);
 	}
 }
 

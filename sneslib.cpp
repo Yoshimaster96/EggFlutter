@@ -464,31 +464,99 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	for(int i=0; i<(numLines<<7); i++) {
 		palette[src[i]].numPixelsWithValue++;
 	}
-	//Sort palette
+	//Sort palette and output first 7 entries
 	std::sort(palette.begin(),palette.end(),paletteSorter_opLt);
+	dst[0] = (palette[1].paletteIndex<<4)|palette[0].paletteIndex;
+	dst[1] = (palette[3].paletteIndex<<4)|palette[2].paletteIndex;
+	dst[2] = (palette[5].paletteIndex<<4)|palette[4].paletteIndex;
+	dst[3] = palette[6].paletteIndex;
 	//For each line, check whether type 0 or type 1 is the smallest
 	for(int j=0; j<numLines; j++) {
 		BYTE curLine[0x80];
 		//Construct current line buffer
 		for(int i=0; i<0x80; i++) {
-			//TODO
+			int idx = ((j>>3)<<10)|((i>>3)<<6)|((j&7)<<3)|(i&7);
+			curLine[i] = src[idx];
 		}
 		BYTE tempBuf0[0x100],tempBuf1[0x100];
 		int tempOff0 = 0,tempOff1 = 0;
 		int tempBitOff0 = 0,tempBitOff1 = 0;
-		//Determine size for line type 0
+		//Try compression for line type 0
 		for(int i=0x7F; i>=0;) {
+			//Determine the number of pixels taken up by this section
+			int curlen = 0;
+			int curidx = curLine[i--];
+			while(si>=0) {
+				int thisIdx = curLine[i--];
+				if(thisIdx!=curidx) break;
+				curlen++;
+			}
+			//Create RLE entry
 			//TODO
 		}
-		//Determine size for line type 1
+		//Try compression for line type 1
 		for(int i=0x7F; i>=0;) {
-			//TODO
+			//Determine the number of pixels taken up by this section (previous)
+			int si = i;
+			int prevlen = 0;
+			int previdx = prevLine[si--];
+			while(si>=0) {
+				int thisIdx = prevLine[si--];
+				if(thisIdx!=previdx) break;
+				prevlen++;
+			}
+			//Determine the number of pixels taken up by this section (current)
+			si = i;
+			int curlen = 0;
+			int curidx = curLine[si--];
+			while(si>=0) {
+				int thisIdx = curLine[si--];
+				if(thisIdx!=curidx) break;
+				curlen++;
+			}
+			//If colors are different, create RLE entry
+			if(previdx!=curidx) {
+				//TODO
+			//If colors match but length is different, create plus/minus entry
+			} else if(prevlen!=curlen) {
+				if(curlen>prevlen) {
+					//TODO
+				} else {
+					//TODO
+				}
+			//If both color and length match, determine how many sections can be copied
+			} else {
+				int numsects = 1;
+				//TODO
+			}
 		}
-		//Use smallest type
-		if(cmdlen0<cmdlen1) {
-			//TODO
+		//Output line type which is the smallest
+		int cmdlen0 = (tempOff0<<3)|tempBitOff0;
+		int cmdlen1 = (tempOff1<<3)|tempBitOff1;
+		if(cmdlen0<=cmdlen1) {
+			//Output data for line type 0
+			for(int n=0; n<tempOff0; n++) {
+				writeBits(&dst[dstOff],dstBitOff,8,tempBuf0[n]);
+			}
+			writeBits(&dst[dstOff],dstBitOff,tempBitOff0,tempBuf0[tempOff0]);
+			dstBitOff += tempBitOff0;
+			if(dstBitOff>=8) {
+				dstBitOff -= 8;
+				dstOff++;
+			}
+			dstOff += tempOff0;
 		} else {
-			//TODO
+			//Output data for line type 1
+			for(int n=0; n<tempOff1; n++) {
+				writeBits(&dst[dstOff],dstBitOff,8,tempBuf1[n]);
+			}
+			writeBits(&dst[dstOff],dstBitOff,tempBitOff1,tempBuf1[tempOff1]);
+			dstBitOff += tempBitOff1;
+			if(dstBitOff>=8) {
+				dstBitOff -= 8;
+				dstOff++;
+			}
+			dstOff += tempOff1;
 		}
 	}
 	return dstBitOff?(dstOff+1):dstOff;
@@ -683,7 +751,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 							cpylen++;
 						}
 						//Copy pixels over
-						memset(&curLine[i-(cpylen+cmdlen)+1],curidx);
+						memset(&curLine[i-(cpylen+cmdlen)+1],curidx,cpylen+cmdlen);
 						//Intentionally bork previous buffer to replicate original behavior
 						prevLine[i-(cpylen+cmdlen)] = prevLine[i-cpylen];
 						break;
@@ -731,7 +799,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 							cpylen++;
 						}
 						//Copy pixels over
-						memset(&curLine[i-(cpylen-cmdlen)+1],curidx);
+						memset(&curLine[i-(cpylen-cmdlen)+1],curidx,cpylen-cmdlen);
 						//Intentionally bork previous buffer to replicate original behavior
 						prevLine[i-(cpylen-cmdlen)] = prevLine[i-cpylen];
 						break;
@@ -790,7 +858,8 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		}
 		//Output line
 		for(int i=0; i<0x80; i++) {
-			//TODO
+			int idx = ((j>>3)<<10)|((i>>3)<<6)|((j&7)<<3)|(i&7);
+			dst[idx] = curLine[i];
 		}
 		//Set previous line buffer
 		memcpy(prevLine,curLine,0x80);

@@ -8,9 +8,11 @@
 //TODO
 
 //Functions
+void loadBackground2();
+void loadBackground3();
 //TODO
 //Window
-//LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
+LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif
 

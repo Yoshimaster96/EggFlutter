@@ -5,12 +5,13 @@
 #include "globalstate.h"
 
 //Variables
-//TODO
+extern DWORD paletteBuffer[0x100];
 
 //Functions
-//TODO
+void loadPalette();
+void updatePalette(int frame);
 //Window
-//LRESULT CALLBACK WndProc_Palette(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
+LRESULT CALLBACK WndProc_Palette(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif
 
