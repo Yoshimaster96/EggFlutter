@@ -19,7 +19,7 @@ ObjectOutput=
 LogOutput=
 LogOutputEnabled=0
 OverrideOutput=0
-OverrideOutputName=
+OverrideOutputName=Project2.exe
 HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
@@ -28,7 +28,7 @@ Folders=resources
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
-CompilerSettings=0000000000000000001000000
+CompilerSettings=000000e000000000001000000
 UnitCount=30
 
 [VersionInfo]
@@ -333,6 +333,16 @@ BuildCmd=
 [Unit30]
 FileName=resources\dlg_edit_entrance2.rc
 Folder=resources
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit32]
+FileName=patches\asardll.h
+CompileCpp=1
+Folder=patches
 Compile=1
 Link=1
 Priority=1000

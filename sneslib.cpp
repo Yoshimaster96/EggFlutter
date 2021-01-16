@@ -96,73 +96,132 @@ void unpackGfx4BPP(BYTE * dst,BYTE * src,int numTiles) {
 //Pixel manipulation
 inline void fillImage(DWORD * pixelBuf,int width,int height,DWORD color) {
 	int numPixels = width*height;
-	for(int i = 0; i < numPixels; i++) {
+	for(int i=0; i<numPixels; i++) {
 		pixelBuf[i] = color;
 	}
 }
-inline void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
-	if(offsX >= 0 && offsY >= 0 && offsX < width && offsY < height) {
-		pixelBuf[(offsY*width)+offsX] = color;
+inline void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
+		pixelBuf[(offs.y*width)+offs.x] = color;
 	}
 }
-inline void invertPixel(DWORD * pixelBuf,int width,int height,int offsX,int offsY) {
-	if(offsX >= 0 && offsY >= 0 && offsX < width && offsY < height) {
-		pixelBuf[(offsY*width)+offsX] ^= 0xFFFFFF;
+inline void invertPixel(DWORD * pixelBuf,int width,int height,POINT offs) {
+	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
+		pixelBuf[(offs.y*width)+offs.x] ^= 0xFFFFFF;
 	}
 }
-inline void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
-	if(offsX >= 0 && offsY >= 0 && offsX < width && offsY < height) {
-		DWORD orig = pixelBuf[(offsY*width)+offsX];
+inline void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
+		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
 		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
 		if(r > 0xFF0000) r = 0xFF0000;
 		DWORD g = (orig&0xFF00)+(color&0xFF00);
 		if(g > 0xFF00) g = 0xFF00;
 		DWORD b = (orig&0xFF)+(color&0xFF);
 		if(b > 0xFF) b = 0xFF;
-		pixelBuf[(offsY*width)+offsX] = r|g|b;
+		pixelBuf[(offs.y*width)+offs.x] = r|g|b;
 	}
 }
-inline void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
-	if(offsX >= 0 && offsY >= 0 && offsX < width && offsY < height) {
-		DWORD orig = pixelBuf[(offsY*width)+offsX];
+inline void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
+		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
 		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
 		r = (r>>1)&0xFF0000;
 		DWORD g = (orig&0xFF00)+(color&0xFF00);
 		g = (g>>1)&0xFF00;
 		DWORD b = (orig&0xFF)+(color&0xFF);
 		b >>= 1;
-		pixelBuf[(offsY*width)+offsX] = color;
+		pixelBuf[(offs.y*width)+offs.x] = color;
+	}
+}
+inline void putRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
+	for(int j=offs.top; j<offs.bottom; j++) {
+		for(int i=offs.left; i<offs.right; i++) {
+			POINT p = {i,j};
+			putPixel(pixelBuf,width,height,color,p);
+		}
+	}
+}
+inline void invertRect(DWORD * pixelBuf,int width,int height,RECT offs) {
+	for(int j=offs.top; j<offs.bottom; j++) {
+		for(int i=offs.left; i<offs.right; i++) {
+			POINT p = {i,j};
+			invertPixel(pixelBuf,width,height,p);
+		}
+	}
+}
+inline void hiliteRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
+	for(int j=offs.top; j<offs.bottom; j++) {
+		for(int i=offs.left; i<offs.right; i++) {
+			POINT p = {i,j};
+			hilitePixel(pixelBuf,width,height,color,p);
+		}
+	}
+}
+inline void blendRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
+	for(int j=offs.top; j<offs.bottom; j++) {
+		for(int i=offs.left; i<offs.right; i++) {
+			POINT p = {i,j};
+			blendPixel(pixelBuf,width,height,color,p);
+		}
 	}
 }
 
-//Tile drawing
-inline int getIndexFromTile(BYTE * tileBuf,DWORD tile,int offsX,int offsY) {
-	return tileBuf[(tile<<6)|(offsX<<3)|offsY];
+//Tile/texture drawing
+inline int getIndexFromTile(BYTE * tileBuf,DWORD tile,POINT offs) {
+	return tileBuf[(tile<<6)|(offs.x<<3)|offs.y];
 }
-void drawTile(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,BOOL flipV,BOOL flipH,int palette,DWORD tile,int offsX,int offsY) {
-	for(int j = 0; j < 8; j++) {
-		for(int i = 0; i < 8; i++) {
-			int sx = flipH?(7-i):i;
-			int sy = flipV?(7-j):j;
-			int dx = offsX+i;
-			int dy = offsY+j;
-			int idx = getIndexFromTile(tileBuf,tile,sx,sy);
-			if(idx != 0) {
-				putPixel(pixelBuf,width,height,palBuf[palette|idx],dx,dy);
+void drawTile(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,bool flipV,bool flipH,int palette,DWORD tile,POINT offs) {
+	for(int j=0; j<8; j++) {
+		for(int i=0; i<8; i++) {
+			POINT s = {flipH?(7-i):i,flipV?(7-j):j};
+			POINT d = {offs.x+i,offs.y+j};
+			int idx = getIndexFromTile(tileBuf,tile,s);
+			if(idx!=0) {
+				putPixel(pixelBuf,width,height,palBuf[palette|idx],d);
 			}
 		}
 	}
 }
-void drawTileBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,BOOL flipV,BOOL flipH,int palette,DWORD tile,int offsX,int offsY) {
-	for(int j = 0; j < 8; j++) {
-		for(int i = 0; i < 8; i++) {
-			int sx = flipH?(7-i):i;
-			int sy = flipV?(7-j):j;
-			int dx = offsX+i;
-			int dy = offsY+j;
-			int idx = getIndexFromTile(tileBuf,tile,sx,sy);
-			if(idx != 0) {
-				blendPixel(pixelBuf,width,height,palBuf[palette|idx],dx,dy);
+void drawTileBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,bool flipV,bool flipH,int palette,DWORD tile,POINT offs) {
+	for(int j=0; j<8; j++) {
+		for(int i=0; i<8; i++) {
+			POINT s = {flipH?(7-i):i,flipV?(7-j):j};
+			POINT d = {offs.x+i,offs.y+j};
+			int idx = getIndexFromTile(tileBuf,tile,s);
+			if(idx!=0) {
+				blendPixel(pixelBuf,width,height,palBuf[palette|idx],d);
+			}
+		}
+	}
+}
+inline int getIndexFromTexture(BYTE * texBuf,POINT offs) {
+	return texBuf[offs.x|(offs.y<<8)];
+}
+void drawTexture(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * texBuf,bool flipV,bool flipH,int palette,RECT tile,int hi,POINT offs) {
+	for(int j=tile.top; j<tile.bottom; j++) {
+		for(int i=tile.left; i<tile.right; i++) {
+			//TODO: Fix s
+			POINT s = {flipH?i:i,flipV?j:j};
+			POINT d = {offs.x+i-tile.left,offs.y+j-tile.top};
+			int idx = getIndexFromTexture(texBuf,s);
+			idx = (idx>>hi)&0xF;
+			if(idx!=0) {
+				putPixel(pixelBuf,width,height,palBuf[palette|idx],d);
+			}
+		}
+	}
+}
+void drawTextureBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * texBuf,bool flipV,bool flipH,int palette,RECT tile,int hi,POINT offs) {
+	for(int j=tile.top; j<tile.bottom; j++) {
+		for(int i=tile.left; i<tile.right; i++) {
+			//TODO: Fix s
+			POINT s = {flipH?i:i,flipV?j:j};
+			POINT d = {offs.x+i-tile.left,offs.y+j-tile.top};
+			int idx = getIndexFromTexture(texBuf,s);
+			idx = (idx>>hi)&0xF;
+			if(idx!=0) {
+				blendPixel(pixelBuf,width,height,palBuf[palette|idx],d);
 			}
 		}
 	}
@@ -625,6 +684,8 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					writeBitsLSB(tempBuf1,&tempOff1,&tempBitOff1,2,3);
 					writeVariableSize(tempBuf1,&tempOff1,&tempBitOff1,prevlen-curlen);
 				}
+				//Intentionally bork previous buffer to replicate original behavior
+				prevLine[i-curlen] = prevLine[i-prevlen];
 				writeColor(tempBuf1,&tempOff1,&tempBitOff1,curidxp);
 				i -= curlen;
 			//If both color and length match, determine how many sections can be copied
@@ -778,9 +839,8 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		//Line type 1
 		if(lineType) {
 			for(int i=0x7F; i>=0;) {
-				//Get length
+				//Get length and command
 				int cmdlen = readVariableSize(src,&srcOff,&srcBitOff);
-				//Get command
 				int cmd = readBitsLSB(src,&srcOff,&srcBitOff,2);
 				//Process command
 				switch(cmd) {

@@ -12,13 +12,17 @@ BYTE levelHeader[10];
 ///////////////////////////////
 //ROM PATCHING AND ALLOCATION//
 ///////////////////////////////
-bool patchRom() {
+void patchRom() {
+	//Expand ROM to 4MB and SRAM to 128KB
+	romBuf[0x7FBD] = 0x07;
+	romBuf[0x7FD7] = 0x0C;
+	//Add more midpoint indices
 	//TODO
-	return true;
 }
 bool checkRom() {
 	if(romBuf[0x7FD7]==11) {
-		return patchRom();
+		patchRom();
+		return true;
 	} else if(romBuf[0x7FD7]==12) {
 		return true;
 	}
