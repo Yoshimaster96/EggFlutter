@@ -745,8 +745,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			bmi.bmiHeader.biHeight			= -0x800;
 			hbmpMain = CreateDIBSection(hdcMain,&bmi,DIB_RGB_COLORS,(void**)&bmpDataMain,NULL,0);
 			memset(bmpDataMain,0,0x800000*sizeof(DWORD));
-			SystemParametersInfo(SPI_SETFOCUSBORDERWIDTH,0,(LPVOID)2,0);
-			SystemParametersInfo(SPI_SETFOCUSBORDERHEIGHT,0,(LPVOID)2,0);
 			//Have message 2000 handle this
 			SendMessage(hwnd,2000,0,0);
 			break;
