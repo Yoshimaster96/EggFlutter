@@ -663,13 +663,11 @@ int cmMenuCommand[NUM_COMMANDS] = {
 //MAIN WINDOW STUFF//
 /////////////////////
 HDC				hdcMain;
-BITMAPINFO		bmiMain;
 HBITMAP			hbmpMain;
-PAINTSTRUCT		psMain;
 DWORD*			bmpDataMain;
 
-int				xCurScroll = 0,xMaxScroll = 0;
-int 			yCurScroll = 0,yMaxScroll = 0;
+int				xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
+int 			yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
 
 //Helper functions (for determining invalid regions)
 //TODO
@@ -737,17 +735,18 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		case WM_CREATE: {
 			//Create objects
 			hdcMain = GetDC(hwnd);
-			memset(&bmiMain.bmiHeader,0,sizeof(BITMAPINFOHEADER));
-			bmiMain.bmiHeader.biSize			= sizeof(BITMAPINFOHEADER);
-			bmiMain.bmiHeader.biPlanes			= 1;
-			bmiMain.bmiHeader.biBitCount		= 32;
-			bmiMain.bmiHeader.biCompression		= BI_RGB;
-			bmiMain.bmiHeader.biSizeImage		= 0;
-			bmiMain.bmiHeader.biClrUsed			= 0;
-			bmiMain.bmiHeader.biClrImportant	= 0;
-			bmiMain.bmiHeader.biWidth			= 0x1000;
-			bmiMain.bmiHeader.biHeight			= -0x800;
-			CreateDIBSection(hdcMain,&bmiMain,DIB_RGB_COLORS,(void**)&bmpDataMain,NULL,0);
+			BITMAPINFO bmi;
+			memset(&bmi.bmiHeader,0,sizeof(BITMAPINFOHEADER));
+			bmi.bmiHeader.biSize			= sizeof(BITMAPINFOHEADER);
+			bmi.bmiHeader.biPlanes			= 1;
+			bmi.bmiHeader.biBitCount		= 32;
+			bmi.bmiHeader.biCompression		= BI_RGB;
+			bmi.bmiHeader.biWidth			= 0x1000;
+			bmi.bmiHeader.biHeight			= -0x800;
+			hbmpMain = CreateDIBSection(hdcMain,&bmi,DIB_RGB_COLORS,(void**)&bmpDataMain,NULL,0);
+			memset(bmpDataMain,0,0x800000*sizeof(DWORD));
+			SystemParametersInfo(SPI_SETFOCUSBORDERWIDTH,0,(LPVOID)2,0);
+			SystemParametersInfo(SPI_SETFOCUSBORDERHEIGHT,0,(LPVOID)2,0);
 			//Have message 2000 handle this
 			SendMessage(hwnd,2000,0,0);
 			break;
@@ -755,7 +754,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		case WM_DESTROY: {
 			//Free objects
 			DeleteDC(hdcMain);
-			DeleteObject((HGDIOBJ)hbmpMain);
+			DeleteObject(hbmpMain);
 			//Close program
 			PostQuitMessage(0);
 			break;
@@ -771,12 +770,15 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		//Updating
 		case WM_PAINT: {
-			//Start painting
-			BeginPaint(hwnd,&psMain);
-			//Update invalidated tiles
-			//TODO
-			//Finish painting
-			EndPaint(hwnd,&psMain);
+			//Blit screen
+			PAINTSTRUCT ps;
+			BeginPaint(hwnd,&ps);
+			HDC hdcMem = CreateCompatibleDC(hdcMain);
+			HBITMAP hbmpOld = (HBITMAP)SelectObject(hdcMem,hbmpMain);
+			BitBlt(hdcMain,0,0,xCurSize,yCurSize,hdcMem,xCurScroll,yCurScroll,SRCCOPY);
+			SelectObject(hdcMem,hbmpOld);
+			DeleteDC(hdcMem);
+			EndPaint(hwnd,&ps);
 			break;
 		}
 		case WM_SIZE: {
@@ -786,15 +788,12 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.cbSize		= sizeof(SCROLLINFO);
 			si.fMask		= SIF_RANGE|SIF_POS;
 			
-			int xNewMax = std::max(0x1000-LOWORD(lParam),0);
+			xCurSize = LOWORD(lParam);
+			yCurSize = HIWORD(lParam);
+			xMaxScroll = std::max(0x1000-xCurSize,0);
+			yMaxScroll = std::max(0x800-yCurSize,0);
 			xCurScroll = std::min(xCurScroll,xMaxScroll);
-			int yNewMax = std::max(0x800-HIWORD(lParam),0);
 			yCurScroll = std::min(yCurScroll,yMaxScroll);
-			
-			xMaxScroll = xNewMax;
-			yMaxScroll = yNewMax;
-			if(xNewMax) yMaxScroll += GetSystemMetrics(SM_CYHSCROLL);
-			if(yNewMax) xMaxScroll += GetSystemMetrics(SM_CXVSCROLL);
 			
 			si.nMax			= xMaxScroll;
 			si.nPos			= xCurScroll;
@@ -843,16 +842,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			xNewScroll = std::max(0,xNewScroll);
 			xNewScroll = std::min(xMaxScroll,xNewScroll);
 			if(xNewScroll == xCurScroll) break;
-			
 			ScrollWindowEx(hwnd,xCurScroll-xNewScroll,0,NULL,NULL,NULL,NULL,SW_INVALIDATE);
 			UpdateWindow(hwnd);
+			xCurScroll = xNewScroll;
 			
 			SCROLLINFO si;
 			memset(&si,0,sizeof(SCROLLINFO));
 			si.cbSize		= sizeof(SCROLLINFO);
 			si.fMask		= SIF_POS;
-			
-			xCurScroll = xNewScroll;
 			si.nPos			= xCurScroll;
 			SetScrollInfo(hwnd,SB_HORZ,&si,TRUE);
 			
@@ -896,16 +893,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			yNewScroll = std::max(0,yNewScroll);
 			yNewScroll = std::min(yMaxScroll,yNewScroll);
 			if(yNewScroll == yCurScroll) break;
-			
 			ScrollWindowEx(hwnd,0,yCurScroll-yNewScroll,NULL,NULL,NULL,NULL,SW_INVALIDATE);
 			UpdateWindow(hwnd);
+			yCurScroll = yNewScroll;
 			
 			SCROLLINFO si;
 			memset(&si,0,sizeof(SCROLLINFO));
 			si.cbSize		= sizeof(SCROLLINFO);
 			si.fMask		= SIF_POS;
-			
-			yCurScroll = yNewScroll;
 			si.nPos			= yCurScroll;
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
 			
