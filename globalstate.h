@@ -7,7 +7,7 @@
 //General variables
 extern HICON hiconMain;
 extern bool isRomOpen,isRomSaved;
-extern BYTE romBuf[0x400000];
+extern BYTE romBuf[0x800000];
 extern DWORD allocOffs[0x2000],allocSizes[0x2000];
 //Variables for levels
 extern BYTE curLevel;

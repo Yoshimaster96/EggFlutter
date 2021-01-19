@@ -5,6 +5,7 @@
 #include "globalstate.h"
 
 //Variables
+extern HWND hwndPalette;
 extern DWORD paletteBuffer[0x100];
 
 //Functions

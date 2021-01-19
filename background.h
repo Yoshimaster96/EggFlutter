@@ -5,12 +5,13 @@
 #include "map16.h"
 
 //Variables
-//TODO
+extern HWND hwndBackground;
+extern HBITMAP hbmpBg2,hbmpBg3;
+extern DWORD * bmpDataBg2,* bmpDataBg3;
 
 //Functions
 void loadBackground2();
 void loadBackground3();
-//TODO
 //Window
 LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

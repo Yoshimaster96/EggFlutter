@@ -13,8 +13,10 @@ void saveLevel() {
 ///////////
 //DIALOGS//
 ///////////
-//Helper functions for reading/writing hex values
 TCHAR strBuf_dlg[256];
+HWND hwndMain;
+
+//Helper functions for reading/writing hex values
 DWORD getHexVal_dlg(HWND hwnd,int control) {
 	GetDlgItemText(hwnd,control,strBuf_dlg,256);
 	DWORD ret;
@@ -214,7 +216,6 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 bool hasSmcHeader;
 TCHAR strBuf_main[256],strBuf2_main[256];
 HMENU hmenuMain;
-HWND hwndMain;
 
 //View states
 bool eObj = true,eSp = false;
@@ -321,7 +322,7 @@ void onOpen() {
 	if(GetOpenFileName(&ofn)) {
 		hasSmcHeader = (strBuf_main[ofn.nFileExtension+1] == 'm');
 		//Load ROM
-		memset(romBuf,0,0x400000);
+		memset(romBuf,0,0x800000);
 		FILE * fp = _tfopen(strBuf_main,"rb");
 		fseek(fp,0,SEEK_END);
 		long fileSize = ftell(fp);
@@ -362,7 +363,7 @@ void onSave() {
 				putc(0,fp);
 			}
 		}
-		fwrite(romBuf,1,0x400000,fp);
+		fwrite(romBuf,1,0x800000,fp);
 		fclose(fp);
 		isRomSaved = true;
 	}
@@ -389,7 +390,7 @@ void onSaveAs() {
 					putc(0,fp);
 				}
 			}
-			fwrite(romBuf,1,0x400000,fp);
+			fwrite(romBuf,1,0x800000,fp);
 			fclose(fp);
 			isRomSaved = true;
 		}
@@ -664,13 +665,9 @@ int cmMenuCommand[NUM_COMMANDS] = {
 /////////////////////
 HDC				hdcMain;
 HBITMAP			hbmpMain;
-DWORD*			bmpDataMain;
-
-int				xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
-int 			yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
-
-//Helper functions (for determining invalid regions)
-//TODO
+DWORD *			bmpDataMain;
+int xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
+int yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
 
 //Extra UI drawing stuff
 void dispEntrances(RECT rect) {

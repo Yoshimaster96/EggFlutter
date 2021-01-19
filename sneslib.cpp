@@ -134,113 +134,43 @@ inline void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT o
 		pixelBuf[(offs.y*width)+offs.x] = color;
 	}
 }
-inline void putRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
-	for(int j=offs.top; j<offs.bottom; j++) {
-		for(int i=offs.left; i<offs.right; i++) {
-			POINT p = {i,j};
-			putPixel(pixelBuf,width,height,color,p);
-		}
-	}
-}
-inline void invertRect(DWORD * pixelBuf,int width,int height,RECT offs) {
-	for(int j=offs.top; j<offs.bottom; j++) {
-		for(int i=offs.left; i<offs.right; i++) {
-			POINT p = {i,j};
-			invertPixel(pixelBuf,width,height,p);
-		}
-	}
-}
-inline void hiliteRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
-	for(int j=offs.top; j<offs.bottom; j++) {
-		for(int i=offs.left; i<offs.right; i++) {
-			POINT p = {i,j};
-			hilitePixel(pixelBuf,width,height,color,p);
-		}
-	}
-}
-inline void blendRect(DWORD * pixelBuf,int width,int height,DWORD color,RECT offs) {
-	for(int j=offs.top; j<offs.bottom; j++) {
-		for(int i=offs.left; i<offs.right; i++) {
-			POINT p = {i,j};
-			blendPixel(pixelBuf,width,height,color,p);
-		}
-	}
-}
 
 //Tile/texture drawing
 inline int getIndexFromTile(BYTE * tileBuf,DWORD tile,POINT offs) {
 	return tileBuf[(tile<<6)|(offs.x<<3)|offs.y];
 }
-void drawTile(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,bool flipV,bool flipH,int palette,DWORD tile,POINT offs) {
-	for(int j=0; j<8; j++) {
-		for(int i=0; i<8; i++) {
-			POINT s = {flipH?(7-i):i,flipV?(7-j):j};
-			POINT d = {offs.x+i,offs.y+j};
-			int idx = getIndexFromTile(tileBuf,tile,s);
-			if(idx!=0) {
-				putPixel(pixelBuf,width,height,palBuf[palette|idx],d);
-			}
-		}
-	}
-}
-void drawTileBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * tileBuf,bool flipV,bool flipH,int palette,DWORD tile,POINT offs) {
-	for(int j=0; j<8; j++) {
-		for(int i=0; i<8; i++) {
-			POINT s = {flipH?(7-i):i,flipV?(7-j):j};
-			POINT d = {offs.x+i,offs.y+j};
-			int idx = getIndexFromTile(tileBuf,tile,s);
-			if(idx!=0) {
-				blendPixel(pixelBuf,width,height,palBuf[palette|idx],d);
-			}
-		}
-	}
-}
 inline int getIndexFromTexture(BYTE * texBuf,POINT offs) {
 	return texBuf[offs.x|(offs.y<<8)];
-}
-void drawTexture(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * texBuf,bool flipV,bool flipH,int palette,RECT tile,int hi,POINT offs) {
-	for(int j=tile.top; j<tile.bottom; j++) {
-		for(int i=tile.left; i<tile.right; i++) {
-			//TODO: Fix s
-			POINT s = {flipH?i:i,flipV?j:j};
-			POINT d = {offs.x+i-tile.left,offs.y+j-tile.top};
-			int idx = getIndexFromTexture(texBuf,s);
-			idx = (idx>>hi)&0xF;
-			if(idx!=0) {
-				putPixel(pixelBuf,width,height,palBuf[palette|idx],d);
-			}
-		}
-	}
-}
-void drawTextureBlend(DWORD * pixelBuf,int width,int height,DWORD * palBuf,BYTE * texBuf,bool flipV,bool flipH,int palette,RECT tile,int hi,POINT offs) {
-	for(int j=tile.top; j<tile.bottom; j++) {
-		for(int i=tile.left; i<tile.right; i++) {
-			//TODO: Fix s
-			POINT s = {flipH?i:i,flipV?j:j};
-			POINT d = {offs.x+i-tile.left,offs.y+j-tile.top};
-			int idx = getIndexFromTexture(texBuf,s);
-			idx = (idx>>hi)&0xF;
-			if(idx!=0) {
-				blendPixel(pixelBuf,width,height,palBuf[palette|idx],d);
-			}
-		}
-	}
 }
 
 //////////////////////
 //ADDRESS CONVERSION//
 //////////////////////
 DWORD convAddr_SNEStoPC_YI(DWORD addr) {
-	int hi = (addr&0x800000)?0x200000:0;
-	if(addr&0x400000) {
-		return hi|(addr&0x3FFFFF);
-	} else {
-		return hi|(addr&0x7FFF)|((addr&0x7F0000)>>1);
+	switch(addr&0xC00000) {
+		case 0x000000: {
+			return (addr&0x7FFF)|((addr&0x7F0000)>>1);
+			break;
+		}
+		case 0x400000: {
+			return (addr&0x3FFFFF);
+			break;
+		}
+		case 0x800000: {
+			//TODO
+			break;
+		}
+		case 0xC00000: {
+			return (addr&0x3FFFFF)|0x400000;
+			break;
+		}
 	}
 }
 DWORD convAddr_PCtoSNES_YI(DWORD addr) {
-	if(addr>0x200000) {
-		return addr+0xA00000;
+	if(addr>0x400000) {
+		return addr|0x800000;
+	} else if(addr>0x200000) {
+		//TODO
 	} else if(addr>0xC0000) {
 		return addr|0x400000;
 	} else {
