@@ -7,6 +7,7 @@
 //Variables
 extern HWND hwndPalette;
 extern DWORD paletteBuffer[0x100];
+extern DWORD gradientBuffer[0x18];
 
 //Functions
 void loadPalette();

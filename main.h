@@ -7,5 +7,12 @@
 #include "sprite.h"
 #include "background.h"
 
+//Variables
+extern int xCurScroll,xMaxScroll,xCurSize;
+extern int yCurScroll,yMaxScroll,yCurSize;
+
+//Functions
+void updateRect(RECT rect);
+
 #endif
 

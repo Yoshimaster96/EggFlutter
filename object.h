@@ -9,7 +9,6 @@ typedef struct {
 	BYTE data[8];
 	int dataSize;
 	bool selected;
-	std::string text;
 	std::vector<int> occupiedTiles;
 } object_t;
 typedef struct {
@@ -18,6 +17,9 @@ typedef struct {
 	WORD tilemap[0x8000];
 	bool invalidObjects[0x8000];
 } level_object_data_ctx_t;
+
+//Variables
+extern HWND hwndObject;
 
 //Functions
 //Object drawing
@@ -28,9 +30,6 @@ void dispObjects(DWORD * pixelBuf,int width,int height);
 void loadObjects(BYTE * data);
 int saveObjects(BYTE * data);
 int selectObjects(RECT rect,bool ctrl);
-void addToObjectSelection(int index);
-void removeFromObjectSelection(int index);
-void clearObjectSelection();
 void insertObjects(int x,int y);
 void deleteObjects();
 void moveObjects(int dx,int dy);

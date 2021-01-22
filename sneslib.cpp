@@ -157,7 +157,7 @@ DWORD convAddr_SNEStoPC_YI(DWORD addr) {
 			break;
 		}
 		case 0x800000: {
-			//TODO
+			return (addr&0x7FFF)|((addr&0x7F0000)>>1)|0x200000;
 			break;
 		}
 		case 0xC00000: {
@@ -511,10 +511,8 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		entry.numPixelsWithValue = 0;
 		palette.push_back(entry);
 	}
-	//Count pixels (NOTE: Here we are assuming numLines is a multiple of 8 for simplicity)
-	for(int i=0; i<(numLines<<7); i++) {
-		palette[src[i]].numPixelsWithValue++;
-	}
+	//Count pixel rows
+	//TODO
 	//Sort palette and output first 7 entries
 	std::sort(palette.begin(),palette.end(),paletteSorter_opLt);
 	dst[0] = (palette[1].paletteIndex<<4)|palette[0].paletteIndex;

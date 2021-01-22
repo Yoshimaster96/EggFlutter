@@ -1,25 +1,13 @@
 #include "background.h"
 
 HWND hwndBackground;
-HBITMAP hbmpBg2,hbmpBg3;
-DWORD * bmpDataBg2,* bmpDataBg3;
-//TODO
-
-//Helper functions for rendering backgrounds
-void dispBackground2() {
-	//TODO
-}
-void dispBackground3() {
-	//TODO
-}
+BYTE bg2Buffer[0x1000],bg3Buffer[0x800];
 
 void loadBackground2() {
 	//TODO
-	dispBackground2();
 }
 void loadBackground3() {
 	//TODO
-	dispBackground3();
 }
 
 ///////////////////

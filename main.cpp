@@ -4,9 +4,33 @@
 //LEVEL LOADING//
 /////////////////
 void loadLevel() {
+	//Get level pointer and load data
 	//TODO
+	//Load other stuff
+	loadMap8();
+	updateMap8(0);
+	loadMap16();
+	loadPalette();
+	updatePalette(0);
+	loadBackground2();
+	loadBackground3();
+	//Search for screen exits from other levels (display only)
+	for(int i=0; i<0xDE; i++) {
+		if(i==curLevel) continue;
+		//Get level pointer
+		//TODO
+		//Step through object data (don't load, just skip past)
+		//TODO
+		//Read screen exits and check if any go to current level
+		//TODO
+	}
 }
 void saveLevel() {
+	//Determine level size
+	//TODO
+	//Find an area to write level data to
+	//TODO
+	//Save level data
 	//TODO
 }
 
@@ -14,7 +38,6 @@ void saveLevel() {
 //DIALOGS//
 ///////////
 TCHAR strBuf_dlg[256];
-HWND hwndMain;
 
 //Helper functions for reading/writing hex values
 DWORD getHexVal_dlg(HWND hwnd,int control) {
@@ -74,6 +97,86 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//Init combo boxes
+			HWND hwndEditEntCb = GetDlgItem(hwnd,20);
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-1");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-2");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-3");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-4");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-5");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-6");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-7");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-8");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-E");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Intro");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Tutorial");
+			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
+			hwndEditEntCb = GetDlgItem(hwnd,22);
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Do Nothing");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Skiing");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Right");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Left");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Down");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Up");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Walk Right");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Walk Left");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Fall Down");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Jump Up");
+			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Raphael Intro");
+			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
+			//Limit to 2 characters
+			HWND hwndEditEntEt = GetDlgItem(hwnd,21);
+			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
+			hwndEditEntEt = GetDlgItem(hwnd,23);
+			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
+			hwndEditEntEt = GetDlgItem(hwnd,24);
+			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
+			//Init control values
 			//TODO
 			return TRUE;
 		}
@@ -83,7 +186,17 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -94,7 +207,11 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
-			//TODO
+			//Limit to 2 characters
+			HWND hwndEditEntEt2 = GetDlgItem(hwnd,23);
+			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
+			hwndEditEntEt2 = GetDlgItem(hwnd,24);
+			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -103,7 +220,17 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -123,27 +250,17 @@ LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
-			break;
-		}
-	}
-	return 0;
-}
-LRESULT CALLBACK DlgProc_dEditGfx(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
-	switch(msg) {
-		case WM_INITDIALOG: {
-			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
-			//TODO
-			return TRUE;
-		}
-		case WM_CLOSE: {
-			//Exit with code 0 (do nothing)
-			EndDialog(hwnd,0);
-			break;
-		}
-		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -163,7 +280,17 @@ LRESULT CALLBACK DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPa
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -183,7 +310,17 @@ LRESULT CALLBACK DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM l
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -203,7 +340,17 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 			break;
 		}
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case IDCANCEL: {
+					//Have WM_CLOSE handle this
+					SendMessage(hwnd,WM_CLOSE,0,0);
+					break;
+				}
+				case IDOK: {
+					//TODO
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -215,6 +362,7 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 //////////////
 bool hasSmcHeader;
 TCHAR strBuf_main[256],strBuf2_main[256];
+HWND hwndMain;
 HMENU hmenuMain;
 
 //View states
@@ -260,8 +408,7 @@ void updateMenu() {
 	EnableMenuItem(hmenuMain,1302,enableState);
 	EnableMenuItem(hmenuMain,1310,enableState);
 	EnableMenuItem(hmenuMain,1311,enableState);
-	EnableMenuItem(hmenuMain,1320,enableState);
-	EnableMenuItem(hmenuMain,1321,enableState);
+	EnableMenuItem(hmenuMain,1312,enableState);
 	//Window
 	EnableMenuItem(hmenuMain,1400,enableState);
 	EnableMenuItem(hmenuMain,1403,enableState);
@@ -301,6 +448,10 @@ inline BOOL prompt(LPCSTR title,LPCSTR msg) {
 inline BOOL promptSave() {
 	return (MessageBox(hwndMain,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
 }
+inline void updateEntireScreen() {
+	RECT rect = {xCurScroll,yCurScroll,xCurScroll+xCurSize,yCurScroll+yCurSize};
+	updateRect(rect);
+}
 
 //Functions for menu items
 //File
@@ -331,13 +482,12 @@ void onOpen() {
 		fclose(fp);
 		//Check ROM
 		if(checkRom()) {
-			initAllocTable();
 			isRomOpen = true;
 			isRomSaved = true;
 			updateMenu();
 			//Load level
 			loadLevel();
-			SendMessage(hwndMain,2000,0,0);
+			updateEntireScreen();
 		}
 	}
 }
@@ -445,7 +595,7 @@ void onOpenLevel() {
 		}
 		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
 			loadLevel();
-			SendMessage(hwndMain,2000,0,0);
+			updateEntireScreen();
 		}
 	}
 }
@@ -458,7 +608,7 @@ void onNextLevel() {
 		if(curLevel!=0xDD) {
 			curLevel++;
 			loadLevel();
-			SendMessage(hwndMain,2000,0,0);
+			updateEntireScreen();
 		}
 	}
 }
@@ -471,7 +621,7 @@ void onPrevLevel() {
 		if(curLevel) {
 			curLevel--;
 			loadLevel();
-			SendMessage(hwndMain,2000,0,0);
+			updateEntireScreen();
 		}
 	}
 }
@@ -481,14 +631,14 @@ void onEditObj() {
 	eObj = true;
 	eSp = false;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onEditSp() {
 	//TODO
 	eSp = true;
 	eObj = false;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onIncZ() {
 	//TODO
@@ -507,38 +657,38 @@ void onViewObj() {
 	vObj = !vObj;
 	//TODO
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewBg2() {
 	vBg2 = !vBg2;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewBg3() {
 	vBg3 = !vBg3;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewSp() {
 	vSp = !vSp;
 	//TODO
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewEnt() {
 	vEnt = !vEnt;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewExit() {
 	vExit = !vExit;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewGrid() {
 	vGrid = !vGrid;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewAnim() {
 	vAnim = !vAnim;
@@ -548,12 +698,12 @@ void onViewAnim() {
 void onViewObjHex() {
 	vObjHex = !vObjHex;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewSpHex() {
 	vSpHex = !vSpHex;
 	updateMenu();
-	//TODO
+	updateEntireScreen();
 }
 void onViewSwA() {
 	vSwA = !vSwA;
@@ -568,22 +718,17 @@ void onViewSwB() {
 //Tools
 void onChgEnt() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances) && vEnt) {
-		//TODO
+		updateEntireScreen();
 	}
 }
 void onChgEnt2() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2) && vEnt) {
-		//TODO
+		updateEntireScreen();
 	}
 }
 void onChgExit() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits) && vExit) {
-		//TODO
-	}
-}
-void onChgGfx() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_GFX),hwndMain,DlgProc_dEditGfx)) {
-		//TODO
+		updateEntireScreen();
 	}
 }
 void onChgHead() {
@@ -597,26 +742,26 @@ void onChgLevMsg() {
 }
 //Window
 void onSelObj() {
-	//TODO
+	ShowWindow(hwndObject,SW_SHOWNORMAL);
 }
 void onSelSp() {
-	//TODO
+	ShowWindow(hwndSprite,SW_SHOWNORMAL);
 }
 void onEditMap8() {
-	//TODO
+	ShowWindow(hwndMap8,SW_SHOWNORMAL);
 }
 void onEditMap16() {
-	//TODO
+	ShowWindow(hwndMap16,SW_SHOWNORMAL);
 }
 void onEditBg() {
-	//TODO
+	ShowWindow(hwndBackground,SW_SHOWNORMAL);
 }
 void onEditPal() {
-	//TODO
+	ShowWindow(hwndPalette,SW_SHOWNORMAL);
 }
 
 //Tables used for menu processing
-#define NUM_COMMANDS (10+6+12+7+6)
+#define NUM_COMMANDS (10+6+12+6+6)
 void (*cmMenuFunc[NUM_COMMANDS])() = {
 //File
 	onOpen,onClose,onSave,onSaveAs,onQuit,
@@ -632,8 +777,7 @@ void (*cmMenuFunc[NUM_COMMANDS])() = {
 	onViewObjHex,onViewSpHex,
 	onViewSwA,onViewSwB,
 //Tools
-	onChgEnt,onChgEnt2,onChgExit,
-	onChgGfx,onChgHead,
+	onChgEnt,onChgEnt2,onChgExit,onChgHead,
 	onChgLevName,onChgLevMsg,
 //Window
 	onSelObj,onSelSp,
@@ -654,8 +798,7 @@ int cmMenuCommand[NUM_COMMANDS] = {
 	1230,1231,
 //Tools
 	1300,1301,1302,
-	1310,1311,
-	1320,1321,
+	1310,1311,1312,
 //Window
 	1400,1403,
 	1410,1411,1412,1413};
@@ -668,6 +811,8 @@ HBITMAP			hbmpMain;
 DWORD *			bmpDataMain;
 int xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
 int yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
+int selOp = 0;
+RECT selRect = {0,0,0,0};
 
 //Extra UI drawing stuff
 void dispEntrances(RECT rect) {
@@ -742,8 +887,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			bmi.bmiHeader.biHeight			= -0x800;
 			hbmpMain = CreateDIBSection(hdcMain,&bmi,DIB_RGB_COLORS,(void**)&bmpDataMain,NULL,0);
 			memset(bmpDataMain,0,0x800000*sizeof(DWORD));
-			//Have message 2000 handle this
-			SendMessage(hwnd,2000,0,0);
 			break;
 		}
 		case WM_DESTROY: {
@@ -797,7 +940,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.nPos			= yCurScroll;
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
 			
-			SendMessage(hwnd,2002,0,0);
+			updateEntireScreen();
 			break;
 		}
 		case WM_HSCROLL: {
@@ -848,7 +991,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.nPos			= xCurScroll;
 			SetScrollInfo(hwnd,SB_HORZ,&si,TRUE);
 			
-			SendMessage(hwnd,2002,0,0);
+			updateEntireScreen();
 			break;
 		}
 		case WM_VSCROLL: {
@@ -899,31 +1042,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.nPos			= yCurScroll;
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
 			
-			SendMessage(hwnd,2002,0,0);
+			updateEntireScreen();
 			break;
 		}
 		//Menu input
 		case WM_COMMAND: {
-			switch(LOWORD(wParam)) {
-				case 2000: {
-					//TODO
-					break;
-				}
-				case 2001: {
-					//TODO
-					break;
-				}
-				case 2002: {
-					//TODO
-					break;
-				}
-				default: {
-					for(int i=0; i<NUM_COMMANDS; i++) {
-						if(cmMenuCommand[i] == LOWORD(wParam)) {
-							(*cmMenuFunc[i])();
-							break;
-						}
-					}
+			for(int i=0; i<NUM_COMMANDS; i++) {
+				if(cmMenuCommand[i] == LOWORD(wParam)) {
+					(*cmMenuFunc[i])();
 					break;
 				}
 			}

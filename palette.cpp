@@ -3,6 +3,7 @@
 HWND hwndPalette;
 DWORD paletteBuffer[0x100];
 DWORD paletteAnimBuffer[0x1000];
+DWORD gradientBuffer[0x18];
 
 void loadPalette() {
 	//Load palette

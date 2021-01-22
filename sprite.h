@@ -2,7 +2,7 @@
 #define SPRITE_H
 
 //Includes
-#include "map8.h"
+#include "background.h"
 
 //Structs
 typedef struct {
@@ -16,7 +16,6 @@ typedef struct {
 	BYTE data[8];
 	int dataSize;
 	bool selected;
-	std::string text;
 	std::vector<sprite_tile_t> tiles;
 } sprite_t;
 typedef struct {
@@ -24,6 +23,9 @@ typedef struct {
 	std::vector<sprite_t*> assocSprites[0x8000];
 	bool invalidSprites[0x8000];
 } level_sprite_data_ctx_t;
+
+//Variables
+extern HWND hwndSprite;
 
 //Functions
 //Sprite drawing
@@ -34,9 +36,6 @@ void dispSprites(DWORD * pixelBuf,int width,int height);
 void loadSprites(BYTE * data);
 int saveSprites(BYTE * data);
 int selectSprites(RECT rect,bool ctrl);
-void addToSpriteSelection(int index);
-void removeFromSpriteSelection(int index);
-void clearSpriteSelection();
 void insertSprites(int x,int y);
 void deleteSprites();
 void moveSprites(int dx,int dy);

@@ -52,15 +52,13 @@ IDM_MENU_MAIN MENU
 	}
 	POPUP "Tools"
 	{
-		MENUITEM "Edit Main/Midway Entrance", 1300, GRAYED
-		MENUITEM "Edit Other Entrances", 1301, GRAYED
+		MENUITEM "Edit Main Entrances", 1300, GRAYED
+		MENUITEM "Edit Midway Entrance", 1301, GRAYED
 		MENUITEM "Edit Screen Exits", 1302, GRAYED
 		MENUITEM SEPARATOR
-		MENUITEM "Edit Graphics/Animation", 1310, GRAYED
-		MENUITEM "Edit Level Header", 1311, GRAYED
-		MENUITEM SEPARATOR
-		MENUITEM "Edit Level Names", 1320, GRAYED
-		MENUITEM "Edit Messages", 1321, GRAYED
+		MENUITEM "Edit Header Properties", 1310, GRAYED
+		MENUITEM "Edit Level Names", 1311, GRAYED
+		MENUITEM "Edit Level Messages", 1312, GRAYED
 	}
 	POPUP "Window"
 	{

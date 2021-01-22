@@ -1,5 +1,6 @@
 #include "object.h"
 
+HWND hwndObject;
 level_object_data_ctx_t objectContexts[2];
 int curObjCtx = 0;
 
@@ -20,19 +21,12 @@ void addObjectTile(object_t * o,WORD tile,int offset) {
 //OBJECT DRAWING FUNCTIONS//
 ////////////////////////////
 //Helper function for drawing text
-void drawObjectText(object_t * o,std::string text,int width) {
-	o->text = text;
-	//Create dummy sprites to draw text on top of
-	//(needed to mark space as occupied)
-	width -= 0x10;
-	for(int i = 0; i < width; i += 0x10) {
-		//TODO
-	}
-	if(width&8); //TODO
+void drawObjectText(object_t * o,char * text) {
+	//TODO
 }
 
 //Helper functions (for calculating tile offsets)
-inline int getBaseMap16Offset(object_t o) {
+inline int getBaseMap16Offset(object_t * o) {
 	//TODO
 }
 inline int offsetMap16Right(int curOffs) {
@@ -86,10 +80,7 @@ int saveObjects(BYTE * data) {
 	//TODO
 }
 
-//Manipulation
-int selectObjects(RECT rect,bool ctrl) {
-	//TODO
-}
+//Manipulation (internal)
 void addToObjectSelection(int index) {
 	//Select object
 	object_t thisObject = objectContexts[0].objects[index];
@@ -118,6 +109,11 @@ void clearObjectSelection() {
 			objectContexts[0].invalidObjects[thisObject.occupiedTiles[i]] = true;
 		}
 	}
+}
+
+//Manipulation
+int selectObjects(RECT rect,bool ctrl) {
+	//TODO
 }
 void insertObjects(int x,int y) {
 	//TODO

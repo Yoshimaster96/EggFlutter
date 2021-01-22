@@ -1,5 +1,6 @@
 #include "sprite.h"
 
+HWND hwndSprite;
 level_sprite_data_ctx_t spriteContexts[2];
 int curSpCtx = 0;
 
@@ -34,15 +35,8 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 //SPRITE DRAWING FUNCTIONS//
 ////////////////////////////
 //Helper function for drawing text
-void drawSpriteText(sprite_t * s,std::string text,int width) {
-	s->text = text;
-	//Create dummy sprites to draw text on top of
-	//(needed to mark space as occupied)
-	width -= 0x10;
-	for(int i = 0; i < width; i += 0x10) {
-		//TODO
-	}
-	if(width&8); //TODO
+void drawSpriteText(sprite_t * s,char * text) {
+	//TODO
 }
 
 //TODO
@@ -77,7 +71,7 @@ bool sprite_delPred(sprite_t & un) {
 //Load/save
 void loadSprites(BYTE * data) {
 	//Clear buffers
-	for(int i = 0; i < 0x8000; i++) {
+	for(int i=0; i<0x8000; i++) {
 		spriteContexts[curSpCtx].assocSprites[i].clear();
 	}
 	spriteContexts[curSpCtx].sprites.clear();
@@ -98,7 +92,7 @@ int saveSprites(BYTE * data) {
 		BYTE * thisData = spriteContexts[curSpCtx].sprites[curIdx].data;
 		int thisDataSz = spriteContexts[curSpCtx].sprites[curIdx].dataSize;
 		//Check if we have room to write object
-		if(curSz + thisDataSz > 0x7FFE) break;
+		if((curSz+thisDataSz)>0x7FFE) break;
 		//Copy data
 		memcpy(&data[curSz],thisData,thisDataSz);
 		//Increment stuff
@@ -107,10 +101,7 @@ int saveSprites(BYTE * data) {
 	}
 }
 
-//Manipulation
-int selectSprites(RECT rect,bool ctrl) {
-	//TODO
-}
+//Manipulation (internal)
 void addToSpriteSelection(int index) {
 	//Select sprite
 	sprite_t thisSprite = spriteContexts[0].sprites[index];
@@ -148,6 +139,11 @@ void clearSpriteSelection() {
 			}
 		}
 	}
+}
+
+//Manipulation
+int selectSprites(RECT rect,bool ctrl) {
+	//TODO
 }
 void insertSprites(int x,int y) {
 	int numSelectedSprites = 0;
@@ -194,7 +190,7 @@ void moveSprites(int dx,int dy) {
 	int numSelectedSprites = 0;
 	int minX = 0x8000,minY = 0x8000;
 	//Check if any sprites are to be pasted
-	for(int n = 0; n < spriteContexts[0].sprites.size(); n++) {
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		if(spriteContexts[0].sprites[n].selected) {
 			//TODO
 			numSelectedSprites++;
