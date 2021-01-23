@@ -6,6 +6,7 @@
 
 //Variables
 extern HWND hwndMap16;
+extern bool wvisMap16;
 
 //Functions
 void loadMap16();

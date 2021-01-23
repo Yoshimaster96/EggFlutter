@@ -20,6 +20,7 @@ typedef struct {
 
 //Variables
 extern HWND hwndObject;
+extern bool wvisObject;
 
 //Functions
 //Object drawing
@@ -27,8 +28,9 @@ int setObjectContext(int ctx);
 void drawObjects();
 void dispObjects(DWORD * pixelBuf,int width,int height);
 //Object management
-void loadObjects(BYTE * data);
+int loadObjects(BYTE * data);
 int saveObjects(BYTE * data);
+void clearObjectSelection();
 int selectObjects(RECT rect,bool ctrl);
 void insertObjects(int x,int y);
 void deleteObjects();

@@ -85,8 +85,8 @@ void unpackGfx4BPP(BYTE * dst,BYTE * src,int numTiles) {
 				int shift = 7-i;
 				BYTE b0 = (src[(n<<5)|(j<<1)|0x00]>>shift)&1;
 				BYTE b1 = (src[(n<<5)|(j<<1)|0x01]>>shift)&1;
-				BYTE b2 = (src[(n<<5)|(j<<1)|0x02]>>shift)&1;
-				BYTE b3 = (src[(n<<5)|(j<<1)|0x03]>>shift)&1;
+				BYTE b2 = (src[(n<<5)|(j<<1)|0x10]>>shift)&1;
+				BYTE b3 = (src[(n<<5)|(j<<1)|0x11]>>shift)&1;
 				dst[(n<<6)|(j<<3)|i] = b0|(b1<<1)|(b2<<2)|(b3<<3);
 			}
 		}
@@ -94,23 +94,23 @@ void unpackGfx4BPP(BYTE * dst,BYTE * src,int numTiles) {
 }
 
 //Pixel manipulation
-inline void fillImage(DWORD * pixelBuf,int width,int height,DWORD color) {
+void fillImage(DWORD * pixelBuf,int width,int height,DWORD color) {
 	int numPixels = width*height;
 	for(int i=0; i<numPixels; i++) {
 		pixelBuf[i] = color;
 	}
 }
-inline void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
 	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
 		pixelBuf[(offs.y*width)+offs.x] = color;
 	}
 }
-inline void invertPixel(DWORD * pixelBuf,int width,int height,POINT offs) {
+void invertPixel(DWORD * pixelBuf,int width,int height,POINT offs) {
 	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
 		pixelBuf[(offs.y*width)+offs.x] ^= 0xFFFFFF;
 	}
 }
-inline void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
 	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
 		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
 		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
@@ -122,7 +122,7 @@ inline void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT 
 		pixelBuf[(offs.y*width)+offs.x] = r|g|b;
 	}
 }
-inline void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
+void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
 	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
 		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
 		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
@@ -136,10 +136,10 @@ inline void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT o
 }
 
 //Tile/texture drawing
-inline int getIndexFromTile(BYTE * tileBuf,DWORD tile,POINT offs) {
-	return tileBuf[(tile<<6)|(offs.x<<3)|offs.y];
+int getIndexFromTile(BYTE * tileBuf,DWORD tile,POINT offs) {
+	return tileBuf[(tile<<6)|offs.x|(offs.y<<3)];
 }
-inline int getIndexFromTexture(BYTE * texBuf,POINT offs) {
+int getIndexFromTexture(BYTE * texBuf,POINT offs) {
 	return texBuf[offs.x|(offs.y<<8)];
 }
 
@@ -689,16 +689,15 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 			}
 			//Command 4 (copy)
 			case 4: {
-				int cpyOff = src[srcOff++]|(src[srcOff++]<<8);
-				memcpy(&dst[dstOff],&src[cpyOff],len);
-				srcOff += len;
+				int cpyOff = (src[srcOff++]<<8)|src[srcOff++];
+				memcpy(&dst[dstOff],&dst[cpyOff],len);
 				dstOff += len;
 				break;
 			}
 			//Command 7 (long mode)
 			case 7: {
 				cmd = (bc>>2)&7;
-				len = ((bc&3)|src[srcOff++])+1;
+				len = (((bc&3)<<8)|src[srcOff++])+1;
 				switch(cmd) {
 					//Command 0 (direct)
 					case 0: {
@@ -733,9 +732,8 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 					}
 					//Command 4 (copy)
 					case 4: {
-						int cpyOff = src[srcOff++]|(src[srcOff++]<<8);
-						memcpy(&dst[dstOff],&src[cpyOff],len);
-						srcOff += len;
+						int cpyOff = (src[srcOff++]<<8)|src[srcOff++];
+						memcpy(&dst[dstOff],&dst[cpyOff],len);
 						dstOff += len;
 						break;
 					}
@@ -789,6 +787,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						}
 						//Copy pixels over
 						memcpy(&curLine[i-cpylen+1],&prevLine[i-cpylen+1],cpylen);
+						i -= cpylen;
 						break;
 					}
 					//Command 1 (copy from previous line until color change, plus n pixels*)
@@ -804,6 +803,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						}
 						//Copy pixels over
 						memset(&curLine[i-(cpylen+cmdlen)+1],curidx,cpylen+cmdlen);
+						i -= cpylen+cmdlen;
 						//Intentionally bork previous buffer to replicate original behavior
 						prevLine[i-(cpylen+cmdlen)] = prevLine[i-cpylen];
 						break;
@@ -834,6 +834,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 						}
 						//Copy pixels over
 						memset(&curLine[i-(cpylen-cmdlen)+1],curidx,cpylen-cmdlen);
+						i -= cpylen-cmdlen;
 						//Intentionally bork previous buffer to replicate original behavior
 						prevLine[i-(cpylen-cmdlen)] = prevLine[i-cpylen];
 						break;
@@ -858,7 +859,8 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		}
 		//Output line
 		for(int i=0; i<0x80; i++) {
-			int idx = ((j>>3)<<10)|((i>>3)<<6)|((j&7)<<3)|(i&7);
+			int tile = ((j>>3)<<4)|(i>>3);
+			int idx = (tile<<3)|((j&7)<<3)|(i&7);
 			dst[idx] = curLine[i];
 		}
 		//Set previous line buffer

@@ -10,7 +10,7 @@ PrivateResource=Project2_private.rc
 ResourceIncludes=
 MakeIncludes=
 Compiler=
-CppCompiler=
+CppCompiler=-std=c++11_@@_
 Linker=
 IsCpp=1
 Icon=
@@ -321,15 +321,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
-FileName=resources\dlg_edit_entrance2.rc
-Folder=resources
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit32]
 FileName=patches\asardll.h
 CompileCpp=1
@@ -342,6 +333,15 @@ BuildCmd=
 
 [Unit26]
 FileName=resources\dlg_edit_header.rc
+Folder=resources
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=resources\dlg_manual_sp.rc
 Folder=resources
 Compile=1
 Link=1

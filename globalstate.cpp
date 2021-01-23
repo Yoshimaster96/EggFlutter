@@ -8,6 +8,7 @@ DWORD allocOffs[0x2000],allocSizes[0x2000];
 //Variables for levels
 BYTE curLevel = 0;
 BYTE levelHeader[10];
+BYTE screenExits[0x200];
 
 ///////////////////////////////
 //ROM PATCHING AND ALLOCATION//

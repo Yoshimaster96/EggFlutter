@@ -11,6 +11,7 @@ extern BYTE romBuf[0x800000];
 //Variables for levels
 extern BYTE curLevel;
 extern BYTE levelHeader[10];
+extern BYTE screenExits[0x200];
 
 //Functions
 bool checkRom();

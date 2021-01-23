@@ -26,6 +26,7 @@ typedef struct {
 
 //Variables
 extern HWND hwndSprite;
+extern bool wvisSprite;
 
 //Functions
 //Sprite drawing
@@ -35,6 +36,7 @@ void dispSprites(DWORD * pixelBuf,int width,int height);
 //Sprite management
 void loadSprites(BYTE * data);
 int saveSprites(BYTE * data);
+void clearSpriteSelection();
 int selectSprites(RECT rect,bool ctrl);
 void insertSprites(int x,int y);
 void deleteSprites();

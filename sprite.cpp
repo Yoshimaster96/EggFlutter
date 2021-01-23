@@ -1,6 +1,7 @@
 #include "sprite.h"
 
 HWND hwndSprite;
+bool wvisSprite = false;
 level_sprite_data_ctx_t spriteContexts[2];
 int curSpCtx = 0;
 
@@ -39,13 +40,189 @@ void drawSpriteText(sprite_t * s,char * text) {
 	//TODO
 }
 
+//Floating log
+void drawSprite_000(sprite_t * s) {
+	//TODO
+}
+//Closed door
+void drawSprite_001(sprite_t * s) {
+	//TODO
+}
+//Naval Piranha stalk
+void drawSprite_002(sprite_t * s) {
+	//TODO
+}
+//Crate (key)
+void drawSprite_003(sprite_t * s) {
+	//TODO
+}
 //TODO
 
 //Sprite function pointer table and updater
 void drawSprite_unused(sprite_t * s) {
 	//TODO
 }
-//TODO
+void (*spriteDrawFunc[0x200])(sprite_t * s) = {
+	//000
+	drawSprite_000,drawSprite_001,drawSprite_002,drawSprite_003,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//010
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//020
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//030
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//040
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//050
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//060
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//070
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//080
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//090
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0A0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0B0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0C0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0D0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0E0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//0F0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//100
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//110
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//120
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//130
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//140
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//150
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//160
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//170
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//180
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//190
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1A0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1B0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1C0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1D0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1E0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	//1F0
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused};
 int setSpriteContext(int ctx) {
 	int prevCtx = curSpCtx;
 	curSpCtx = ctx;
@@ -53,7 +230,9 @@ int setSpriteContext(int ctx) {
 }
 void drawSprites() {
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
-		//TODO
+		sprite_t thisSprite = spriteContexts[curSpCtx].sprites[n];
+		int id = thisSprite.data[0]|(thisSprite.data[1]<<8);
+		spriteDrawFunc[id&0x1FF](&thisSprite);
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height) {
@@ -77,26 +256,34 @@ void loadSprites(BYTE * data) {
 	spriteContexts[curSpCtx].sprites.clear();
 	//Reload buffer with sprite data
 	while(true) {
-		//TODO
+		//Create entry
+		sprite_t entry;
+		//Get data bytes and check for end
+		entry.data[0] = *data++;
+		entry.data[1] = *data++;
+		if(entry.data[0]==0xFF && entry.data[1]==0xFF) break;
+		entry.data[2] = *data++;
+		entry.dataSize = 3;
+		//Init other elements to sane values
+		entry.selected = false;
+		entry.tiles.clear();
+		//Push back
+		spriteContexts[curSpCtx].sprites.push_back(entry);
 	}
 	//Draw sprite data
 	drawSprites();
 }
 int saveSprites(BYTE * data) {
 	//Init stuff
-	int curIdx = 0;
 	int curSz = 0;
 	//Save sprite data
-	while(true) {
+	for(int n=0; n<spriteContexts[curSpCtx].sprites.size(); n++) {
 		//Shorten the names of these for convenience
-		BYTE * thisData = spriteContexts[curSpCtx].sprites[curIdx].data;
-		int thisDataSz = spriteContexts[curSpCtx].sprites[curIdx].dataSize;
-		//Check if we have room to write object
-		if((curSz+thisDataSz)>0x7FFE) break;
+		BYTE * thisData = spriteContexts[curSpCtx].sprites[n].data;
+		int thisDataSz = spriteContexts[curSpCtx].sprites[n].dataSize;
 		//Copy data
 		memcpy(&data[curSz],thisData,thisDataSz);
 		//Increment stuff
-		curIdx++;
 		curSz += thisDataSz;
 	}
 }
@@ -107,9 +294,9 @@ void addToSpriteSelection(int index) {
 	sprite_t thisSprite = spriteContexts[0].sprites[index];
 	thisSprite.selected = true;
 	//Mark occupied tiles as invalid
-	for(int i = 0; i < thisSprite.tiles.size(); i++) {
+	for(int i=0; i<thisSprite.tiles.size(); i++) {
 		sprite_tile_t thisTile = thisSprite.tiles[i];
-		for(int j = 0; j < thisTile.numOccupiedTiles; j++) {
+		for(int j=0; j<thisTile.numOccupiedTiles; j++) {
 			spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
 		}
 	}
@@ -119,22 +306,22 @@ void removeFromSpriteSelection(int index) {
 	sprite_t thisSprite = spriteContexts[0].sprites[index];
 	thisSprite.selected = false;
 	//Mark occupied tiles as invalid
-	for(int i = 0; i < thisSprite.tiles.size(); i++) {
+	for(int i=0; i<thisSprite.tiles.size(); i++) {
 		sprite_tile_t thisTile = thisSprite.tiles[i];
-		for(int j = 0; j < thisTile.numOccupiedTiles; j++) {
+		for(int j=0; j<thisTile.numOccupiedTiles; j++) {
 			spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
 		}
 	}
 }
 void clearSpriteSelection() {
 	//Deselect all sprites
-	for(int n = 0; n < spriteContexts[0].sprites.size(); n++) {
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t thisSprite = spriteContexts[0].sprites[n];
 		thisSprite.selected = false;
 		//Mark occupied tiles as invalid
-		for(int i = 0; i < thisSprite.tiles.size(); i++) {
+		for(int i=0; i<thisSprite.tiles.size(); i++) {
 			sprite_tile_t thisTile = thisSprite.tiles[i];
-			for(int j = 0; j < thisTile.numOccupiedTiles; j++) {
+			for(int j=0; j<thisTile.numOccupiedTiles; j++) {
 				spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
 			}
 		}
@@ -143,15 +330,34 @@ void clearSpriteSelection() {
 
 //Manipulation
 int selectSprites(RECT rect,bool ctrl) {
-	//TODO
+	if(ctrl) {
+		//TODO
+		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+			//TODO
+		}
+		//TODO
+	} else {
+		//TODO
+		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+			//TODO
+		}
+		//TODO
+	}
 }
 void insertSprites(int x,int y) {
 	int numSelectedSprites = 0;
 	int minX = 0x8000,minY = 0x8000;
+	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be pasted
-	for(int n = 0; n < spriteContexts[0].sprites.size(); n++) {
-		if(spriteContexts[0].sprites[n].selected) {
-			//TODO
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t thisSprite = spriteContexts[0].sprites[n];
+		if(thisSprite.selected) {
+			int xpos = thisSprite.data[2];
+			int ypos = thisSprite.data[1]>>1;
+			if(xpos<minX) minX = xpos;
+			if(ypos<minY) minY = ypos;
+			if(xpos>maxX) maxX = xpos;
+			if(ypos>maxY) maxY = ypos;
 			numSelectedSprites++;
 		}
 	}
@@ -171,13 +377,13 @@ void insertSprites(int x,int y) {
 }
 void deleteSprites() {
 	//Invalidate occupied tiles
-	for(int n = 0; n < spriteContexts[0].sprites.size(); n++) {
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t thisSprite = spriteContexts[0].sprites[n];
 		if(thisSprite.selected) {
 			//Mark occupied tiles as invalid
-			for(int i = 0; i < thisSprite.tiles.size(); i++) {
+			for(int i=0; i<thisSprite.tiles.size(); i++) {
 				sprite_tile_t thisTile = thisSprite.tiles[i];
-				for(int j = 0; j < thisTile.numOccupiedTiles; j++) {
+				for(int j=0; j<thisTile.numOccupiedTiles; j++) {
 					spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
 				}
 			}
@@ -189,10 +395,17 @@ void deleteSprites() {
 void moveSprites(int dx,int dy) {
 	int numSelectedSprites = 0;
 	int minX = 0x8000,minY = 0x8000;
+	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be pasted
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		if(spriteContexts[0].sprites[n].selected) {
-			//TODO
+		sprite_t thisSprite = spriteContexts[0].sprites[n];
+		if(thisSprite.selected) {
+			int xpos = thisSprite.data[2];
+			int ypos = thisSprite.data[1]>>1;
+			if(xpos<minX) minX = xpos;
+			if(ypos<minY) minY = ypos;
+			if(xpos>maxX) maxX = xpos;
+			if(ypos>maxY) maxY = ypos;
 			numSelectedSprites++;
 		}
 	}
@@ -208,9 +421,45 @@ void moveSprites(int dx,int dy) {
 ///////////////////
 //WINDOW FUNCTION//
 ///////////////////
+HDC				hdcSp;
+HBITMAP			hbmpSp;
+DWORD *			bmpDataSp;
+
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
-		//TODO
+		//Creation and destruction of window(s)
+		case WM_CREATE: {
+			//Add controls
+			//TODO
+			//Create objects
+			//TODO
+			break;
+		}
+		case WM_DESTROY: {
+			//Free objects
+			//TODO
+			break;
+		}
+		case WM_CLOSE: {
+			//Simply hide the window
+			ShowWindow(hwnd,SW_HIDE);
+			wvisSprite = false;
+			break;
+		}
+		//Updating
+		case WM_PAINT: {
+			//TODO
+			break;
+		}
+		//Input
+		case WM_COMMAND: {
+			//TODO
+			break;
+		}
+		default: {
+			return DefWindowProc(hwnd,msg,wParam,lParam);
+		}
 	}
+	return 0;
 }
 

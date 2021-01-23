@@ -5,7 +5,24 @@
 /////////////////
 void loadLevel() {
 	//Get level pointer and load data
-	//TODO
+	DWORD objectAddr = romBuf[0x0BF7C3+(curLevel*3)]|(romBuf[0x0BF7C4+(curLevel*3)]<<8)|(romBuf[0x0BF7C5+(curLevel*3)]<<16);
+	DWORD spriteAddr = romBuf[0x0BF7C6+(curLevel*3)]|(romBuf[0x0BF7C7+(curLevel*3)]<<8)|(romBuf[0x0BF7C8+(curLevel*3)]<<16);
+	objectAddr = convAddr_SNEStoPC_YI(objectAddr);
+	spriteAddr = convAddr_SNEStoPC_YI(spriteAddr);
+	memcpy(levelHeader,&romBuf[objectAddr],10);
+	objectAddr += 10;
+	objectAddr += loadObjects(&romBuf[objectAddr]);
+	memset(screenExits,0xFF,0x200);
+	while(true) {
+		BYTE page = romBuf[objectAddr++];
+		if(page==0xFF) break;
+		page <<= 2;
+		screenExits[page] = romBuf[objectAddr++];
+		screenExits[page+1] = romBuf[objectAddr++];
+		screenExits[page+2] = romBuf[objectAddr++];
+		screenExits[page+3] = romBuf[objectAddr++];
+	}
+	loadSprites(&romBuf[spriteAddr]);
 	//Load other stuff
 	loadMap8();
 	updateMap8(0);
@@ -14,20 +31,16 @@ void loadLevel() {
 	updatePalette(0);
 	loadBackground2();
 	loadBackground3();
-	//Search for screen exits from other levels (display only)
-	for(int i=0; i<0xDE; i++) {
-		if(i==curLevel) continue;
-		//Get level pointer
-		//TODO
-		//Step through object data (don't load, just skip past)
-		//TODO
-		//Read screen exits and check if any go to current level
-		//TODO
-	}
 }
 void saveLevel() {
 	//Determine level size
-	//TODO
+	BYTE tempBufObj[0x8000],tempBufSp[0x8000];
+	int objectSize = saveObjects(tempBufObj);
+	objectSize += 11;
+	for(int i=0; i<0x200; i+=4) {
+		if(screenExits[i]!=0xFF) objectSize += 5;
+	}
+	int spriteSize = saveSprites(tempBufSp);
 	//Find an area to write level data to
 	//TODO
 	//Save level data
@@ -51,6 +64,30 @@ void setHexVal_dlg(HWND hwnd,int control,DWORD val) {
 	SetDlgItemText(hwnd,control,strBuf_dlg);
 }
 
+//Dialog updaters
+void updateDialog_editEntrances(HWND hwnd) {
+	HWND hwndEditEntCb = GetDlgItem(hwnd,20);
+	int tlevIdx = SendMessage(hwndEditEntCb,CB_GETCURSEL,0,0);
+	setHexVal_dlg(hwnd,21,romBuf[0x0BF471+(tlevIdx<<2)]);
+	setHexVal_dlg(hwnd,23,romBuf[0x0BF472+(tlevIdx<<2)]);
+	setHexVal_dlg(hwnd,24,romBuf[0x0BF473+(tlevIdx<<2)]);
+}
+void updateDialog_editEntrances2(HWND hwnd) {
+	//TODO
+}
+void updateDialog_editExits(HWND hwnd) {
+	//TODO
+}
+void updateDialog_editHeader(HWND hwnd) {
+	//TODO
+}
+void updateDialog_editLevNames(HWND hwnd) {
+	//TODO
+}
+void updateDialog_editLevMessages(HWND hwnd) {
+	//TODO
+}
+
 //Dialog functions
 LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
@@ -60,6 +97,8 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 			//Limit to 2 characters
 			HWND hwndOpenByIdEt = GetDlgItem(hwnd,20);
 			SendMessage(hwndOpenByIdEt,EM_SETLIMITTEXT,2,0);
+			//Init control values
+			setHexVal_dlg(hwnd,20,curLevel);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -76,7 +115,7 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 				}
 				case IDOK: {
 					BYTE lev = getHexVal_dlg(hwnd,20);
-					if(lev>=0x00 && lev<=0xDD) {
+					if(lev<=0xDD) {
 						//Set level ID and exit with code 1 (load level)
 						curLevel = lev;
 						EndDialog(hwnd,1);
@@ -156,19 +195,6 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Intro");
 			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Tutorial");
 			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
-			hwndEditEntCb = GetDlgItem(hwnd,22);
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Do Nothing");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Skiing");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Right");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Left");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Down");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Exit Pipe Up");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Walk Right");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Walk Left");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Fall Down");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Jump Up");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Raphael Intro");
-			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
 			//Limit to 2 characters
 			HWND hwndEditEntEt = GetDlgItem(hwnd,21);
 			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
@@ -177,7 +203,7 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 			hwndEditEntEt = GetDlgItem(hwnd,24);
 			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
 			//Init control values
-			//TODO
+			updateDialog_editEntrances(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -187,13 +213,33 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 		}
 		case WM_COMMAND: {
 			switch(LOWORD(wParam)) {
+				case 20: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateDialog_editEntrances(hwnd);
+					}
+					break;
+				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
 					SendMessage(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
-					//TODO
+					HWND hwndEditEntCb = GetDlgItem(hwnd,20);
+					int tlevIdx = SendMessage(hwndEditEntCb,CB_GETCURSEL,0,0);
+					BYTE lev = getHexVal_dlg(hwnd,21);
+					BYTE xpos = getHexVal_dlg(hwnd,23);
+					BYTE ypos = getHexVal_dlg(hwnd,24);
+					if(lev<=0xDD && ypos<=0x7F) {
+						//Set level entrance info and exit with code 1 (entrances changed)
+						romBuf[0x0BF471+(tlevIdx<<2)] = lev;
+						romBuf[0x0BF472+(tlevIdx<<2)] = xpos;
+						romBuf[0x0BF473+(tlevIdx<<2)] = ypos;
+						EndDialog(hwnd,1);
+					} else {
+						//Have WM_CLOSE handle this
+						SendMessage(hwnd,WM_CLOSE,0,0);
+					}
 					break;
 				}
 			}
@@ -367,9 +413,8 @@ HMENU hmenuMain;
 
 //View states
 bool eObj = true,eSp = false;
-bool vObj = true,vBg2 = true,vBg3 = true,vSp = true;
+bool vObj = true,vSp = true;
 bool vEnt = true,vExit = false,vGrid = false,vAnim = false;
-bool vObjHex = false,vSpHex = false;
 bool vSwA = false,vSwB = false;
 
 //Helper functions
@@ -388,20 +433,16 @@ void updateMenu() {
 	EnableMenuItem(hmenuMain,1022,enableState);
 	//Edit
 	EnableMenuItem(hmenuMain,1100,enableState);
-	EnableMenuItem(hmenuMain,1103,enableState);
+	EnableMenuItem(hmenuMain,1101,enableState);
 	//View
 	EnableMenuItem(hmenuMain,1200,enableState);
 	EnableMenuItem(hmenuMain,1201,enableState);
-	EnableMenuItem(hmenuMain,1202,enableState);
-	EnableMenuItem(hmenuMain,1203,enableState);
 	EnableMenuItem(hmenuMain,1210,enableState);
 	EnableMenuItem(hmenuMain,1211,enableState);
 	EnableMenuItem(hmenuMain,1212,enableState);
 	EnableMenuItem(hmenuMain,1213,enableState);
 	EnableMenuItem(hmenuMain,1220,enableState);
-	EnableMenuItem(hmenuMain,1223,enableState);
-	EnableMenuItem(hmenuMain,1230,enableState);
-	EnableMenuItem(hmenuMain,1231,enableState);
+	EnableMenuItem(hmenuMain,1221,enableState);
 	//Tools
 	EnableMenuItem(hmenuMain,1300,enableState);
 	EnableMenuItem(hmenuMain,1301,enableState);
@@ -411,7 +452,7 @@ void updateMenu() {
 	EnableMenuItem(hmenuMain,1312,enableState);
 	//Window
 	EnableMenuItem(hmenuMain,1400,enableState);
-	EnableMenuItem(hmenuMain,1403,enableState);
+	EnableMenuItem(hmenuMain,1401,enableState);
 	EnableMenuItem(hmenuMain,1410,enableState);
 	EnableMenuItem(hmenuMain,1411,enableState);
 	EnableMenuItem(hmenuMain,1412,enableState);
@@ -419,26 +460,18 @@ void updateMenu() {
 	//Update Edit Object/Sprite check state
 	//and relevant enables/disables
 	CheckMenuItem(hmenuMain,1100,eObj?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1103,eSp?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1101,eSp?MF_CHECKED:0);
 	UINT enableObj = eObj?0:MF_GRAYED;
-	UINT enableSp = eSp?0:MF_GRAYED;
 	enableObj |= enableState;
-	enableSp |= enableState;
 	EnableMenuItem(hmenuMain,1110,enableObj);
 	EnableMenuItem(hmenuMain,1111,enableObj);
-	EnableMenuItem(hmenuMain,1120,enableObj);
-	EnableMenuItem(hmenuMain,1121,enableSp);
 	//Update checked state for View menu items
 	CheckMenuItem(hmenuMain,1200,vObj?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1201,vBg2?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1202,vBg3?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1203,vSp?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1201,vSp?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1210,vEnt?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1211,vExit?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1212,vGrid?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1213,vAnim?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1220,vObjHex?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1221,vSpHex?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1230,vSwA?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1231,vSwB?MF_CHECKED:0);
 }
@@ -451,6 +484,35 @@ inline BOOL promptSave() {
 inline void updateEntireScreen() {
 	RECT rect = {xCurScroll,yCurScroll,xCurScroll+xCurSize,yCurScroll+yCurSize};
 	updateRect(rect);
+}
+inline void updateDialogs() {
+	RECT rect = {0,0,256,256};
+	if(wvisObject) {
+		InvalidateRect(hwndObject,&rect,false);
+		UpdateWindow(hwndObject);
+	}
+	if(wvisSprite) {
+		InvalidateRect(hwndSprite,&rect,false);
+		UpdateWindow(hwndSprite);
+	}
+	if(wvisMap8) {
+		InvalidateRect(hwndMap8,&rect,false);
+		UpdateWindow(hwndMap8);
+	}
+	if(wvisPalette) {
+		InvalidateRect(hwndPalette,&rect,false);
+		UpdateWindow(hwndPalette);
+	}
+	rect = {0,0,512,512};
+	if(wvisMap16) {
+		InvalidateRect(hwndMap16,&rect,false);
+		UpdateWindow(hwndMap16);
+	}
+	rect = {0,0,1024,1024};
+	if(wvisBackground) {
+		InvalidateRect(hwndBackground,&rect,false);
+		UpdateWindow(hwndBackground);
+	}
 }
 
 //Functions for menu items
@@ -488,6 +550,7 @@ void onOpen() {
 			//Load level
 			loadLevel();
 			updateEntireScreen();
+			updateDialogs();
 		}
 	}
 }
@@ -499,7 +562,20 @@ void onClose() {
 		}
 		isRomOpen = false;
 		updateMenu();
-		//TODO
+		ShowWindow(hwndObject,SW_HIDE);
+		ShowWindow(hwndSprite,SW_HIDE);
+		ShowWindow(hwndMap8,SW_HIDE);
+		ShowWindow(hwndMap16,SW_HIDE);
+		ShowWindow(hwndPalette,SW_HIDE);
+		ShowWindow(hwndBackground,SW_HIDE);
+		wvisObject = false;
+		wvisSprite = false;
+		wvisMap8 = false;
+		wvisMap16 = false;
+		wvisPalette = false;
+		wvisBackground = false;
+		updateEntireScreen();
+		updateDialogs();
 	}
 }
 void onSave() {
@@ -596,6 +672,7 @@ void onOpenLevel() {
 		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
 			loadLevel();
 			updateEntireScreen();
+			updateDialogs();
 		}
 	}
 }
@@ -609,6 +686,7 @@ void onNextLevel() {
 			curLevel++;
 			loadLevel();
 			updateEntireScreen();
+			updateDialogs();
 		}
 	}
 }
@@ -622,56 +700,41 @@ void onPrevLevel() {
 			curLevel--;
 			loadLevel();
 			updateEntireScreen();
+			updateDialogs();
 		}
 	}
 }
 //Edit
 void onEditObj() {
-	//TODO
+	clearSpriteSelection();
 	eObj = true;
 	eSp = false;
 	updateMenu();
 	updateEntireScreen();
 }
 void onEditSp() {
-	//TODO
+	clearObjectSelection();
 	eSp = true;
 	eObj = false;
 	updateMenu();
 	updateEntireScreen();
 }
 void onIncZ() {
+	increaseObjectZ();
 	//TODO
 }
 void onDecZ() {
-	//TODO
-}
-void onManualObj() {
-	//TODO
-}
-void onManualSp() {
+	decreaseObjectZ();
 	//TODO
 }
 //View
 void onViewObj() {
 	vObj = !vObj;
-	//TODO
-	updateMenu();
-	updateEntireScreen();
-}
-void onViewBg2() {
-	vBg2 = !vBg2;
-	updateMenu();
-	updateEntireScreen();
-}
-void onViewBg3() {
-	vBg3 = !vBg3;
 	updateMenu();
 	updateEntireScreen();
 }
 void onViewSp() {
 	vSp = !vSp;
-	//TODO
 	updateMenu();
 	updateEntireScreen();
 }
@@ -693,27 +756,18 @@ void onViewGrid() {
 void onViewAnim() {
 	vAnim = !vAnim;
 	updateMenu();
-	//TODO
-}
-void onViewObjHex() {
-	vObjHex = !vObjHex;
-	updateMenu();
-	updateEntireScreen();
-}
-void onViewSpHex() {
-	vSpHex = !vSpHex;
-	updateMenu();
-	updateEntireScreen();
 }
 void onViewSwA() {
 	vSwA = !vSwA;
 	updateMenu();
 	//TODO
+	updateEntireScreen();
 }
 void onViewSwB() {
 	vSwB = !vSwB;
 	updateMenu();
 	//TODO
+	updateEntireScreen();
 }
 //Tools
 void onChgEnt() {
@@ -732,7 +786,10 @@ void onChgExit() {
 	}
 }
 void onChgHead() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader);
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader)) {
+		updateEntireScreen();
+		updateDialogs();
+	}
 }
 void onChgLevName() {
 	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,DlgProc_dEditLevNames);
@@ -743,25 +800,31 @@ void onChgLevMsg() {
 //Window
 void onSelObj() {
 	ShowWindow(hwndObject,SW_SHOWNORMAL);
+	wvisObject = true;
 }
 void onSelSp() {
 	ShowWindow(hwndSprite,SW_SHOWNORMAL);
+	wvisSprite = true;
 }
 void onEditMap8() {
 	ShowWindow(hwndMap8,SW_SHOWNORMAL);
+	wvisMap8 = true;
 }
 void onEditMap16() {
 	ShowWindow(hwndMap16,SW_SHOWNORMAL);
-}
-void onEditBg() {
-	ShowWindow(hwndBackground,SW_SHOWNORMAL);
+	wvisMap16 = true;
 }
 void onEditPal() {
 	ShowWindow(hwndPalette,SW_SHOWNORMAL);
+	wvisPalette = true;
+}
+void onEditBg() {
+	ShowWindow(hwndBackground,SW_SHOWNORMAL);
+	wvisBackground = true;
 }
 
 //Tables used for menu processing
-#define NUM_COMMANDS (10+6+12+6+6)
+#define NUM_COMMANDS (10+4+8+6+6)
 void (*cmMenuFunc[NUM_COMMANDS])() = {
 //File
 	onOpen,onClose,onSave,onSaveAs,onQuit,
@@ -770,11 +833,9 @@ void (*cmMenuFunc[NUM_COMMANDS])() = {
 //Edit
 	onEditObj,onEditSp,
 	onIncZ,onDecZ,
-	onManualObj,onManualSp,
 //View
-	onViewObj,onViewBg2,onViewBg3,onViewSp,
+	onViewObj,onViewSp,
 	onViewEnt,onViewExit,onViewGrid,onViewAnim,
-	onViewObjHex,onViewSpHex,
 	onViewSwA,onViewSwB,
 //Tools
 	onChgEnt,onChgEnt2,onChgExit,onChgHead,
@@ -788,19 +849,17 @@ int cmMenuCommand[NUM_COMMANDS] = {
 	1010,1011,
 	1020,1021,1022,
 //Edit
-	1100,1103,
+	1100,1101,
 	1110,1111,
-	1120,1121,
 //View
-	1200,1201,1202,1203,
+	1200,1201,
 	1210,1211,1212,1213,
-	1220,1223,
-	1230,1231,
+	1220,1221,
 //Tools
 	1300,1301,1302,
 	1310,1311,1312,
 //Window
-	1400,1403,
+	1400,1401,
 	1410,1411,1412,1413};
 
 /////////////////////
@@ -838,35 +897,26 @@ void dispSpHexVals(RECT rect) {
 
 //Main drawing code
 void updateRect(RECT rect) {
-	//Draw layer 3 (if priority below)
-	//TODO
-	//Draw layer 2
-	//TODO
-	//Draw layer 3 (if priority middle)
-	//TODO
-	//Draw objects
-	//TODO
-	if(vObjHex) {
-		dispObjHexVals(rect);
-	}
-	//Draw sprites
-	//TODO
-	if(vSpHex) {
-		dispSpHexVals(rect);
-	}
-	//Draw layer 3 (if priority above)
-	//TODO
-	//Draw entrances
-	if(vEnt) {
-		dispEntrances(rect);
-	}
-	//Draw exits
-	if(vExit) {
-		dispExits(rect);
-	}
-	//Draw grid
-	if(vGrid) {
-		dispGrid(rect);
+	if(isRomOpen) {
+		//Draw objects
+		//TODO
+		//Draw sprites
+		//TODO
+		//Draw entrances
+		if(vEnt) {
+			dispEntrances(rect);
+		}
+		//Draw exits
+		if(vExit) {
+			dispExits(rect);
+		}
+		//Draw grid
+		if(vGrid) {
+			dispGrid(rect);
+		}
+	} else {
+		//Fill with black
+		//TODO
 	}
 }
 
@@ -1083,7 +1133,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
 	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
 	
-	//Register window classes
+	//Register main window class
 	WNDCLASSEX wc;
 	memset(&wc,0,sizeof(WNDCLASSEX));
 	wc.cbSize			= sizeof(WNDCLASSEX);
@@ -1098,8 +1148,68 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		MessageBox(NULL,"Main window registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
+	//Register children window classes
+	WNDCLASSEX wcObj,wcSp,wcMap8,wcMap16,wcPal,wcBg;
+	memset(&wcObj,0,sizeof(WNDCLASSEX));
+	wcObj.cbSize			= sizeof(WNDCLASSEX);
+	wcObj.lpfnWndProc		= WndProc_Object;
+	wcObj.hInstance			= hInstance;
+	wcObj.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcObj.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
+	wcObj.lpszClassName		= "NewYILevelEditor_Object";
+	wcObj.hIcon				= hiconMain;
+	wcObj.hIconSm			= hiconMain;
+	memset(&wcSp,0,sizeof(WNDCLASSEX));
+	wcSp.cbSize				= sizeof(WNDCLASSEX);
+	wcSp.lpfnWndProc		= WndProc_Sprite;
+	wcSp.hInstance			= hInstance;
+	wcSp.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcSp.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
+	wcSp.lpszClassName		= "NewYILevelEditor_Sprite";
+	wcSp.hIcon				= hiconMain;
+	wcSp.hIconSm			= hiconMain;
+	memset(&wcMap8,0,sizeof(WNDCLASSEX));
+	wcMap8.cbSize			= sizeof(WNDCLASSEX);
+	wcMap8.lpfnWndProc		= WndProc_Map8;
+	wcMap8.hInstance		= hInstance;
+	wcMap8.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcMap8.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
+	wcMap8.lpszClassName	= "NewYILevelEditor_Map8";
+	wcMap8.hIcon			= hiconMain;
+	wcMap8.hIconSm			= hiconMain;
+	memset(&wcMap16,0,sizeof(WNDCLASSEX));
+	wcMap16.cbSize			= sizeof(WNDCLASSEX);
+	wcMap16.lpfnWndProc		= WndProc_Map16;
+	wcMap16.hInstance		= hInstance;
+	wcMap16.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcMap16.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
+	wcMap16.lpszClassName	= "NewYILevelEditor_Map16";
+	wcMap16.hIcon			= hiconMain;
+	wcMap16.hIconSm			= hiconMain;
+	memset(&wcPal,0,sizeof(WNDCLASSEX));
+	wcPal.cbSize			= sizeof(WNDCLASSEX);
+	wcPal.lpfnWndProc		= WndProc_Palette;
+	wcPal.hInstance			= hInstance;
+	wcPal.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcPal.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
+	wcPal.lpszClassName		= "NewYILevelEditor_Palette";
+	wcPal.hIcon				= hiconMain;
+	wcPal.hIconSm			= hiconMain;
+	memset(&wcBg,0,sizeof(WNDCLASSEX));
+	wcBg.cbSize				= sizeof(WNDCLASSEX);
+	wcBg.lpfnWndProc		= WndProc_Background;
+	wcBg.hInstance			= hInstance;
+	wcBg.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcBg.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
+	wcBg.lpszClassName		= "NewYILevelEditor_Background";
+	wcBg.hIcon				= hiconMain;
+	wcBg.hIconSm			= hiconMain;
+	if(!RegisterClassEx(&wcObj) || !RegisterClassEx(&wcSp) || !RegisterClassEx(&wcMap8) || !RegisterClassEx(&wcMap16) || !RegisterClassEx(&wcPal) || !RegisterClassEx(&wcBg)) {
+		MessageBox(NULL,"Children windows registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		return 0;
+	}
 	
-	//Create windows
+	//Create main window
 	hwndMain = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor","EggFlutter",WS_VISIBLE|WS_OVERLAPPEDWINDOW|WS_HSCROLL|WS_VSCROLL,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -1108,6 +1218,59 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		NULL,NULL,hInstance,NULL);
 	if(hwndMain==NULL) {
 		MessageBox(NULL,"Main window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		return 0;
+	}
+	//Create children windows
+	RECT refSize = {0,0,256,256};
+	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
+	int refWidth = refSize.right-refSize.left;
+	int refHeight = refSize.bottom-refSize.top;
+	hwndObject = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Object","Select Object",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	hwndSprite = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Sprite","Select Sprite",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	hwndMap8 = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	hwndPalette = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Palette","View Palette",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	refSize = {0,0,512,512};
+	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
+	refWidth = refSize.right-refSize.left;
+	refHeight = refSize.bottom-refSize.top;
+	hwndMap16 = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map16","View 16x16 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	refSize = {0,0,1024,1024};
+	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
+	refWidth = refSize.right-refSize.left;
+	refHeight = refSize.bottom-refSize.top;
+	hwndBackground = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Background","View Background",WS_POPUPWINDOW|WS_CAPTION,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		refWidth,
+		refHeight,
+		hwndMain,NULL,hInstance,NULL);
+	if(hwndObject==NULL || hwndSprite==NULL || hwndMap8==NULL || hwndMap16==NULL || hwndPalette==NULL || hwndBackground==NULL) {
+		MessageBox(NULL,"Children windows creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	
