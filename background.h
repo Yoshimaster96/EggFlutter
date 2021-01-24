@@ -7,7 +7,7 @@
 //Variables
 extern HWND hwndBackground;
 extern bool wvisBackground;
-extern BYTE bg2Buffer[0x1000],bg3Buffer[0x800];
+extern DWORD * bmpDataBg;
 
 //Functions
 void loadBackground2();

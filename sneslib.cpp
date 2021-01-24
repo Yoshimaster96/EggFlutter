@@ -189,10 +189,10 @@ DWORD readBitsLSB(BYTE * data,int * offset,int * bitOffset,int bitLength) {
 		DWORD bit = (data[*offset]>>*bitOffset)&1;
 		value |= bit<<i;
 		//Move to next bit
-		*bitOffset++;
-		if(*bitOffset==8) {
+		(*bitOffset)++;
+		if((*bitOffset)==8) {
 			*bitOffset = 0;
-			*offset++;
+			(*offset)++;
 		}
 	}
 	return value;
@@ -204,10 +204,10 @@ DWORD readBitsMSB(BYTE * data,int * offset,int * bitOffset,int bitLength) {
 		DWORD bit = (data[*offset]>>*bitOffset)&1;
 		value |= bit<<(bitLength-1-i);
 		//Move to next bit
-		*bitOffset++;
-		if(*bitOffset==8) {
+		(*bitOffset)++;
+		if((*bitOffset)==8) {
 			*bitOffset = 0;
-			*offset++;
+			(*offset)++;
 		}
 	}
 	return value;
@@ -251,6 +251,7 @@ DWORD readVariableSize(BYTE * data,int * offset,int * bitOffset) {
 		bitLength++;
 	}
 	value |= 1<<bitLength;
+	return value;
 }
 void writeVariableSize(BYTE * data,int * offset,int * bitOffset,DWORD value) {
 	int bitLength = 7;
@@ -760,6 +761,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 	palette[6] = src[3]&0xF;
 	for(int j=0; j<numLines; j++) {
 		BYTE curLine[0x80];
+		memset(curLine,0,0x80);
 		//Get line type
 		int lineType = readBitsLSB(src,&srcOff,&srcBitOff,1);
 		//Line type 1
@@ -780,7 +782,7 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 							int thisIdx = prevLine[si--];
 							if(thisIdx!=curidx) {
 								numsects++;
-								if(numsects>cmdlen) break;
+								if(numsects>=cmdlen) break;
 								curidx = thisIdx;
 							}
 							cpylen++;
@@ -794,18 +796,18 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					case 1: {
 						//Determine the number of pixels taken up by this section
 						int si = i;
-						int cpylen = 0;
-						int curidx = curLine[si--];
+						int cpylen = 1;
+						int curidx = prevLine[si--];
 						while(si>=0) {
-							int thisIdx = curLine[si--];
+							int thisIdx = prevLine[si--];
 							if(thisIdx!=curidx) break;
 							cpylen++;
 						}
 						//Copy pixels over
 						memset(&curLine[i-(cpylen+cmdlen)+1],curidx,cpylen+cmdlen);
-						i -= cpylen+cmdlen;
 						//Intentionally bork previous buffer to replicate original behavior
-						prevLine[i-(cpylen+cmdlen)] = prevLine[i-cpylen];
+						if((i-(cpylen+cmdlen))>=0) prevLine[i-(cpylen+cmdlen)] = prevLine[i-cpylen];
+						i -= cpylen+cmdlen;
 						break;
 					}
 					//Command 2 (RLE mode)
@@ -816,34 +818,34 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 							cidx = palette[cidx&7];
 						}
 						//Output RLE pixels
-						for(int n=0; n<cmdlen; n++) {
-							curLine[i--] = cidx;
-						}
+						memset(&curLine[i-cmdlen+1],cidx,cmdlen);
+						i -= cmdlen;
 						break;
 					}
 					//Command 3 (copy from previous line until color change, minus n pixels*)
 					case 3: {
 						//Determine the number of pixels taken up by this section
 						int si = i;
-						int cpylen = 0;
-						int curidx = curLine[si--];
+						int cpylen = 1;
+						int curidx = prevLine[si--];
 						while(si>=0) {
-							int thisIdx = curLine[si--];
+							int thisIdx = prevLine[si--];
 							if(thisIdx!=curidx) break;
 							cpylen++;
 						}
 						//Copy pixels over
 						memset(&curLine[i-(cpylen-cmdlen)+1],curidx,cpylen-cmdlen);
-						i -= cpylen-cmdlen;
 						//Intentionally bork previous buffer to replicate original behavior
-						prevLine[i-(cpylen-cmdlen)] = prevLine[i-cpylen];
+						if((i-cpylen)>=0) prevLine[i-(cpylen-cmdlen)] = prevLine[i-cpylen];
+						else prevLine[i-(cpylen-cmdlen)] = 0;
+						i -= cpylen-cmdlen;
 						break;
 					}
 				}
 			}
 		//Line type 0
 		} else {
-			for(int i=0x80; i>=0;) {
+			for(int i=0x7F; i>=0;) {
 				//Get length
 				int cmdlen = readVariableSize(src,&srcOff,&srcBitOff);
 				//Get color index
@@ -852,15 +854,14 @@ void decompressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 					cidx = palette[cidx&7];
 				}
 				//Output RLE pixels
-				for(int n=0; n<cmdlen; n++) {
-					curLine[i--] = cidx;
-				}
+				memset(&curLine[i-cmdlen+1],cidx,cmdlen);
+				i -= cmdlen;
 			}
 		}
 		//Output line
 		for(int i=0; i<0x80; i++) {
 			int tile = ((j>>3)<<4)|(i>>3);
-			int idx = (tile<<3)|((j&7)<<3)|(i&7);
+			int idx = (tile<<6)|((j&7)<<3)|(i&7);
 			dst[idx] = curLine[i];
 		}
 		//Set previous line buffer
