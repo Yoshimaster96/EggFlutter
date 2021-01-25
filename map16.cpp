@@ -36,6 +36,7 @@ HDC				hdcMap16;
 HBITMAP			hbmpMap16;
 DWORD *			bmpDataMap16;
 WORD map16Base = 0;
+RECT invRect_map16 = {0,0,0x200,0x200};
 
 //Main drawing code
 void updateEntireScreen_map16() {
@@ -97,18 +98,36 @@ LRESULT CALLBACK WndProc_Map16(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		case WM_KEYDOWN: {
 			switch(wParam) {
 				case VK_DOWN: {
-					if(map16Base<0xA600) {
-						map16Base += 0x10;
-						ScrollWindowEx(hwnd,0,-16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
-						UpdateWindow(hwnd);
+					if(GetAsyncKeyState(VK_CONTROL)&0x8000) {
+						if(map16Base<0xA600) {
+							map16Base += 0x100;
+							if(map16Base>0xA600) map16Base = 0xA600;
+							InvalidateRect(hwnd,&invRect_map16,false);
+							UpdateWindow(hwnd);
+						}
+					} else {
+						if(map16Base<0xA600) {
+							map16Base += 0x10;
+							ScrollWindowEx(hwnd,0,-16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
+							UpdateWindow(hwnd);
+						}
 					}
 					break;
 				}
 				case VK_UP: {
-					if(map16Base) {
-						map16Base -= 0x10;
-						ScrollWindowEx(hwnd,0,16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
-						UpdateWindow(hwnd);
+					if(GetAsyncKeyState(VK_CONTROL)&0x8000) {
+						if(map16Base) {
+							map16Base -= 0x100;
+							if(map16Base<0) map16Base = 0;
+							InvalidateRect(hwnd,&invRect_map16,false);
+							UpdateWindow(hwnd);
+						}
+					} else {
+						if(map16Base) {
+							map16Base -= 0x10;
+							ScrollWindowEx(hwnd,0,16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
+							UpdateWindow(hwnd);
+						}
 					}
 					break;
 				}

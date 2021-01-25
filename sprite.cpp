@@ -35,10 +35,15 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 ////////////////////////////
 //SPRITE DRAWING FUNCTIONS//
 ////////////////////////////
+BYTE spGfxFiles[6];
+
 //Helper function for drawing text
 void drawSpriteText(sprite_t * s,char * text) {
 	//TODO
 }
+
+//HDMA displayer functions
+//TODO
 
 //Floating log
 void drawSprite_000(sprite_t * s) {
@@ -59,9 +64,7 @@ void drawSprite_003(sprite_t * s) {
 //TODO
 
 //Sprite function pointer table and updater
-void drawSprite_unused(sprite_t * s) {
-	//TODO
-}
+void drawSprite_unused(sprite_t * s) {}
 void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//000
 	drawSprite_000,drawSprite_001,drawSprite_002,drawSprite_003,
@@ -235,8 +238,21 @@ void drawSprites() {
 		spriteDrawFunc[id&0x1FF](&thisSprite);
 	}
 }
-void dispSprites(DWORD * pixelBuf,int width,int height) {
-	//TODO
+void drawSingleSprite(int n) {
+	sprite_t thisSprite = spriteContexts[curSpCtx].sprites[n];
+	int id = thisSprite.data[0]|(thisSprite.data[1]<<8);
+	spriteDrawFunc[id&0x1FF](&thisSprite);
+}
+void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
+	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
+		//TODO
+	}
+}
+void initOtherSpriteBuffers() {
+	int spTs = ((levelHeader[4]&7)<<4)|(levelHeader[5]>>4);
+	for(int i=0; i<6; i++) {
+		spGfxFiles[i] = romBuf[0x003039+i+(spTs*6)];
+	}
 }
 
 /////////////////////
@@ -252,6 +268,7 @@ void loadSprites(BYTE * data) {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		spriteContexts[curSpCtx].assocSprites[i].clear();
+		spriteContexts[curSpCtx].invalidSprites[i] = false;
 	}
 	spriteContexts[curSpCtx].sprites.clear();
 	//Reload buffer with sprite data

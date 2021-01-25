@@ -26,7 +26,8 @@ extern bool wvisObject;
 //Object drawing
 int setObjectContext(int ctx);
 void drawObjects();
-void dispObjects(DWORD * pixelBuf,int width,int height);
+void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect);
+void initOtherObjectBuffers();
 //Object management
 int loadObjects(BYTE * data);
 int saveObjects(BYTE * data);

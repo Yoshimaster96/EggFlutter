@@ -80,7 +80,22 @@ void loadPalette() {
 		}
 	}
 	//Load gradient colors
-	//TODO
+	int bgCol = levelHeader[0]>>3;
+	if(bgCol&0x10) {
+		bgCol &= 0xF;
+		int bgColBase = romBuf[0x00D575+(bgCol<<2)]|(romBuf[0x00D576+(bgCol<<2)]<<8);
+		bgColBase += 0x1F0000;
+		for(int i=0; i<0x18; i++) {
+			int si = 0x17-i;
+			WORD col = romBuf[bgColBase+(si<<1)]|(romBuf[bgColBase+1+(si<<1)]<<8);
+			gradientBuffer[i] = convColor_SNEStoRGB(col);
+		}
+	} else {
+		WORD col = romBuf[0x1FA130+(bgCol<<1)]|(romBuf[0x1FA131+(bgCol<<1)]<<8);
+		for(int i=0; i<0x18; i++) {
+			gradientBuffer[i] = convColor_SNEStoRGB(col);
+		}
+	}
 	//Load palette animation
 	memset(paletteAnimBuffer,0xFF,0x1000*sizeof(DWORD));
 	//TODO

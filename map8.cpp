@@ -115,10 +115,18 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POI
 		}
 	}
 }
-void dispMap8Char(DWORD * pixelBuf,int width,int height,char c,POINT offs) {
+void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,POINT offs) {
 	int offsX = offs.x;
 	int offsY = offs.y;
-	//TODO
+	for(int j=0; j<8; j++) {
+		for(int i=0; i<8; i++) {
+			int dx = offsX+i;
+			int dy = offsY+j;
+			int idx = getIndexFromTile(fontBuffer,c,{i,j});
+			DWORD col = (idx==3)?fgCol:bgCol;
+			putPixel(pixelBuf,width,height,col,{dx,dy});
+		}
+	}
 }
 
 ///////////////////

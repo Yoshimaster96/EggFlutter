@@ -9,8 +9,6 @@
 #define IDI_ICON_MAIN		100
 
 #define IDD_OPEN_LEVEL_ID	200
-#define IDD_MANUAL_OBJECT	210
-#define IDD_MANUAL_SPRITE	211
 #define IDD_EDIT_ENTRANCE	220
 #define IDD_EDIT_ENTRANCE2	221
 #define IDD_EDIT_EXIT		222
@@ -20,6 +18,8 @@
 
 #define IDM_MENU_MAIN		400
 #define IDA_MENU_MAIN		450
+
+#define IDR_FONT_CHR		500
 
 #endif
 

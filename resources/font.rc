@@ -1,0 +1,4 @@
+#include "resources.h"
+
+IDR_FONT_CHR RCDATA "resources/font.chr"
+

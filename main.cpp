@@ -5,16 +5,20 @@
 /////////////////
 void loadLevel() {
 	//Get level pointer and load data
-	DWORD objectAddr = romBuf[0x0BF7C3+(curLevel*3)]|(romBuf[0x0BF7C4+(curLevel*3)]<<8)|(romBuf[0x0BF7C5+(curLevel*3)]<<16);
-	DWORD spriteAddr = romBuf[0x0BF7C6+(curLevel*3)]|(romBuf[0x0BF7C7+(curLevel*3)]<<8)|(romBuf[0x0BF7C8+(curLevel*3)]<<16);
+	DWORD objectAddr = romBuf[0x0BF7C3+(curLevel*6)]|(romBuf[0x0BF7C4+(curLevel*6)]<<8)|(romBuf[0x0BF7C5+(curLevel*6)]<<16);
+	DWORD spriteAddr = romBuf[0x0BF7C6+(curLevel*6)]|(romBuf[0x0BF7C7+(curLevel*6)]<<8)|(romBuf[0x0BF7C8+(curLevel*6)]<<16);
 	objectAddr = convAddr_SNEStoPC_YI(objectAddr);
 	spriteAddr = convAddr_SNEStoPC_YI(spriteAddr);
 	memcpy(levelHeader,&romBuf[objectAddr],10);
 	objectAddr += 10;
+	initOtherObjectBuffers();
+	initOtherSpriteBuffers();
 	objectAddr += loadObjects(&romBuf[objectAddr]);
+	drawObjects();
+	objectAddr++;
 	memset(screenExits,0xFF,0x200);
 	while(true) {
-		BYTE page = romBuf[objectAddr++];
+		int page = romBuf[objectAddr++];
 		if(page==0xFF) break;
 		page <<= 2;
 		screenExits[page] = romBuf[objectAddr++];
@@ -23,6 +27,7 @@ void loadLevel() {
 		screenExits[page+3] = romBuf[objectAddr++];
 	}
 	loadSprites(&romBuf[spriteAddr]);
+	drawSprites();
 	//Load other stuff
 	loadMap8();
 	updateMap8(0);
@@ -35,12 +40,23 @@ void loadLevel() {
 void saveLevel() {
 	//Determine level size
 	BYTE tempBufObj[0x8000],tempBufSp[0x8000];
-	int objectSize = saveObjects(tempBufObj);
+	memcpy(tempBufObj,levelHeader,10);
+	int objectSize = saveObjects(&tempBufObj[10]);
+	tempBufObj[10+objectSize] = 0xFF;
 	objectSize += 11;
 	for(int i=0; i<0x200; i+=4) {
-		if(screenExits[i]!=0xFF) objectSize += 5;
+		if(screenExits[i]!=0xFF) {
+			tempBufObj[objectSize++] = i>>2;
+			for(int j=0; j<4; j++) {
+				tempBufObj[objectSize++] = screenExits[i++];
+			}
+			objectSize += 5;
+		}
 	}
+	tempBufObj[objectSize++] = 0xFF;
 	int spriteSize = saveSprites(tempBufSp);
+	tempBufSp[spriteSize++] = 0xFF;
+	tempBufSp[spriteSize++] = 0xFF;
 	//Find an area to write level data to
 	//TODO
 	//Save level data
@@ -484,6 +500,8 @@ inline BOOL promptSave() {
 inline void updateEntireScreen() {
 	RECT rect = {xCurScroll,yCurScroll,xCurScroll+xCurSize,yCurScroll+yCurSize};
 	updateRect(rect);
+	GetWindowRect(hwndMain,&rect);
+	InvalidateRect(hwndMain,&rect,false);
 }
 inline void updateDialogs() {
 	RECT rect = {0,0,256,256};
@@ -878,45 +896,110 @@ void dispEntrances(RECT rect) {
 	//TODO
 }
 void dispExits(RECT rect) {
-	//Draw screen borders
-	//TODO
-	//Highlight screens which have exits
-	//TODO
-	//Draw screen exit info text
-	//TODO
+	int minx = rect.left&0xFF00;
+	int miny = rect.top&0x7F00;
+	int maxx = (rect.right&0xFF00)+0x100;
+	int maxy = (rect.bottom&0x7F00)+0x100;
+	for(int j=miny; j<maxy; j+=0x100) {
+		for(int i=minx; i<maxx; i+=0x100) {
+			//Draw screen borders
+			for(int n=0; n<0x100; n++) {
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+n,j});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i,j+n});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+n,j+0x01});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+0x01,j+n});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+n,j+0xFE});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+0xFE,j+n});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+n,j+0xFF});
+				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+0xFF,j+n});
+			}
+			//Highlight screens which have exits, and draw screen exit info text
+			int screen = (i>>8)|(j>>4);
+			CHAR strBuf[256];
+			if(screenExits[screen<<2]!=0xFF) {
+				for(int l=0x02; l<0xFE; l++) {
+					for(int k=0x02; k<0xFE; k++) {
+						hilitePixel(bmpDataMain,0x1000,0x800,0x80,{i+k,j+l});
+					}
+				}
+				snprintf(strBuf,256,"%02X: Exit to level %02X",screen,screenExits[screen<<2]);
+			} else {
+				snprintf(strBuf,256,"%02X",screen);
+			}
+			for(int n=0; n<strlen(strBuf); n++) {
+				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{i+(n<<3)+2,j+2});
+			}
+		}
+	}
 }
 void dispGrid(RECT rect) {
-	//TODO
-}
-void dispObjHexVals(RECT rect) {
-	//TODO
-}
-void dispSpHexVals(RECT rect) {
-	//TODO
+	int minx = rect.left&0xFFF0;
+	int miny = rect.top&0x7FF0;
+	int maxx = (rect.right&0xFFF0)+0x10;
+	int maxy = (rect.bottom&0x7FF0)+0x10;
+	for(int j=miny; j<maxy; j+=0x10) {
+		for(int i=minx; i<maxx; i+=0x10) {
+			for(int n=0; n<0x10; n++) {
+				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i+n,j});
+				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i,j+n});
+				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i+n,j+0xF});
+				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i+0xF,j+n});
+			}
+		}
+	}
 }
 
 //Main drawing code
 void updateRect(RECT rect) {
 	if(isRomOpen) {
+		//Fill background
+		for(int j=rect.top; j<rect.bottom; j++) {
+			DWORD rowColor = gradientBuffer[0x17];
+			if(j<0x120) rowColor = gradientBuffer[0];
+			else if(j<0x6E0) {
+				int idx = (j-0x120)>>6;
+				int fac1 = (j-0x120)&0x3F;
+				int fac0 = 0x40-fac1;
+				DWORD r0 = gradientBuffer[idx]&0xFF0000;
+				DWORD g0 = gradientBuffer[idx]&0xFF00;
+				DWORD b0 = gradientBuffer[idx]&0xFF;
+				DWORD r1 = gradientBuffer[idx+1]&0xFF0000;
+				DWORD g1 = gradientBuffer[idx+1]&0xFF00;
+				DWORD b1 = gradientBuffer[idx+1]&0xFF;
+				DWORD r = ((fac0*r0)+(fac1*r1))>>6;
+				r &= 0xFF0000;
+				DWORD g = ((fac0*g0)+(fac1*g1))>>6;
+				g &= 0xFF00;
+				DWORD b = ((fac0*b0)+(fac1*b1))>>6;
+				rowColor = r|g|b;
+			}
+			for(int i=rect.left; i<rect.right; i++) {
+				putPixel(bmpDataMain,0x1000,0x800,rowColor,{i,j});
+			}
+		}
 		//Draw objects
-		//TODO
+		if(vObj) {
+			dispObjects(bmpDataMain,0x1000,0x800,rect);
+		}
 		//Draw sprites
-		//TODO
+		if(vSp) {
+			dispSprites(bmpDataMain,0x1000,0x800,rect);
+		}
 		//Draw entrances
 		if(vEnt) {
 			dispEntrances(rect);
-		}
-		//Draw exits
-		if(vExit) {
-			dispExits(rect);
 		}
 		//Draw grid
 		if(vGrid) {
 			dispGrid(rect);
 		}
+		//Draw exits
+		if(vExit) {
+			dispExits(rect);
+		}
 	} else {
 		//Fill with black
-		//TODO
+		fillImage(bmpDataMain,0x1000,0x800,0);
 	}
 }
 
@@ -1132,6 +1215,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 //Main entry point
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
 	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
+	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA)));
+	unpackGfx2BPP(fontBuffer,fontData,0x80);
 	
 	//Register main window class
 	WNDCLASSEX wc;

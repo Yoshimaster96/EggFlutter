@@ -32,7 +32,8 @@ extern bool wvisSprite;
 //Sprite drawing
 int setSpriteContext(int ctx);
 void drawSprites();
-void dispSprites(DWORD * pixelBuf,int width,int height);
+void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect);
+void initOtherSpriteBuffers();
 //Sprite management
 void loadSprites(BYTE * data);
 int saveSprites(BYTE * data);

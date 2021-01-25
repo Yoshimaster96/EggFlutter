@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=000000e000000000001000000
-UnitCount=29
+UnitCount=31
 
 [VersionInfo]
 Major=1
@@ -341,7 +341,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit31]
-FileName=resources\dlg_manual_sp.rc
+FileName=resources\font.chr
+Folder=resources
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=resources\font.rc
 Folder=resources
 Compile=1
 Link=1
