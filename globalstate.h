@@ -15,7 +15,7 @@ extern BYTE screenExits[0x200];
 
 //Functions
 bool checkRom();
-//TODO
+DWORD findFreespace(DWORD size);
 
 #endif
 

@@ -17,8 +17,10 @@ void loadBackground3() {
 	int bg3Ts = (levelHeader[3]&0x7E)>>1;
 	if(bg3Ts!=0 && bg3Ts<=0x2F) {
 		WORD bg3Idx = romBuf[0x00E907+(bg3Ts*3)]|(romBuf[0x00E908+(bg3Ts*3)]<<8);
-		DWORD gfxAddr = convAddr_SNEStoPC_YI(getLZ1Address(bg3Idx));
-		decompressLZ1(bg3Buffer,&romBuf[gfxAddr]);
+		if(bg3Idx) {
+			DWORD gfxAddr = convAddr_SNEStoPC_YI(getLZ1Address(bg3Idx));
+			decompressLZ1(bg3Buffer,&romBuf[gfxAddr]);
+		}
 	}
 }
 

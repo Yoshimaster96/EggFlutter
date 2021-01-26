@@ -691,8 +691,9 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 			//Command 4 (copy)
 			case 4: {
 				int cpyOff = (src[srcOff++]<<8)|src[srcOff++];
-				memcpy(&dst[dstOff],&dst[cpyOff],len);
-				dstOff += len;
+				for(int i=0; i<len; i++) {
+					dst[dstOff++] = dst[cpyOff++];
+				}
 				break;
 			}
 			//Command 7 (long mode)
@@ -734,8 +735,9 @@ DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 					//Command 4 (copy)
 					case 4: {
 						int cpyOff = (src[srcOff++]<<8)|src[srcOff++];
-						memcpy(&dst[dstOff],&dst[cpyOff],len);
-						dstOff += len;
+						for(int i=0; i<len; i++) {
+							dst[dstOff++] = dst[cpyOff++];
+						}
 						break;
 					}
 				}

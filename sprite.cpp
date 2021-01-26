@@ -245,7 +245,34 @@ void drawSingleSprite(int n) {
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
-		//TODO
+		sprite_t thisSprite = spriteContexts[curSpCtx].sprites[n];
+		int spX = 0;
+		int spY = 0;
+		for(int i=0; i<thisSprite.tiles.size(); i++) {
+			sprite_tile_t thisSpriteTile = thisSprite.tiles[i];
+			BYTE props = thisSpriteTile.props;
+			WORD tile = thisSpriteTile.tile;
+			int sptX = spX+thisSpriteTile.offsX;
+			int sptY = spY+thisSpriteTile.offsY;
+			switch(tile&0xC000) {
+				case 0x0000: {
+					dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY});
+					break;
+				}
+				case 0x4000: {
+					//TODO
+					break;
+				}
+				case 0x8000: {
+					//TODO
+					break;
+				}
+				case 0xC000: {
+					//TODO
+					break;
+				}
+			}
+		}
 	}
 }
 void initOtherSpriteBuffers() {
@@ -287,8 +314,6 @@ void loadSprites(BYTE * data) {
 		//Push back
 		spriteContexts[curSpCtx].sprites.push_back(entry);
 	}
-	//Draw sprite data
-	drawSprites();
 }
 int saveSprites(BYTE * data) {
 	//Init stuff

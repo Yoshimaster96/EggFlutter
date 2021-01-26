@@ -29,5 +29,7 @@ bool checkRom() {
 	}
 	return false;
 }
-//TODO
+DWORD findFreespace(DWORD size) {
+	//TODO
+}
 

@@ -274,6 +274,8 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
 			hwndEditEntEt2 = GetDlgItem(hwnd,24);
 			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
+			//Init control values
+			updateDialog_editEntrances2(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -972,6 +974,7 @@ void updateRect(RECT rect) {
 				g &= 0xFF00;
 				DWORD b = ((fac0*b0)+(fac1*b1))>>6;
 				rowColor = r|g|b;
+				rowColor = (rowColor&0xF8F8F8)|((rowColor>>5)&0x070707);
 			}
 			for(int i=rect.left; i<rect.right; i++) {
 				putPixel(bmpDataMain,0x1000,0x800,rowColor,{i,j});
