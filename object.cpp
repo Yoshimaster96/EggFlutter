@@ -56,6 +56,54 @@ inline WORD overlapTile_grassTrees(int offs,WORD tile) {
 	else if(tile==0x3DA0 && orig==0x3D71) return 0x3DA8;
 	else return tile;
 }
+inline void overlapTile_stdLedgeMid(object_t * o,int mtOff,WORD orig) {
+	int mtOff2 = offsetMap16Left(mtOff);
+	WORD orig2 = objectContexts[curObjCtx].tilemap[mtOff2];
+	if(orig2==tilesetBuffer[0x1CAC>>1]) {
+		addObjectTile(o,tilesetBuffer[0x1CCA>>1],mtOff2);
+		mtOff2 = offsetMap16Down(mtOff2);
+		addObjectTile(o,tilesetBuffer[0x1CC4>>1],mtOff2);
+	}
+	mtOff2 = offsetMap16Right(mtOff);
+	orig2 = objectContexts[curObjCtx].tilemap[mtOff2];
+	if(orig2==tilesetBuffer[0x1CAC>>1]) {
+		addObjectTile(o,tilesetBuffer[0x1CCC>>1],mtOff2);
+		mtOff2 = offsetMap16Down(mtOff2);
+		addObjectTile(o,tilesetBuffer[0x1CC2>>1],mtOff2);
+	}
+	int offset = noiseTilemap[mtOff]&0x0E;
+	int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+	addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+}
+inline void overlapTile_stdLedgeBottom(object_t * o,int mtOff,WORD orig) {
+	if(orig==tilesetBuffer[0x1CC2>>1] || orig==tilesetBuffer[0x1CC4>>1] ||
+	orig==tilesetBuffer[0x1CCA>>1] || orig==tilesetBuffer[0x1CCC>>1]) return;
+	if(orig==tilesetBuffer[0x1CB6>>1] || orig==tilesetBuffer[0x1CB8>>1]) {
+		int mtOff2 = offsetMap16Left(mtOff);
+		WORD orig2 = objectContexts[curObjCtx].tilemap[mtOff2];
+		if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
+		(orig2>=tilesetBuffer[0x1CAE>>1]) && orig2<tilesetBuffer[0x1CB6>>1]) {
+			addObjectTile(o,tilesetBuffer[0x1CCC>>1],mtOff);
+			mtOff2 = offsetMap16Down(mtOff);
+			addObjectTile(o,tilesetBuffer[0x1CC2>>1],mtOff2);
+			return;
+		}
+		mtOff2 = offsetMap16Right(mtOff);
+		orig2 = objectContexts[curObjCtx].tilemap[mtOff2];
+		if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
+		(orig2>=tilesetBuffer[0x1CAE>>1]) && orig2<tilesetBuffer[0x1CB6>>1]) {
+			addObjectTile(o,tilesetBuffer[0x1CCA>>1],mtOff);
+			mtOff2 = offsetMap16Down(mtOff);
+			addObjectTile(o,tilesetBuffer[0x1CC4>>1],mtOff2);
+			return;
+		}
+		addObjectTile(o,tilesetBuffer[0x1CAC>>1],mtOff);
+		return;
+	}
+	int offset = noiseTilemap[mtOff]&0x0E;
+	int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+	addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+}
 
 //Extended objects
 //Jungle leaf
@@ -400,6 +448,9 @@ void drawObject_extended46(object_t * o) {
 //Bandit's house
 void drawObject_extended47(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
+	mtOff = offsetMap16Up(mtOff);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	for(int j=0; j<4; j++) {
 		for(int i=0; i<4; i++) {
@@ -524,7 +575,11 @@ void drawObject_extended50(object_t * o) {
 			int offset = (j<<2)+(i<<1);
 			WORD tile = romBuf[0x092D79+offset]|(romBuf[0x092D7A+offset]<<8);
 			WORD orig = objectContexts[curObjCtx].tilemap[mtOff];
-			if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] || orig==tilesetBuffer[0x1DB4>>1] || orig==tilesetBuffer[0x1DB6>>1]) tile = romBuf[0x092D7D+offset]|(romBuf[0x092D7E +offset]<<8);
+			if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] || 
+			orig==tilesetBuffer[0x1DB4>>1] || orig==tilesetBuffer[0x1DB6>>1]) {
+				tile = romBuf[0x092D7D+offset]|(romBuf[0x092D7E +offset]<<8);
+				tile = tilesetBuffer[tile>>1];
+			}
 			if(bg1Ts==4 && j==0) {
 				offset = (tile-0x000C)<<1;
 				tile = romBuf[0x092D95+offset]|(romBuf[0x092D96+offset]<<8);
@@ -926,11 +981,9 @@ void drawObject_extended88(object_t * o) {
 		} else {
 			WORD orig2 = (orig-0x7799)&0x00FE;
 			WORD tile = romBuf[0x0939B8+offset]|(romBuf[0x0939B9+offset]<<8);
-			if(tile) {
-				if((orig&0xFF00)!=0x7900) {
-					tile += romBuf[0x0939C8+orig2];
-					addObjectTile(o,tile,mtOff);
-				}
+			if(tile && (orig&0xFF00)!=0x7900) {
+				tile += romBuf[0x0939C8+orig2];
+				addObjectTile(o,tile,mtOff);
 			}
 		}
 		mtOff = offsetMap16Right(mtOff);
@@ -991,11 +1044,9 @@ void drawObject_extended88(object_t * o) {
 		} else {
 			WORD orig2 = (orig-0x7799)&0x00FE;
 			WORD tile = romBuf[0x093AA2+offset]|(romBuf[0x093AA3+offset]<<8);
-			if(tile) {
-				if((orig&0xFF00)!=0x7900 && (orig&0xFF00)!=0x1500) {
-					tile += romBuf[0x0939C8+orig2];
-					addObjectTile(o,tile,mtOff);
-				}
+			if(tile && (orig&0xFF00)!=0x7900 && (orig&0xFF00)!=0x1500) {
+				tile += romBuf[0x0939C8+orig2];
+				addObjectTile(o,tile,mtOff);
 			}
 		}
 		mtOff = offsetMap16Right(mtOff);
@@ -1101,19 +1152,55 @@ void drawObject_extended96(object_t * o) {
 //TODO
 //Screen copy command
 void drawObject_extendedFB(object_t * o) {
-	//TODO
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xB000,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB001,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB002,mtOff);
 }
 //Screen scroll enable command
 void drawObject_extendedFD(object_t * o) {
-	//TODO
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xB003,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB004,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB005,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB006,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB007,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB008,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB009,mtOff);
 }
 //Screen scroll disable command
 void drawObject_extendedFE(object_t * o) {
-	//TODO
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xB003,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB004,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB00A,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB00B,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB00C,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB00D,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB009,mtOff);
 }
 //Screen erase command
 void drawObject_extendedFF(object_t * o) {
-	//TODO
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xB00E,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB00F,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xB010,mtOff);
 }
 //Standard objects
 //Ledge
@@ -1125,16 +1212,34 @@ void drawObject_01(object_t * o) {
 	int height = o->data[4]+2;
 	for(int j=0; j<height; j++) {
 		for(int i=0; i<width; i++) {
-			WORD orig = objectContexts[curObjCtx].tilemap[mtOff];
 			if(j<3) {
-				if((orig&0xFF00)==tilesetBuffer[0x1C92>>1]) {
-					//TODO
-				} else {
-					//TODO
+				WORD orig = objectContexts[curObjCtx].tilemap[mtOff];
+				bool overWall = ((orig&0xFF00)==tilesetBuffer[0x1C92>>1]);
+				if(overWall) {
+					if(orig==(i?tilesetBuffer[0x1CD4>>1]:tilesetBuffer[0x1CD6>>1])) {
+						WORD tile = i?tilesetBuffer[0x1CFE>>1]:tilesetBuffer[0x1D00>>1];
+						addObjectTile(o,tile,mtOff);
+						continue;
+					}
 				}
+				int base = (overWall)?0x0980A4:0x098045;
+				int offset = (overWall)?(i?1:0):(i&1);
+				offset = (j<<1)+(offset<<3);
+				if(j==2) {
+					int mtOff2 = offsetMap16Up(mtOff);
+					WORD orig2 = objectContexts[curObjCtx].tilemap[mtOff2];
+					if(orig2==tilesetBuffer[0x1CA0>>1] || orig2==tilesetBuffer[0x1CA2>>1]) offset+=2;
+				}
+				int tileRef = romBuf[base+offset]|(romBuf[base+1+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
 			} else {
-				if(orig!=tilesetBuffer[0x1CF4>>1] && orig!=tilesetBuffer[0x1CF6>>1] && orig<tilesetBuffer[0x1CD4>>1] && orig>=tilesetBuffer[0x1CE8>>1]) {
-					//TODO
+				WORD orig = objectContexts[curObjCtx].tilemap[mtOff];
+				if(orig==tilesetBuffer[0x1CF4>>1] || orig==tilesetBuffer[0x1CF6>>1] ||
+				(orig>=tilesetBuffer[0x1CD4>>1] && tilesetBuffer[0x1CE8>>1])) continue;
+				if((j+1)==height) {
+					overlapTile_stdLedgeBottom(o,mtOff,orig);
+				} else {
+					overlapTile_stdLedgeMid(o,mtOff,orig);
 				}
 			}
 			mtOff = offsetMap16Right(mtOff);
@@ -1142,17 +1247,156 @@ void drawObject_01(object_t * o) {
 		mtOff = preserve = offsetMap16Down(preserve);
 	}
 }
-//Left edge with top
+//Ledge edge with top, left
 void drawObject_02(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
-	//TODO
+	mtOff = offsetMap16Up(mtOff);
+	int height = o->data[3]+2;
+	for(int j=0; j<height; j++) {
+		//TODO
+	}
 }
-//Right edge with top
+//Ledge edge with top, right
 void drawObject_03(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
-	//TODO
+	mtOff = offsetMap16Up(mtOff);
+	int height = o->data[3]+2;
+	for(int j=0; j<height; j++) {
+		//TODO
+	}
 }
 //TODO
+//Poundable stake
+void drawObject_0C(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
+	int height = o->data[3]+2;
+	for(int j=0; j<height; j++) {
+		//TODO
+	}
+}
+//TODO
+//Coins
+void drawObject_60(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			addObjectTile(o,0x6000,mtOff);
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//TODO
+//Goal platform
+void drawObject_6B(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			if(j==0) {
+				if(i==0) {
+					addObjectTile(o,0x0188,mtOff);
+				} else if((i+1)==width) {
+					addObjectTile(o,0x018A,mtOff);
+				} else {
+					addObjectTile(o,0x0189,mtOff);
+				}
+			} else {
+				if(i==0) {
+					addObjectTile(o,0x018B,mtOff);
+				} else if((i+1)==width) {
+					addObjectTile(o,0x018D,mtOff);
+				} else {
+					addObjectTile(o,0x018C,mtOff);
+				}
+			}
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//Cement blocks, gray
+void drawObject_6C(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			//TODO: Handle castle wall shadowing
+			addObjectTile(o,0x0184,mtOff);
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//Spiky stake
+void drawObject_6D(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int height = o->data[3]+1;
+	for(int j=0; j<height; j++) {
+		if(j==0) {
+			addObjectTile(o,tilesetBuffer[0x1DD6>>1],mtOff);
+		} else if((j+1)==height) {
+			addObjectTile(o,tilesetBuffer[0x1DD2>>1],mtOff);
+		} else {
+			addObjectTile(o,tilesetBuffer[0x1DD0>>1],mtOff);
+		}
+		mtOff = offsetMap16Down(mtOff);
+	}
+}
+//Cement blocks, colorful
+void drawObject_6E(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			int tileRef = noiseTilemap[mtOff]&0xE;
+			WORD tile = romBuf[0x09C80C+tileRef]|(romBuf[0x09C80D+tileRef]<<8);
+			addObjectTile(o,tile,mtOff);
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//TODO
+//Skinny spikes
+void drawObject_F5(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			addObjectTile(o,j?0x2910:0x8413,mtOff);
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//Kamek's room blocks
+void drawObject_F6(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int j=0; j<height; j++) {
+		for(int i=0; i<width; i++) {
+			addObjectTile(o,0x9D8B,mtOff);
+			mtOff = offsetMap16Right(mtOff);
+		}
+		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+
 
 //Object function pointer table and updater
 void drawObject_unused(object_t * o) {}
@@ -1242,7 +1486,7 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	drawObject_unused,drawObject_01,drawObject_02,drawObject_03,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_0C,drawObject_unused,drawObject_unused,drawObject_unused,
 	//10
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
@@ -1251,7 +1495,7 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	//20
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_0C,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	//30
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
@@ -1269,10 +1513,10 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	//60
+	drawObject_60,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_6B,
+	drawObject_6C,drawObject_6D,drawObject_6E,drawObject_unused,
 	//70
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
@@ -1315,7 +1559,7 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	//F0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_unused,drawObject_F5,drawObject_F6,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused};
 int setObjectContext(int ctx) {
@@ -1343,6 +1587,24 @@ void drawSingleObject(int n) {
 		objectDrawFunc_extended[id](&thisObject);
 	}
 }
+const char textTiles_object[4*(3+7+4+3)] = {
+	'S','c',' ','C',
+	'r','e','o','p',
+	'e','n','y',' ',
+	'S','c',' ',' ',
+	'r','e',' ',' ',
+	'e','n','E','n',
+	' ',' ','a','b',
+	'S','c','l','e',
+	'r','o',' ',' ',
+	'l','l',' ',' ',
+	'e','n','D','i',
+	' ',' ','s','a',
+	'S','c','b','l',
+	'r','o','e',' ',
+	'S','c',' ','E',
+	'r','e','r','a',
+	'e','n','s','e'};
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 	int minx = rect.left&0xFFF0;
 	int miny = rect.top&0x7FF0;
@@ -1353,7 +1615,11 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
 			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
 			if(tile>=0xB000) {
-				//TODO
+				int idx = (tile-0xB000)<<2;
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,textTiles_object[idx],{i,j});
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,textTiles_object[idx+1],{i+8,j});
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,textTiles_object[idx+2],{i,j+8});
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,textTiles_object[idx+3],{i+8,j+8});
 			} else {
 				dispMap16Tile(pixelBuf,width,height,tile,{i,j});
 			}

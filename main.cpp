@@ -974,7 +974,6 @@ void updateRect(RECT rect) {
 				g &= 0xFF00;
 				DWORD b = ((fac0*b0)+(fac1*b1))>>6;
 				rowColor = r|g|b;
-				rowColor = (rowColor&0xF8F8F8)|((rowColor>>5)&0x070707);
 			}
 			for(int i=rect.left; i<rect.right; i++) {
 				putPixel(bmpDataMain,0x1000,0x800,rowColor,{i,j});
