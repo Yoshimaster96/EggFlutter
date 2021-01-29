@@ -1748,6 +1748,7 @@ void drawObject_67(object_t * o) {
 				}
 				addObjectTile(o,tile,mtOff);
 			} else {
+				//TODO: Fix use of tiles and tileset buffer
 				int offset = noiseTilemap[mtOff]&0x0E;
 				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
 				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);

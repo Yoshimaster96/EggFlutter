@@ -98,36 +98,22 @@ LRESULT CALLBACK WndProc_Map16(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		case WM_KEYDOWN: {
 			switch(wParam) {
 				case VK_DOWN: {
-					if(GetAsyncKeyState(VK_CONTROL)&0x8000) {
-						if(map16Base<0xA600) {
-							map16Base += 0x100;
-							if(map16Base>0xA600) map16Base = 0xA600;
-							InvalidateRect(hwnd,&invRect_map16,false);
-							UpdateWindow(hwnd);
-						}
-					} else {
-						if(map16Base<0xA600) {
-							map16Base += 0x10;
-							ScrollWindowEx(hwnd,0,-16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
-							UpdateWindow(hwnd);
-						}
+					if(map16Base<0xA600) {
+						if(GetAsyncKeyState(VK_CONTROL)&0x8000) map16Base += 0x100;
+						else map16Base += 0x10;
+						if(map16Base>0xA600) map16Base = 0xA600;
+						InvalidateRect(hwnd,&invRect_map16,false);
+						UpdateWindow(hwnd);
 					}
 					break;
 				}
 				case VK_UP: {
-					if(GetAsyncKeyState(VK_CONTROL)&0x8000) {
-						if(map16Base) {
-							map16Base -= 0x100;
-							if(map16Base<0) map16Base = 0;
-							InvalidateRect(hwnd,&invRect_map16,false);
-							UpdateWindow(hwnd);
-						}
-					} else {
-						if(map16Base) {
-							map16Base -= 0x10;
-							ScrollWindowEx(hwnd,0,16,NULL,NULL,NULL,NULL,SW_INVALIDATE);
-							UpdateWindow(hwnd);
-						}
+					if(map16Base) {
+						if(GetAsyncKeyState(VK_CONTROL)&0x8000) map16Base -= 0x100;
+						else map16Base -= 0x10;
+						if(map16Base>0xA600) map16Base = 0;
+						InvalidateRect(hwnd,&invRect_map16,false);
+						UpdateWindow(hwnd);
 					}
 					break;
 				}

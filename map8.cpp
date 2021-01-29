@@ -137,6 +137,7 @@ HBITMAP			hbmpMap8;
 DWORD *			bmpDataMap8;
 WORD map8Base = 0;
 BYTE map8Pal = 0;
+RECT invRect_map8 = {0,0,0x100,0x100};
 
 //Main drawing code
 void updateEntireScreen_map8() {
@@ -200,20 +201,23 @@ LRESULT CALLBACK WndProc_Map8(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		//Input
 		case WM_KEYDOWN: {
-			RECT rect = {0,0,256,256};
 			switch(wParam) {
 				case VK_DOWN: {
 					if(map8Base<0x540) {
-						map8Base += 0x10;
-						ScrollWindowEx(hwnd,0,-8,NULL,NULL,NULL,NULL,SW_INVALIDATE);
+						if(GetAsyncKeyState(VK_CONTROL)&0x8000) map8Base += 0x100;
+						else map8Base += 0x10;
+						if(map8Base>0x540) map8Base = 0x540;
+						InvalidateRect(hwnd,&invRect_map8,false);
 						UpdateWindow(hwnd);
 					}
 					break;
 				}
 				case VK_UP: {
 					if(map8Base) {
-						map8Base -= 0x10;
-						ScrollWindowEx(hwnd,0,8,NULL,NULL,NULL,NULL,SW_INVALIDATE);
+						if(GetAsyncKeyState(VK_CONTROL)&0x8000) map8Base -= 0x100;
+						else map8Base -= 0x10;
+						if(map8Base>0x540) map8Base = 0;
+						InvalidateRect(hwnd,&invRect_map8,false);
 						UpdateWindow(hwnd);
 					}
 					break;
@@ -221,14 +225,14 @@ LRESULT CALLBACK WndProc_Map8(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				case VK_RIGHT: {
 					map8Pal++;
 					map8Pal &= 7;
-					InvalidateRect(hwnd,&rect,false);
+					InvalidateRect(hwnd,&invRect_map8,false);
 					UpdateWindow(hwnd);
 					break;
 				}
 				case VK_LEFT: {
 					map8Pal--;
 					map8Pal &= 7;
-					InvalidateRect(hwnd,&rect,false);
+					InvalidateRect(hwnd,&invRect_map8,false);
 					UpdateWindow(hwnd);
 					break;
 				}
