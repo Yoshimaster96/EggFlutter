@@ -4,7 +4,9 @@ HWND hwndMap8;
 bool wvisMap8 = false;
 BYTE map8Buffer[0x19000];
 BYTE fontBuffer[0x2000];
+BYTE commonBuffer[0x3D000];
 int map8Anim = 0;
+int map8State = 0;
 
 DWORD getLZ1Address(int gfxFile) {
 	return romBuf[0x03795E +(gfxFile*3)]|(romBuf[0x03795F+(gfxFile*3)]<<8)|(romBuf[0x037960+(gfxFile*3)]<<16);	
@@ -66,12 +68,270 @@ void loadMap8() {
 	decompressLZ16(&map8Buffer[0x18000],&romBuf[gfxAddr],0x10);
 	gfxAddr = convAddr_SNEStoPC_YI(getLZ16Address(romBuf[0x00303E +(spTs*6)]));
 	decompressLZ16(&map8Buffer[0x18800],&romBuf[gfxAddr],0x10);
+	//Load common animated tiles
+	unpackGfx4BPP(&commonBuffer[0x00000],&romBuf[0x120000],0x800);
+	unpackGfx2BPP(&commonBuffer[0x20000],&romBuf[0x168000],0x680);
+	unpackGfx4BPP(&commonBuffer[0x3A000],&romBuf[0x16E800],0xC0);
+	//Init animation frame
+	map8Anim = 0;
 }
-void updateMap8(int frame) {
+void updateMap8_common() {
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x0C)<<2;
+		for(int i=0; i<4; i++) {
+			//Get states
+			int animCaps = romBuf[0x00561D+offset];
+			int offset2 = offset;
+			if(animCaps&map8State) offset2 += 2;
+			//Copy over
+			int src = romBuf[0x0055DD+offset2]|(romBuf[0x0055DE +offset2]<<8);
+			src <<= 1;
+			int dst = 0x9000+(i<<8);
+			memcpy(&map8Buffer[dst],&commonBuffer[src],0x100);
+			//Move on to next entry
+			offset += 4;
+		}
+	}
+}
+void updateMap8_00() {
+	updateMap8_common();
+	if(map8Anim==0) memset(&map8Buffer[0x8000],0,0x1000);
+}
+void updateMap8_01() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x0C)<<9;
+		int src = 0x22000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_02() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x0C)<<8;
+		int src = 0x1A000+offset;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+		memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x1000],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+		memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x1200],0x200);
+		memcpy(&map8Buffer[0x8800],&commonBuffer[0x18000],0x200);
+		memcpy(&map8Buffer[0x8A00],&commonBuffer[0x18400],0x200);
+		memcpy(&map8Buffer[0x8C00],&commonBuffer[0x18200],0x200);
+		memcpy(&map8Buffer[0x8E00],&commonBuffer[0x18600],0x200);
+	}
+}
+void updateMap8_03() {
+	updateMap8_common();
+	if((map8Anim&1)==0) {
+		int offset = (map8Anim&6)<<10;
+		int src = 0x24000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_05() {
+	updateMap8_common();
+	if((map8Anim&1)==0) {
+		int offset = (map8Anim&0xE)<<10;
+		if(map8Anim&0x10) offset ^= 0x3800;
+		int src = 0x26000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_06() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x1C)<<9;
+		int src = 0x26000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_07() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)<<7;
+		int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+		if(bg1Ts==10) {
+			int src = 0x3A800+offset;
+			memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+			memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x1000],0x200);
+			memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+			memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x1200],0x200);
+		} else {
+			int src = 0x19000+offset;
+			memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+			memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x4800],0x200);
+			memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+			memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x4A00],0x200);
+		}
+	}
+}
+void updateMap8_08() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x0C)<<8;
+		int src = 0x1C800+offset;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+	}
+}
+void updateMap8_09() {
+	updateMap8_common();
+	if((map8Anim&1)==0) {
+		int offset = (map8Anim&6)<<10;
+		int src = 0x20000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_0A() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x1C)<<9;
+		int src = 0x2C000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_0B() {
+	updateMap8_common();
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x0C)<<8;
+		int src = 0x1A000+offset;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+		memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x1000],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+		memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x1200],0x200);
+		memcpy(&map8Buffer[0x8800],&commonBuffer[0x18000],0x200);
+		memcpy(&map8Buffer[0x8A00],&commonBuffer[0x18400],0x200);
+		memcpy(&map8Buffer[0x8C00],&commonBuffer[0x18200],0x200);
+		memcpy(&map8Buffer[0x8E00],&commonBuffer[0x18600],0x200);
+	}
+	if((map8Anim&1)==0) {
+		int offset = (map8Anim&0xE)<<10;
+		if(map8Anim&0x10) offset ^= 0x3800;
+		int src = 0x2C000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_0C() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)>>1;
+		if(map8Anim&0x20) offset ^= 0x0C;
+		int offset1 = romBuf[0x005A29+offset]|(romBuf[0x005A2A+offset]<<8);
+		int offset2 = romBuf[0x005A41+offset]|(romBuf[0x005A42+offset]<<8);
+		int src1 = offset1<<1;
+		int src2 = offset2<<1;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src1],0x200);
+		memcpy(&map8Buffer[0x8200],&commonBuffer[src2],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src1+0x200],0x200);
+		memcpy(&map8Buffer[0x8600],&commonBuffer[src2+0x200],0x200);
+	}
+}
+void updateMap8_0D() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)<<7;
+		int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+		if(bg1Ts==10) {
+			int src = 0x3A800+offset;
+			memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+			memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x1000],0x200);
+			memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+			memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x1200],0x200);
+		} else {
+			int src = 0x19000+offset;
+			memcpy(&map8Buffer[0x8000],&commonBuffer[src],0x200);
+			memcpy(&map8Buffer[0x8200],&commonBuffer[src+0x4800],0x200);
+			memcpy(&map8Buffer[0x8400],&commonBuffer[src+0x200],0x200);
+			memcpy(&map8Buffer[0x8600],&commonBuffer[src+0x4A00],0x200);
+		}
+	}
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x1C)<<9;
+		int src = 0x26000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_0E() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)>>1;
+		if(map8Anim&0x20) offset ^= 0x0C;
+		int offset1 = romBuf[0x005A29+offset]|(romBuf[0x005A2A+offset]<<8);
+		int offset2 = romBuf[0x005A41+offset]|(romBuf[0x005A42+offset]<<8);
+		int src1 = offset1<<1;
+		int src2 = offset2<<1;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src1],0x200);
+		memcpy(&map8Buffer[0x8200],&commonBuffer[src2],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src1+0x200],0x200);
+		memcpy(&map8Buffer[0x8600],&commonBuffer[src2+0x200],0x200);
+	}
+	if((map8Anim&3)==0) {
+		int offset = (map8Anim&0x1C)<<9;
+		int src = 0x26000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_0F() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)<<8;
+		int src = 0x2A000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_10() {
+	updateMap8_common();
 	//TODO
+}
+void updateMap8_11() {
+	updateMap8_common();
+	if((map8Anim&7)==0) {
+		int offset = (map8Anim&0x18)>>1;
+		if(map8Anim&0x20) offset ^= 0x0C;
+		int offset1 = romBuf[0x005A29+offset]|(romBuf[0x005A2A+offset]<<8);
+		int offset2 = romBuf[0x005A41+offset]|(romBuf[0x005A42+offset]<<8);
+		int src1 = offset1<<1;
+		int src2 = offset2<<1;
+		memcpy(&map8Buffer[0x8000],&commonBuffer[src1],0x200);
+		memcpy(&map8Buffer[0x8200],&commonBuffer[src2],0x200);
+		memcpy(&map8Buffer[0x8400],&commonBuffer[src1+0x200],0x200);
+		memcpy(&map8Buffer[0x8600],&commonBuffer[src2+0x200],0x200);
+	}
+	if((map8Anim&1)==0) {
+		int offset = (map8Anim&6)<<10;
+		int src = 0x24000+offset;
+		memcpy(&map8Buffer[0x11800],&commonBuffer[src],0x800);
+	}
+}
+void updateMap8_unused() {}
+void (*map8UpdateFunc[0x40])() = {
+	//00
+	updateMap8_00,updateMap8_01,updateMap8_02,updateMap8_03,
+	updateMap8_unused,updateMap8_05,updateMap8_06,updateMap8_07,
+	updateMap8_08,updateMap8_09,updateMap8_0A,updateMap8_0B,
+	updateMap8_0C,updateMap8_0D,updateMap8_0E,updateMap8_0F,
+	//10
+	updateMap8_10,updateMap8_11,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	//20
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	//30
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused,
+	updateMap8_unused,updateMap8_unused,updateMap8_unused,updateMap8_unused};
+void updateMap8() {
+	int animTs = ((levelHeader[6]&7)<<3)|(levelHeader[7]>>5);
+	map8UpdateFunc[animTs]();
+	map8Anim ++;
 }
 void updateMap8Sw(int state) {
-	//TODO
+	map8State = state;
 }
 
 void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {

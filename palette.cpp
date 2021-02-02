@@ -5,6 +5,7 @@ bool wvisPalette = false;
 DWORD paletteBuffer[0x100];
 DWORD paletteAnimBuffer[0x1000];
 DWORD gradientBuffer[0x18];
+int paletteAnim = 0;
 
 void loadPalette() {
 	//Load palette
@@ -100,8 +101,8 @@ void loadPalette() {
 	memset(paletteAnimBuffer,0xFF,0x1000*sizeof(DWORD));
 	//TODO
 }
-void updatePalette(int frame) {
-	int frameOffset = (frame&0xF)<<8;
+void updatePalette() {
+	int frameOffset = (paletteAnim&0xF)<<8;
 	for(int i=0; i<0x100; i++) {
 		DWORD color = paletteAnimBuffer[frameOffset|i];
 		if(color!=0xFFFFFFFF) {

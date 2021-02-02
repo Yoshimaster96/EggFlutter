@@ -30,10 +30,10 @@ void loadLevel() {
 	drawSprites();
 	//Load other stuff
 	loadMap8();
-	updateMap8(0);
+	updateMap8();
 	loadMap16();
 	loadPalette();
-	updatePalette(0);
+	updatePalette();
 	loadBackground2();
 	loadBackground3();
 }
@@ -490,8 +490,8 @@ void updateMenu() {
 	CheckMenuItem(hmenuMain,1211,vExit?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1212,vGrid?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1213,vAnim?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1230,vSwA?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1231,vSwB?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1220,vSwA?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1221,vSwB?MF_CHECKED:0);
 }
 inline BOOL prompt(LPCSTR title,LPCSTR msg) {
 	return (MessageBox(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
@@ -780,14 +780,16 @@ void onViewAnim() {
 void onViewSwA() {
 	vSwA = !vSwA;
 	updateMenu();
-	//TODO
+	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
 	updateEntireScreen();
+	updateDialogs();
 }
 void onViewSwB() {
 	vSwB = !vSwB;
 	updateMenu();
-	//TODO
+	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
 	updateEntireScreen();
+	updateDialogs();
 }
 //Tools
 void onChgEnt() {
@@ -1054,6 +1056,15 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			EndPaint(hwnd,&ps);
 			break;
 		}
+		case WM_TIMER: {
+			if(isRomOpen && vAnim) {
+				updateMap8();
+				updatePalette();
+				updateEntireScreen();
+				updateDialogs();
+			}
+			break;
+		}
 		case WM_SIZE: {
 			//Resize visible region and invalidate
 			SCROLLINFO si;
@@ -1307,6 +1318,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		MessageBox(NULL,"Main window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
+	SetTimer(hwndMain,800,33,NULL);
 	//Create children windows
 	RECT refSize = {0,0,256,256};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
