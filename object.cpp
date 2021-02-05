@@ -1959,7 +1959,7 @@ void drawObject_14(object_t * o) {
 				tileRef = romBuf[0x0988FC+tileRef]|(romBuf[0x0988FD+tileRef]<<8);
 				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
 			} else if((i+1)==width) {
-				tileRef = romBuf[0x09885A+tileRef]|(romBuf[0x09885B+tileRef]<<8);
+				tileRef = romBuf[0x09895A+tileRef]|(romBuf[0x09895B+tileRef]<<8);
 				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
 			} else {
 				tileRef = romBuf[0x09889E +tileRef]|(romBuf[0x09889F+tileRef]<<8);
@@ -3730,9 +3730,39 @@ void drawObject_4F(object_t * o) {
 	int height = o->data[4]+1;
 	for(int j=0; j<height; j++) {
 		for(int i=0; i<width; i++) {
-			
-			
-			
+			WORD orig = getOriginalMap16Tile(mtOff);
+			int tileRef = (orig&0xFF)<<1;
+			tileRef = romBuf[0x09B7A8+tileRef]|(romBuf[0x09B7A9+tileRef]<<8);
+			if(tileRef) addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			else addObjectTile(o,0,mtOff);
+			int mtOff2 = offsetMap16Up(mtOff);
+			WORD orig2 = getOriginalMap16Tile(mtOff2);
+			if((orig2&0xFF00)==tilesetBuffer[0x1A62>>1]) {
+				tileRef = (orig2&0xFF)<<1;
+				tileRef = romBuf[0x09B1B0+tileRef]|(romBuf[0x09B1B1+tileRef]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff2);
+			}
+			mtOff2 = offsetMap16Down(mtOff);
+			orig2 = getOriginalMap16Tile(mtOff2);
+			if((orig2&0xFF00)==tilesetBuffer[0x1A62>>1]) {
+				tileRef = (orig2&0xFF)<<1;
+				tileRef = romBuf[0x09B32E +tileRef]|(romBuf[0x09B32F+tileRef]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff2);
+			}
+			mtOff2 = offsetMap16Right(mtOff);
+			orig2 = getOriginalMap16Tile(mtOff2);
+			if((orig2&0xFF00)==tilesetBuffer[0x1A62>>1]) {
+				tileRef = (orig2&0xFF)<<1;
+				tileRef = romBuf[0x09B4AC+tileRef]|(romBuf[0x09B4AD+tileRef]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff2);
+			}
+			mtOff2 = offsetMap16Left(mtOff);
+			orig2 = getOriginalMap16Tile(mtOff2);
+			if((orig2&0xFF00)==tilesetBuffer[0x1A62>>1]) {
+				tileRef = (orig2&0xFF)<<1;
+				tileRef = romBuf[0x09B62A+tileRef]|(romBuf[0x09B62B+tileRef]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff2);
+			}
 			mtOff = offsetMap16Right(mtOff);
 		}
 		mtOff = preserve = offsetMap16Down(preserve);
@@ -3740,117 +3770,603 @@ void drawObject_4F(object_t * o) {
 }
 //Vertical train rail
 void drawObject_50(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int height = o->data[3]+1;
+	for(int j=0; j<height; j++) {
+		WORD orig = getOriginalMap16Tile(mtOff);
+		if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] ||
+		orig==tilesetBuffer[0x1D94>>1] || orig==tilesetBuffer[0x1D96>>1]) addObjectTile(o,tilesetBuffer[0x1C48>>1],mtOff);
+		else addObjectTile(o,tilesetBuffer[0x1C46>>1],mtOff);
+		mtOff = offsetMap16Down(mtOff);
+	}
 }
 //Horizontal train rail
 void drawObject_51(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int width = o->data[3]+1;
+	for(int i=0; i<width; i++) {
+		WORD orig = getOriginalMap16Tile(mtOff);
+		if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] ||
+		orig==tilesetBuffer[0x1D94>>1] || orig==tilesetBuffer[0x1D96>>1]) addObjectTile(o,tilesetBuffer[0x1C48>>1],mtOff);
+		else addObjectTile(o,tilesetBuffer[0x1C52>>1],mtOff);
+		mtOff = offsetMap16Right(mtOff);
+	}
 }
 //Diagonal train rail
 void drawObject_52(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3];
+	int height = o->data[4]+1;
+	if(width&0x80) {
+		width = 0x101-width;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				if(j==0) addObjectTile(o,tilesetBuffer[0x1C4A>>1],mtOff);
+				else if(j==1) addObjectTile(o,tilesetBuffer[0x1C4C>>1],mtOff);
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Left(preserve);
+			mtOff = preserve = offsetMap16Down(preserve);
+			height--;
+		}
+	} else {
+		width++;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				if(j==0) addObjectTile(o,tilesetBuffer[0x1C50>>1],mtOff);
+				else if(j==1) addObjectTile(o,tilesetBuffer[0x1C4E>>1],mtOff);
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Right(preserve);
+			mtOff = preserve = offsetMap16Down(preserve);
+			height--;
+		}
+	}
 }
 //Castle wall platform, horizontal
 void drawObject_53(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int width = o->data[3]+1;
+	for(int i=0; i<width; i++) {
+		WORD orig = getOriginalMap16Tile(mtOff);
+		if(orig>=0x00C2 && orig<0x00C8) {
+			WORD tile = (i&1)?0x150D:0x150E;
+			if(i==0) {
+				if(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1]) {
+					if(orig==0x00D1 || orig==0x00D2) tile = 0x150D;
+					else tile = 0x00D1;
+				}
+			} else if((i+1)==width) {
+				if(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1]) {
+					if(orig==0x00D1 || orig==0x00D2) tile = 0x150D;
+					else tile = 0x00D2;
+					if(orig>=0x00C4) {
+						int tileRef = (orig-0x00C4)<<1;
+						tile = romBuf[0x09BA18+tileRef]|(romBuf[0x09BA19+tileRef]<<8);
+					}
+				}
+			} else {
+				if(orig>=0x00C4) {
+					int tileRef = (orig-0x00C4)<<1;
+					tile = romBuf[0x09BA18+tileRef]|(romBuf[0x09BA19+tileRef]<<8);
+				}
+			}
+			addObjectTile(o,tile,mtOff);
+		}
+		mtOff = offsetMap16Right(mtOff);
+	}
 }
 //Castle wall platform, gentle slope
 void drawObject_54(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3];
+	int height = o->data[4]+1;
+	if(width&0x80) {
+		width = 0x101-width;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1A34>>1]:tilesetBuffer[0x1A2A>>1],mtOff);
+					else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A5E>>1]:tilesetBuffer[0x1A40>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Left(preserve);
+			if(i && (i&1)==0) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				height--;
+			}
+		}
+	} else {
+		width++;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1A42>>1]:tilesetBuffer[0x1A50>>1],mtOff);
+					else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A60>>1]:tilesetBuffer[0x1A5C>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Right(preserve);
+			if(i && (i&1)==0) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				height--;
+			}
+		}
+	}
 }
 //Castle wall platform, steep slope
 void drawObject_55(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3];
+	int height = o->data[4]+1;
+	if(width&0x80) {
+		width = 0x101-width;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,tilesetBuffer[0x1A02>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x1A14>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Left(preserve);
+			if(i) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				height--;
+			}
+		}
+	} else {
+		width++;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,tilesetBuffer[0x1A16>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x1A28>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Right(preserve);
+			if(i) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				height--;
+			}
+		}
+	}
 }
 //Castle wall platform, very steep slope
 void drawObject_56(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3];
+	int height = o->data[4]+1;
+	if(width&0x80) {
+		width = 0x101-width;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,tilesetBuffer[0x19DA>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x19E2>>1],mtOff);
+					else if(j==2) addObjectTile(o,tilesetBuffer[0x19EC>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Left(preserve);
+			if(i) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				mtOff = preserve = offsetMap16Down(preserve);
+				height -= 2;
+			}
+		}
+	} else {
+		width++;
+		for(int i=0; i<width; i++) {
+			for(int j=0; j<height; j++) {
+				WORD orig = getOriginalMap16Tile(mtOff);
+				if(i==0) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D1,mtOff);
+					}
+				} else if((i+1)==width) {
+					if(j==0 && orig!=0x150D && orig!=0x150E &&
+					(orig<tilesetBuffer[0x19DA>>1] || orig>=tilesetBuffer[0x1A5E>>1])) {
+						if(orig==0x00D1) addObjectTile(o,0x150E,mtOff);
+						else if(orig==0x00D2) addObjectTile(o,0x150D,mtOff);
+						else if(orig==0x00C5) addObjectTile(o,0x151B,mtOff);
+						else addObjectTile(o,0x00D2,mtOff);
+					}
+				} else {
+					if(j==0) addObjectTile(o,tilesetBuffer[0x19EE>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x19F6>>1],mtOff);
+					else if(j==2) addObjectTile(o,tilesetBuffer[0x1A00>>1],mtOff);
+				}
+				mtOff = offsetMap16Down(mtOff);
+			}
+			mtOff = preserve = offsetMap16Right(preserve);
+			if(i) {
+				mtOff = preserve = offsetMap16Down(preserve);
+				mtOff = preserve = offsetMap16Down(preserve);
+				height -= 2;
+			}
+		}
+	}
 }
 //Cross section platform
 void drawObject_57(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int width = o->data[3]+1;
+	for(int i=0; i<width; i++) {
+		if(i==0) {
+			WORD orig = getOriginalMap16Tile(mtOff);
+			if(orig==tilesetBuffer[0x1BF8>>1]) addObjectTile(o,tilesetBuffer[0x1D36>>1],mtOff);
+			else addObjectTile(o,tilesetBuffer[0x1D30>>1],mtOff);
+		} else if((i+1)==width) {
+			WORD orig = getOriginalMap16Tile(mtOff);
+			if(orig==tilesetBuffer[0x1BF8>>1]) addObjectTile(o,tilesetBuffer[0x1D38>>1],mtOff);
+			else addObjectTile(o,tilesetBuffer[0x1D34>>1],mtOff);
+		} else addObjectTile(o,tilesetBuffer[0x1D32>>1],mtOff);
+		mtOff = offsetMap16Right(mtOff);
+	}
 }
 //Ceiling
 void drawObject_58(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		if(i==0) {
+			WORD orig = getOriginalMap16Tile(mtOff);
+			int mtOff2 = offsetMap16Down(mtOff);
+			WORD orig2 = getOriginalMap16Tile(mtOff2);
+			if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
+			(orig2>=tilesetBuffer[0x1CAE>>1] && orig2<tilesetBuffer[0x1CCA>>1])) {
+				addObjectTile(o,tilesetBuffer[0x1CF6>>1],mtOff);
+				mtOff = offsetMap16Down(mtOff);
+				for(int j=1; j<height; j++) {
+					int offset = noiseTilemap[mtOff]&0x06;
+					int tileRef = romBuf[0x0982B0+offset]|(romBuf[0x0982B1+offset]<<8);
+					WORD tile = tilesetBuffer[tileRef>>1];
+					orig2 = getOriginalMap16Tile(mtOff);
+					if(orig2==tilesetBuffer[0x1C5C>>1] || orig2==tilesetBuffer[0x1C5E>>1]) tile = tilesetBuffer[0x1CE6>>1];
+					else if(orig2==tilesetBuffer[0x1CAC>>1] || orig2==tilesetBuffer[0x1CB6>>1] ||
+					orig2==tilesetBuffer[0x1CB8>>1]) {
+						mtOff2 = offsetMap16Up(mtOff);
+						orig2 = getOriginalMap16Tile(mtOff2);
+						if(orig2!=tilesetBuffer[0x1CFE>>1] && orig2!=tilesetBuffer[0x1D00>>1]) {
+							addObjectTile(o,tilesetBuffer[0x1CE6>>1],mtOff2);
+						}
+						mtOff2 = offsetMap16Left(mtOff);
+						tile = tilesetBuffer[0x1CAA>>1];
+						orig2 = getOriginalMap16Tile(mtOff2);
+						if(orig2!=tilesetBuffer[0x1CAC>>1]) {
+							mtOff2 = offsetMap16Down(mtOff);
+							addObjectTile(o,tilesetBuffer[0x1CC2>>1],mtOff2);
+							tile = tilesetBuffer[0x1CA0>>1];
+						}
+					}
+					mtOff2 = offsetMap16Right(mtOff);
+					orig2 = getOriginalMap16Tile(mtOff2);
+					if(orig2==0x007D || orig2==0x007E ||
+					orig2==tilesetBuffer[0x1C5C>>1] || orig2==tilesetBuffer[0x1C5E>>1]) tile = tilesetBuffer[0x1CE6>>1];
+					addObjectTile(o,tile,mtOff);
+					mtOff = offsetMap16Down(mtOff);
+				}
+			} else if(orig==tilesetBuffer[0x1CF0>>1] || orig==tilesetBuffer[0x1CF2>>1] ||
+			orig==tilesetBuffer[0x1CF4>>1] || orig==tilesetBuffer[0x1CF6>>1] ||
+			orig==tilesetBuffer[0x1CF8>>1] || orig==tilesetBuffer[0x1CFA>>1]) addObjectTile(o,tilesetBuffer[0x1CF2>>1],mtOff);
+			else if(orig==tilesetBuffer[0x1BF6>>1]) addObjectTile(o,tilesetBuffer[0x1C28>>1],mtOff);
+			else if(orig!=tilesetBuffer[0x1C28>>1]) addObjectTile(o,tilesetBuffer[0x1CF0>>1],mtOff);
+		} else if((i+1)==width) {
+			WORD orig = getOriginalMap16Tile(mtOff);
+			int mtOff2 = offsetMap16Down(mtOff);
+			WORD orig2 = getOriginalMap16Tile(mtOff2);
+			if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
+			(orig2>=tilesetBuffer[0x1CAE>>1] && orig2<tilesetBuffer[0x1CCA>>1])) {
+				addObjectTile(o,tilesetBuffer[0x1CF4>>1],mtOff);
+				mtOff = offsetMap16Down(mtOff);
+				for(int j=1; j<height; j++) {
+					int offset = noiseTilemap[mtOff]&0x06;
+					int tileRef = romBuf[0x0982A8+offset]|(romBuf[0x0982A9+offset]<<8);
+					WORD tile = tilesetBuffer[tileRef>>1];
+					orig2 = getOriginalMap16Tile(mtOff);
+					if(orig2==tilesetBuffer[0x1C5C>>1] || orig2==tilesetBuffer[0x1C5E>>1]) tile = tilesetBuffer[0x1CE4>>1];
+					else if(orig2==tilesetBuffer[0x1CAC>>1] || orig2==tilesetBuffer[0x1CB6>>1] ||
+					orig2==tilesetBuffer[0x1CB8>>1]) {
+						mtOff2 = offsetMap16Up(mtOff);
+						orig2 = getOriginalMap16Tile(mtOff2);
+						if(orig2!=tilesetBuffer[0x1CFE>>1] && orig2!=tilesetBuffer[0x1D00>>1]) {
+							addObjectTile(o,tilesetBuffer[0x1CE4>>1],mtOff2);
+						}
+						mtOff2 = offsetMap16Right(mtOff);
+						tile = tilesetBuffer[0x1CA8>>1];
+						orig2 = getOriginalMap16Tile(mtOff2);
+						if(orig2!=tilesetBuffer[0x1CAC>>1]) {
+							mtOff2 = offsetMap16Down(mtOff);
+							addObjectTile(o,tilesetBuffer[0x1CC4>>1],mtOff2);
+							tile = tilesetBuffer[0x1CA2>>1];
+						}
+					}
+					mtOff2 = offsetMap16Left(mtOff);
+					orig2 = getOriginalMap16Tile(mtOff2);
+					if(orig2==0x007D || orig2==0x007F ||
+					orig2==tilesetBuffer[0x1C5C>>1] || orig2==tilesetBuffer[0x1C5E>>1]) tile = tilesetBuffer[0x1CE4>>1];
+					addObjectTile(o,tile,mtOff);
+					mtOff = offsetMap16Down(mtOff);
+				}
+			} else if(orig==tilesetBuffer[0x1CF0>>1] || orig==tilesetBuffer[0x1CF2>>1] ||
+			orig==tilesetBuffer[0x1CF4>>1] || orig==tilesetBuffer[0x1CF6>>1] ||
+			orig==tilesetBuffer[0x1CF8>>1] || orig==tilesetBuffer[0x1CFA>>1]) addObjectTile(o,tilesetBuffer[0x1CF2>>1],mtOff);
+			else if(orig==tilesetBuffer[0x1BF6>>1]) addObjectTile(o,tilesetBuffer[0x1C28>>1],mtOff);
+			else if(orig!=tilesetBuffer[0x1C28>>1]) addObjectTile(o,tilesetBuffer[0x1CFA>>1],mtOff);
+		} else {
+			WORD orig = getOriginalMap16Tile(mtOff);
+			if(orig!=tilesetBuffer[0x1C28>>1]) {
+				WORD tile = tilesetBuffer[0x1CF2>>1];
+				for(int n=0; n<0x18; n+=2) {
+					int tileRef = romBuf[0x09BCA4+n]|(romBuf[0x09BCA5+n]<<8);
+					if(orig==tilesetBuffer[tileRef>>1]) {
+						WORD tile = romBuf[0x09BCBC+n]|(romBuf[0x09BCBD+n]<<8);
+						break;
+					}
+				}
+				addObjectTile(o,tile,mtOff);
+			}
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section gentle slope right
 void drawObject_59(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section steep slope right
 void drawObject_5A(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section very steep slope right
 void drawObject_5B(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section gentle slope left
 void drawObject_5C(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section steep slope left
 void drawObject_5D(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section very steep slope left
 void drawObject_5E(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section upside-down gentle slope right
 void drawObject_5F(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section upside-down steep slope right
 void drawObject_60(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section upside-down gentle slope left
 void drawObject_61(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Cross section upside-down steep slope left
 void drawObject_62(object_t * o) {
-	
-	
-	
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
 }
 //Brown platform
 void drawObject_63(object_t * o) {
@@ -3902,26 +4418,33 @@ void drawObject_67(object_t * o) {
 				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
 				if(i==0) {
 					int mtOff2 = offsetMap16Left(mtOff);
+					overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
 					if(j==0) {
-						mtOff2 = offsetMap16Up(mtOff2);
-						overlapTile_groundXSectEdge(o,mtOff2,0x09C311);
-					} else if((j+1)==height) {
-						mtOff2 = offsetMap16Down(mtOff2);
-						overlapTile_groundXSectEdge(o,mtOff2,0x09C36D);
-					} else overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
-				} else if((i+1)==width) {
+						int mtOff3 = offsetMap16Up(mtOff2);
+						overlapTile_groundXSectEdge(o,mtOff3,0x09C311);
+					}
+					if((j+1)==height) {
+						int mtOff3 = offsetMap16Down(mtOff2);
+						overlapTile_groundXSectEdge(o,mtOff3,0x09C36D);
+					}
+				}
+				if((i+1)==width) {
 					int mtOff2 = offsetMap16Right(mtOff);
+					overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
 					if(j==0) {
-						mtOff2 = offsetMap16Up(mtOff2);
-						overlapTile_groundXSectEdge(o,mtOff2,0x09C481);
-					} else if((j+1)==height) {
-						mtOff2 = offsetMap16Down(mtOff2);
-						overlapTile_groundXSectEdge(o,mtOff2,0x09C4DD);
-					} else overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
-				} else if(j==0) {
+						int mtOff3 = offsetMap16Up(mtOff2);
+						overlapTile_groundXSectEdge(o,mtOff3,0x09C481);
+					}
+					if((j+1)==height) {
+						int mtOff3 = offsetMap16Down(mtOff2);
+						overlapTile_groundXSectEdge(o,mtOff3,0x09C4DD);
+					}
+				}
+				if(j==0) {
 					int mtOff2 = offsetMap16Up(mtOff);
 					overlapTile_groundXSectEdge(o,mtOff2,0x09C3C9);
-				} else if((j+1)==height) {
+				}
+				if((j+1)==height) {
 					int mtOff2 = offsetMap16Down(mtOff);
 					overlapTile_groundXSectEdge(o,mtOff2,0x09C425);
 				}
@@ -4058,6 +4581,168 @@ void drawObject_6E(object_t * o) {
 			mtOff = offsetMap16Right(mtOff);
 		}
 		mtOff = preserve = offsetMap16Down(preserve);
+	}
+}
+//TODO
+//Castle wall with sides
+void drawObject_CB(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Upside-down castle wall, left
+void drawObject_CC(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Upside-down castle wall, right
+void drawObject_CD(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//TODO
+//Flower garden ground
+void drawObject_E4(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden gentle slope left
+void drawObject_E5(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden steep slope left
+void drawObject_E6(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden very steep slope left
+void drawObject_E7(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden gentle slope right
+void drawObject_E8(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden steep slope right
+void drawObject_E9(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
+	}
+}
+//Flower garden very slope right
+void drawObject_EA(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	int preserve = mtOff;
+	int width = o->data[3]+1;
+	int height = o->data[4]+1;
+	for(int i=0; i<width; i++) {
+		for(int j=0; j<height; j++) {
+			
+			
+			
+			mtOff = offsetMap16Down(mtOff);
+		}
+		mtOff = preserve = offsetMap16Right(preserve);
 	}
 }
 //TODO
@@ -4238,8 +4923,8 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	//C0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_CB,
+	drawObject_CC,drawObject_CD,drawObject_unused,drawObject_unused,
 	//D0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
@@ -4247,8 +4932,8 @@ void (*objectDrawFunc[0x100])(object_t * o) = {
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	//E0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
+	drawObject_E4,drawObject_E5,drawObject_E6,drawObject_E7,
+	drawObject_E8,drawObject_E9,drawObject_EA,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	//F0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
