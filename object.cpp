@@ -4094,7 +4094,7 @@ void drawObject_57(object_t * o) {
 			else addObjectTile(o,tilesetBuffer[0x1D30>>1],mtOff);
 		} else if((i+1)==width) {
 			WORD orig = getOriginalMap16Tile(mtOff);
-			if(orig==tilesetBuffer[0x1BF8>>1]) addObjectTile(o,tilesetBuffer[0x1D38>>1],mtOff);
+			if(orig==tilesetBuffer[0x1BFA>>1]) addObjectTile(o,tilesetBuffer[0x1D38>>1],mtOff);
 			else addObjectTile(o,tilesetBuffer[0x1D34>>1],mtOff);
 		} else addObjectTile(o,tilesetBuffer[0x1D32>>1],mtOff);
 		mtOff = offsetMap16Right(mtOff);
@@ -4211,97 +4211,196 @@ void drawObject_58(object_t * o) {
 //Cross section gentle slope right
 void drawObject_59(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1D44>>1]:tilesetBuffer[0x1D42>>1],mtOff);
+			else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1CB4>>1]:tilesetBuffer[0x1CB2>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width && j) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		if(i&1) {
+			mtOff = preserve = offsetMap16Down(preserve);
+			height--;
+		}
 	}
 }
 //Cross section steep slope right
 void drawObject_5A(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,tilesetBuffer[0x1D5A>>1],mtOff);
+			else if(j==1) addObjectTile(o,tilesetBuffer[0x1CB2>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width && j) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		mtOff = preserve = offsetMap16Down(preserve);
+		height--;
 	}
 }
 //Cross section very steep slope right
 void drawObject_5B(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,tilesetBuffer[0x1D50>>1],mtOff);
+			else if(j==1) addObjectTile(o,tilesetBuffer[0x1D52>>1],mtOff);
+			else if(j==2) addObjectTile(o,tilesetBuffer[0x1CB2>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width && j>1) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		mtOff = preserve = offsetMap16Down(preserve);
+		mtOff = preserve = offsetMap16Down(preserve);
+		height -= 2;
 	}
 }
 //Cross section gentle slope left
 void drawObject_5C(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1D3C>>1]:tilesetBuffer[0x1D3A>>1],mtOff);
+			else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1CB4>>1]:tilesetBuffer[0x1CB2>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && j) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		if(i&1) {
+			mtOff = preserve = offsetMap16Up(preserve);
+			height++;
+		}
 	}
 }
 //Cross section steep slope left
 void drawObject_5D(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,tilesetBuffer[0x1D56>>1],mtOff);
+			else if(j==1) addObjectTile(o,tilesetBuffer[0x1CB4>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && j) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		mtOff = preserve = offsetMap16Up(preserve);
+		height++;
 	}
 }
 //Cross section very steep slope left
 void drawObject_5E(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
+	mtOff = offsetMap16Up(mtOff);
+	mtOff = offsetMap16Up(mtOff);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+3;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if(j==0) addObjectTile(o,tilesetBuffer[0x1D4A>>1],mtOff);
+			else if(j==1) addObjectTile(o,tilesetBuffer[0x1D4C>>1],mtOff);
+			else if(j==2) addObjectTile(o,tilesetBuffer[0x1CB4>>1],mtOff);
+			else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && j>1) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width && j>1) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		mtOff = preserve = offsetMap16Up(preserve);
+		mtOff = preserve = offsetMap16Up(preserve);
+		height += 2;
 	}
 }
 //Cross section upside-down gentle slope right
@@ -4309,15 +4408,41 @@ void drawObject_5F(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
+	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if((height-j)==1) {
+				if(bg1Ts==8) {
+					if(i&1) addObjectTile(o,0x5903,mtOff);
+				} else if(i&1) addObjectTile(o,tilesetBuffer[0x1D72>>1],mtOff);
+				else {
+					WORD orig = getOriginalMap16Tile(mtOff);
+					if(orig==tilesetBuffer[0x1C18>>1] || orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff);
+				}
+			} else if((height-j)==2 && (i&1)==0) {
+				if(bg1Ts==8) addObjectTile(o,0x5703,mtOff);
+				else addObjectTile(o,tilesetBuffer[0x1D6C>>1],mtOff);
+			} else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && (height-j)>1) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				if((height-j)==1) {
+					WORD orig = getOriginalMap16Tile(mtOff2);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff2);
+				} else overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		if((i&1)==0) height--;
 	}
 }
 //Cross section upside-down steep slope right
@@ -4325,15 +4450,38 @@ void drawObject_60(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
+	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if((height-j)==1) {
+				if(bg1Ts!=8) {
+					WORD orig = getOriginalMap16Tile(mtOff);
+					if(orig==tilesetBuffer[0x1C18>>1] || orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff);
+				}
+			} else if((height-j)==2) {
+				if(bg1Ts==8) addObjectTile(o,0x5D04,mtOff);
+				else addObjectTile(o,tilesetBuffer[0x1D82>>1],mtOff);
+			} else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && (height-j)>1) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width && (height-j)>1) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				if((height-j)==2) {
+					WORD orig = getOriginalMap16Tile(mtOff2);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff2);
+				} else overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		height--;
 	}
 }
 //Cross section upside-down gentle slope left
@@ -4341,15 +4489,44 @@ void drawObject_61(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
+	height -= width>>1;
+	if(height<2) height = 2;
+	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if((height-j)==1) {
+				if(bg1Ts==8) {
+					if((i&1)==0) addObjectTile(o,0x5303,mtOff);
+				} else if(i&1) {
+					WORD orig = getOriginalMap16Tile(mtOff);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1C>>1],mtOff);
+					else if(orig==tilesetBuffer[0x1BFA>>1]) addObjectTile(o,tilesetBuffer[0x1C2E>>1],mtOff);
+					else if(orig==tilesetBuffer[0x1C02>>1]) addObjectTile(o,tilesetBuffer[0x1C30>>1],mtOff);
+				} else addObjectTile(o,tilesetBuffer[0x1D60>>1],mtOff);
+			} else if((height-j)==2 && (i&1)) {
+				if(bg1Ts==8) addObjectTile(o,0x5503,mtOff);
+				else addObjectTile(o,tilesetBuffer[0x1D66>>1],mtOff);
+			} else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && (height-j)>1) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				if((height-j)==1) {
+					WORD orig = getOriginalMap16Tile(mtOff2);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff2);
+				} else overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		if((i&1)==0) height++;
 	}
 }
 //Cross section upside-down steep slope left
@@ -4357,15 +4534,42 @@ void drawObject_62(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
 	int preserve = mtOff;
 	int width = o->data[3]+1;
-	int height = o->data[4]+1;
+	int height = o->data[4]+2;
+	height -= width;
+	if(height<2) height = 2;
+	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			
-			
-			
+			if((height-j)==1) {
+				if(bg1Ts!=8) {
+					WORD orig = getOriginalMap16Tile(mtOff);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1C>>1],mtOff);
+					else if(orig==tilesetBuffer[0x1BFA>>1]) addObjectTile(o,tilesetBuffer[0x1C2E>>1],mtOff);
+					else if(orig==tilesetBuffer[0x1C02>>1]) addObjectTile(o,tilesetBuffer[0x1C30>>1],mtOff);
+				}
+			} else if((height-j)==2) {
+				if(bg1Ts==8) addObjectTile(o,0x5B05,mtOff);
+				else addObjectTile(o,tilesetBuffer[0x1D78>>1],mtOff);
+			} else {
+				int offset = noiseTilemap[mtOff]&0x0E;
+				int tileRef = romBuf[0x098121+offset]|(romBuf[0x098122+offset]<<8);
+				addObjectTile(o,tilesetBuffer[tileRef>>1],mtOff);
+			}
+			if(i==0 && (height-j)>2) {
+				int mtOff2 = offsetMap16Left(mtOff);
+				overlapTile_groundXSectEdge(o,mtOff2,0x09C194);
+			}
+			if((i+1)==width) {
+				int mtOff2 = offsetMap16Right(mtOff);
+				if((height-j)==1) {
+					WORD orig = getOriginalMap16Tile(mtOff2);
+					if(orig==tilesetBuffer[0x1C04>>1]) addObjectTile(o,tilesetBuffer[0x1C1E>>1],mtOff2);
+				} else overlapTile_groundXSectEdge(o,mtOff2,0x09C20F);
+			}
 			mtOff = offsetMap16Down(mtOff);
 		}
 		mtOff = preserve = offsetMap16Right(preserve);
+		height++;
 	}
 }
 //Brown platform
@@ -4567,7 +4771,7 @@ void drawObject_6D(object_t * o) {
 		mtOff = offsetMap16Down(mtOff);
 	}
 }
-//Cement blocks, colorful
+//Cement blocks, colored
 void drawObject_6E(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
 	int preserve = mtOff;
