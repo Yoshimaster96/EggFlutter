@@ -100,6 +100,7 @@ void loadPalette() {
 	//Load palette animation
 	memset(paletteAnimBuffer,0xFF,0x1000*sizeof(DWORD));
 	//TODO
+	updatePalette();
 }
 void updatePalette() {
 	int frameOffset = (paletteAnim&0xF)<<8;

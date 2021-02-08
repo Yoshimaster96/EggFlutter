@@ -30,10 +30,8 @@ void loadLevel() {
 	drawSprites();
 	//Load other stuff
 	loadMap8();
-	updateMap8();
 	loadMap16();
 	loadPalette();
-	updatePalette();
 	loadBackground2();
 	loadBackground3();
 }
@@ -432,7 +430,7 @@ HMENU hmenuMain;
 //View states
 bool eObj = true,eSp = false;
 bool vObj = true,vSp = true;
-bool vEnt = true,vExit = false,vGrid = false,vAnim = false;
+bool vEnt = true,vExit = false,vW6 = false,vGrid = false,vAnim = false;
 bool vSwA = false,vSwB = false;
 
 //Helper functions
@@ -461,6 +459,7 @@ void updateMenu() {
 	EnableMenuItem(hmenuMain,1213,enableState);
 	EnableMenuItem(hmenuMain,1220,enableState);
 	EnableMenuItem(hmenuMain,1221,enableState);
+	EnableMenuItem(hmenuMain,1222,enableState);
 	//Tools
 	EnableMenuItem(hmenuMain,1300,enableState);
 	EnableMenuItem(hmenuMain,1301,enableState);
@@ -490,8 +489,9 @@ void updateMenu() {
 	CheckMenuItem(hmenuMain,1211,vExit?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1212,vGrid?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1213,vAnim?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1220,vSwA?MF_CHECKED:0);
-	CheckMenuItem(hmenuMain,1221,vSwB?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1220,vW6?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1221,vSwA?MF_CHECKED:0);
+	CheckMenuItem(hmenuMain,1222,vSwB?MF_CHECKED:0);
 }
 inline BOOL prompt(LPCSTR title,LPCSTR msg) {
 	return (MessageBox(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
@@ -777,6 +777,15 @@ void onViewAnim() {
 	vAnim = !vAnim;
 	updateMenu();
 }
+void onViewW6() {
+	vW6 = !vW6;
+	updateMenu();
+	//TODO
+	loadMap8();
+	loadPalette();
+	updateEntireScreen();
+	updateDialogs();
+}
 void onViewSwA() {
 	vSwA = !vSwA;
 	updateMenu();
@@ -846,7 +855,7 @@ void onEditBg() {
 }
 
 //Tables used for menu processing
-#define NUM_COMMANDS (10+4+8+6+6)
+#define NUM_COMMANDS (10+4+9+6+6)
 void (*cmMenuFunc[NUM_COMMANDS])() = {
 //File
 	onOpen,onClose,onSave,onSaveAs,onQuit,
@@ -858,7 +867,7 @@ void (*cmMenuFunc[NUM_COMMANDS])() = {
 //View
 	onViewObj,onViewSp,
 	onViewEnt,onViewExit,onViewGrid,onViewAnim,
-	onViewSwA,onViewSwB,
+	onViewW6,onViewSwA,onViewSwB,
 //Tools
 	onChgEnt,onChgEnt2,onChgExit,onChgHead,
 	onChgLevName,onChgLevMsg,
@@ -876,7 +885,7 @@ int cmMenuCommand[NUM_COMMANDS] = {
 //View
 	1200,1201,
 	1210,1211,1212,1213,
-	1220,1221,
+	1220,1221,1222,
 //Tools
 	1300,1301,1302,
 	1310,1311,1312,

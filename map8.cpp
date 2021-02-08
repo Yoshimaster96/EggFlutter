@@ -74,6 +74,7 @@ void loadMap8() {
 	unpackGfx4BPP(&commonBuffer[0x3A000],&romBuf[0x16E800],0xC0);
 	//Init animation frame
 	map8Anim = 0;
+	updateMap8();
 }
 void updateMap8_common() {
 	if((map8Anim&3)==0) {
@@ -332,6 +333,7 @@ void updateMap8() {
 }
 void updateMap8Sw(int state) {
 	map8State = state;
+	updateMap8();
 }
 
 void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {
