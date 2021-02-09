@@ -1236,6 +1236,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 
 //Main entry point
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
+	//Load resources
 	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
 	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA)));
 	unpackGfx2BPP(fontBuffer,fontData,0x80);
