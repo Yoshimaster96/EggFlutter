@@ -15,6 +15,7 @@ DWORD getLZ16Address(int gfxFile);
 void loadMap8();
 void updateMap8();
 void updateMap8Sw(int state);
+void updateMap8W6(bool dark);
 void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs);
 void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,POINT offs);
 //Window

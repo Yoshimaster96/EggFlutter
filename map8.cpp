@@ -7,6 +7,7 @@ BYTE fontBuffer[0x2000];
 BYTE commonBuffer[0x3D000];
 int map8Anim = 0;
 int map8State = 0;
+bool vW6_map8 = false;
 
 DWORD getLZ1Address(int gfxFile) {
 	return romBuf[0x03795E +(gfxFile*3)]|(romBuf[0x03795F+(gfxFile*3)]<<8)|(romBuf[0x037960+(gfxFile*3)]<<16);	
@@ -29,6 +30,7 @@ void loadMap8() {
 	decompressLZ16(&map8Buffer[0x12000],&romBuf[gfxAddr],0x80);
 	//Load BG1 tiles
 	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+	if(vW6_map8) bg1Ts += 0x10;
 	gfxAddr = convAddr_SNEStoPC_YI(getLZ1Address(romBuf[0x002F3B+(bg1Ts*3)]));
 	decompressLZ1(tempBuffer,&romBuf[gfxAddr]);
 	unpackGfx4BPP(&map8Buffer[0],tempBuffer,0x80);
@@ -329,11 +331,16 @@ void (*map8UpdateFunc[0x40])() = {
 void updateMap8() {
 	int animTs = ((levelHeader[6]&7)<<3)|(levelHeader[7]>>5);
 	map8UpdateFunc[animTs]();
-	map8Anim ++;
+	map8Anim++;
 }
 void updateMap8Sw(int state) {
 	map8State = state;
+	map8Anim = 0;
 	updateMap8();
+}
+void updateMap8W6(bool dark) {
+	vW6_map8 = dark;
+	loadMap8();
 }
 
 void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {

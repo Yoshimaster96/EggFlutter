@@ -6,6 +6,7 @@ DWORD paletteBuffer[0x100];
 DWORD paletteAnimBuffer[0x1000];
 DWORD gradientBuffer[0x18];
 int paletteAnim = 0;
+bool vW6_palette = false;
 
 void loadPalette() {
 	//Load palette
@@ -20,6 +21,7 @@ void loadPalette() {
 	}
 	//BG1 palette
 	int bg1Pal = (levelHeader[1]&0x7C)>>2;
+	if(vW6_palette) bg1Pal += 0x20;
 	int bg1PalBase = romBuf[0x003874+(bg1Pal<<1)]|(romBuf[0x003875+(bg1Pal<<1)]<<8);
 	bg1PalBase += 0x1FA000;
 	for(int j=0; j<2; j++) {
@@ -110,6 +112,10 @@ void updatePalette() {
 			paletteBuffer[i] = color;
 		}
 	}
+}
+void updatePaletteW6(bool dark) {
+	vW6_palette = dark;
+	loadPalette();
 }
 
 ///////////////////

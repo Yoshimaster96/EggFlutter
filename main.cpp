@@ -780,9 +780,8 @@ void onViewAnim() {
 void onViewW6() {
 	vW6 = !vW6;
 	updateMenu();
-	//TODO
-	loadMap8();
-	loadPalette();
+	updateMap8W6(vW6);
+	updatePaletteW6(vW6);
 	updateEntireScreen();
 	updateDialogs();
 }
