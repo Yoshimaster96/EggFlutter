@@ -219,10 +219,10 @@ void writeBitsLSB(BYTE * data,int * offset,int * bitOffset,int bitLength,DWORD v
 		DWORD bit = (value>>i)&1;
 		data[*offset] |= bit<<*bitOffset;
 		//Move to next bit
-		*bitOffset++;
-		if(*bitOffset==8) {
+		(*bitOffset)++;
+		if((*bitOffset)==8) {
 			*bitOffset = 0;
-			*offset++;
+			(*offset)++;
 		}
 	}
 }
@@ -233,10 +233,10 @@ void writeBitsMSB(BYTE * data,int * offset,int * bitOffset,int bitLength,DWORD v
 		DWORD bit = (value>>(bitLength-1-i))&1;
 		data[*offset] |= bit<<*bitOffset;
 		//Move to next bit
-		*bitOffset++;
-		if(*bitOffset==8) {
+		(*bitOffset)++;
+		if((*bitOffset)==8) {
 			*bitOffset = 0;
-			*offset++;
+			(*offset)++;
 		}
 	}
 }

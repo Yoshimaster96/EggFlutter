@@ -10,7 +10,7 @@ typedef struct {
 	DWORD tile;
 	int offsX,offsY;
 	int numOccupiedTiles;
-	int occupiedTiles[4];
+	int occupiedTiles[17];
 } sprite_tile_t;
 typedef struct {
 	BYTE data[8];

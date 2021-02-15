@@ -9,8 +9,14 @@ void loadLevel() {
 	DWORD spriteAddr = romBuf[0x0BF7C6+(curLevel*6)]|(romBuf[0x0BF7C7+(curLevel*6)]<<8)|(romBuf[0x0BF7C8+(curLevel*6)]<<16);
 	objectAddr = convAddr_SNEStoPC_YI(objectAddr);
 	spriteAddr = convAddr_SNEStoPC_YI(spriteAddr);
-	memcpy(levelHeader,&romBuf[objectAddr],10);
-	objectAddr += 10;
+	if(curLevel==0x38) {
+		memset(levelHeader,0,10);
+		levelHeader[8] = 0x78;
+		levelHeader[9] = 0x80;
+	} else {
+		memcpy(levelHeader,&romBuf[objectAddr],10);
+		objectAddr += 10;
+	}
 	initOtherObjectBuffers();
 	initOtherSpriteBuffers();
 	objectAddr += loadObjects(&romBuf[objectAddr]);
