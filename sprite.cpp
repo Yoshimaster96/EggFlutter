@@ -87,6 +87,14 @@ void drawSpriteText(sprite_t * s,char * text) {
 	}
 }
 
+//Helper function for finding GFX files
+inline int findSpGfxFile(BYTE file) {
+	for(int i=5; i>=0; i--) {
+		if(spGfxFiles[i]==file) return 0x100+(i<<5);
+	}
+	return 0;
+}
+
 //SuperFX texture displayer function
 void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {
 	int offsX = offs.x;
@@ -95,7 +103,7 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 	bool flipH = props&0x40;
 	int palette = (props&0x3C)<<2;
 	int tx = (tile&0xF)<<4;
-	int ty = tile&0x1F0;
+	int ty = tile&0x3F0;
 	for(int j=0; j<16; j++) {
 		for(int i=0; i<16; i++) {
 			int sx = flipH?(0xF-i):i;
@@ -104,7 +112,7 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 			sy += ty;
 			int dx = offsX+i;
 			int dy = offsY+j;
-			int pixShift = (tile&0x200)?4:0;
+			int pixShift = (tile&0x400)?4:0;
 			int idx = getIndexFromTexture(&romBuf[0x140000],{sx,sy});
 			idx = (idx>>pixShift)&0xF;
 			if(idx) {
@@ -126,32 +134,36 @@ void dispBackgroundRow(DWORD * pixelBuf,int width,int height,BYTE props,int row,
 
 //Floating log
 void drawSprite_000(sprite_t * s) {
-	addSpriteTile(s,(0xC<<2),0x4046,0,0);
-	addSpriteTile(s,(0xC<<2),0x4047,16,0);
-	addSpriteTile(s,(0xC<<2),0x4056,0,16);
-	addSpriteTile(s,(0xC<<2),0x4057,16,16);
+	addSpriteTile(s,(0xC<<2),0x4046,-8,-8);
+	addSpriteTile(s,(0xC<<2),0x4047,8,-8);
+	addSpriteTile(s,(0xC<<2),0x4056,-8,8);
+	addSpriteTile(s,(0xC<<2),0x4057,8,8);
 }
 //Closed door
 void drawSprite_001(sprite_t * s) {
-	addSpriteTile(s,(0x8<<2),0x4302,-8,-16);
-	addSpriteTile(s,(0x8<<2)|0x40,0x4302,8,-16);
-	addSpriteTile(s,(0x8<<2),0x4312,-8,0);
-	addSpriteTile(s,(0x8<<2)|0x40,0x4312,8,0);
+	addSpriteTile(s,(0x8<<2),0x4502,-8,-16);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4502,8,-16);
+	addSpriteTile(s,(0x8<<2),0x4512,-8,0);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4512,8,0);
 }
 //Naval Piranha stalk
 void drawSprite_002(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x5A);
+	addSpriteTile(s,(0x9<<2)|0x41,base,-8,-8);
+	addSpriteTile(s,(0x9<<2)|1,base,8,-8);
+	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-16,2);
+	addSpriteTile(s,(0x9<<2)|1,base+0x08,16,2);
 }
 //Crate
 void drawSprite_003(sprite_t * s) {
-	addSpriteTile(s,(0xC<<2),0x4128,0,0);
-	addSpriteTile(s,(0xC<<2),0x4129,16,0);
-	addSpriteTile(s,(0xC<<2),0x4138,0,16);
-	addSpriteTile(s,(0xC<<2),0x4139,16,16);
+	addSpriteTile(s,(0xC<<2),0x4128,-8,-8);
+	addSpriteTile(s,(0xC<<2),0x4129,8,-8);
+	addSpriteTile(s,(0xC<<2),0x4138,-8,8);
+	addSpriteTile(s,(0xC<<2),0x4139,8,8);
 }
 //Star Mario block item
 void drawSprite_004(sprite_t * s) {
-	//TODO
+	addSpriteTile(s,(0x9<<2)|1,0x00C0,0,0);
 }
 //Icy watermelon
 void drawSprite_005(sprite_t * s) {
@@ -159,7 +171,9 @@ void drawSprite_005(sprite_t * s) {
 }
 //Icy watermelon projectile
 void drawSprite_006(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Watermelon
 void drawSprite_007(sprite_t * s) {
@@ -167,7 +181,10 @@ void drawSprite_007(sprite_t * s) {
 }
 //Rubble from final boss
 void drawSprite_008(sprite_t * s) {
-	//TODO
+	addSpriteTile(s,(0xE<<2),0x408E,-8,-8);
+	addSpriteTile(s,(0xE<<2),0x408F,8,-8);
+	addSpriteTile(s,(0xE<<2),0x409E,-8,8);
+	addSpriteTile(s,(0xE<<2),0x409F,8,8);
 }
 //Fire watermelon
 void drawSprite_009(sprite_t * s) {
@@ -175,15 +192,23 @@ void drawSprite_009(sprite_t * s) {
 }
 //Kaboomba
 void drawSprite_00A(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x4A);
+	
+	
+	
 }
 //Kaboomba projectile
 void drawSprite_00B(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x4A);
+	
+	
+	
 }
 //Raphael Raven
 void drawSprite_00C(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Goal Ring
 void drawSprite_00D(sprite_t * s) {
@@ -200,19 +225,28 @@ void drawSprite_00D(sprite_t * s) {
 }
 //GOAL!
 void drawSprite_00E(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //BONUS CHALLENGE
 void drawSprite_00F(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Sewer ghost blob
 void drawSprite_010(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x42);
+	
+	
+	
 }
 //Minigame prize card
 void drawSprite_011(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Boss door
 void drawSprite_012(sprite_t * s) {
@@ -223,39 +257,61 @@ void drawSprite_012(sprite_t * s) {
 }
 //Boss explosion
 void drawSprite_013(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Boss key
 void drawSprite_014(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Submarine Yoshi projectile
 void drawSprite_015(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Bigger Boo
 void drawSprite_016(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x61);
+	
+	
+	
 }
 //Frog Pirate
 void drawSprite_017(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x68);
+	
+	
+	
 }
 //Fire watermelon projectile
 void drawSprite_018(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Bubble
 void drawSprite_019(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Ski lift
 void drawSprite_01A(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x2E);
+	
+	
+	
 }
 //Vertical log on lava
 void drawSprite_01B(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x48);
+	
+	
+	
 }
 //Dr. Freezegood
 void drawSprite_01C(sprite_t * s) {
@@ -276,11 +332,17 @@ void drawSprite_01E(sprite_t * s) {
 }
 //Rotating door roulette
 void drawSprite_01F(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x31);
+	
+	
+	
 }
 //Bandit
 void drawSprite_020(sprite_t * s) {
-	//TODO
+	int base = findSpGfxFile(0x4E);
+	
+	
+	
 }
 //Bucket
 void drawSprite_021(sprite_t * s) {
@@ -297,11 +359,13 @@ void drawSprite_022(sprite_t * s) {
 }
 //Giant egg from final boss
 void drawSprite_026(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Key
 void drawSprite_027(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2)|1,0x00EE,8,8);
+	addSpriteTile(s,(0x9<<2)|1,0x00EE,0,0);
 }
 //TODO
 //Red coin
@@ -509,7 +573,7 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 					break;
 				}
 				case 0x4000: {
-					dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FF,{sptX,sptY});
+					dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY});
 					break;
 				}
 				case 0x8000: {

@@ -151,6 +151,14 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 	}
 	return 0;
 }
+const TCHAR * worldStrings[56] = {
+"1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E",
+"2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E",
+"3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E",
+"4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-E",
+"5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E",
+"6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E",
+"Intro","Tutorial"};
 LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
@@ -158,62 +166,9 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
 			HWND hwndEditEntCb = GetDlgItem(hwnd,20);
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"1-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"2-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"3-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"4-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"5-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-1");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-2");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-3");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-4");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-5");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-6");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-7");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-8");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"6-E");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Intro");
-			SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)"Tutorial");
+			for(int i=0; i<56; i++) {
+				SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)worldStrings[i]);
+			}
 			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
 			//Limit to 2 characters
 			HWND hwndEditEntEt = GetDlgItem(hwnd,21);
