@@ -122,13 +122,15 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 	}
 }
 //HDMA displayer function
-void dispBackgroundRow(DWORD * pixelBuf,int width,int height,BYTE props,int row,POINT offs) {
+void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs) {
 	int offsX = offs.x;
 	int offsY = offs.y;
-	bool flipH = props&0x40;
-	//TODO
-	for(int i=0; i<256; i++) {
-		//TODO
+	int base = ((row&0x1FF)<<9)|((row&0x400)>>1);
+	for(int i=0; i<0x100; i++) {
+		DWORD color = bmpDataBg[base+i];
+		if(color) {
+			putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
+		}
 	}
 }
 
@@ -146,45 +148,20 @@ void drawSprite_001(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x4512,-8,0);
 	addSpriteTile(s,(0x8<<2)|0x40,0x4512,8,0);
 }
-//Naval Piranha stalk
-void drawSprite_002(sprite_t * s) {
-	int base = findSpGfxFile(0x5A);
-	addSpriteTile(s,(0x9<<2)|0x41,base,-8,-8);
-	addSpriteTile(s,(0x9<<2)|1,base,8,-8);
-	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-16,2);
-	addSpriteTile(s,(0x9<<2)|1,base+0x08,16,2);
-}
 //Crate
 void drawSprite_003(sprite_t * s) {
-	addSpriteTile(s,(0xC<<2),0x4128,-8,-8);
-	addSpriteTile(s,(0xC<<2),0x4129,8,-8);
-	addSpriteTile(s,(0xC<<2),0x4138,-8,8);
-	addSpriteTile(s,(0xC<<2),0x4139,8,8);
-}
-//Star Mario block item
-void drawSprite_004(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2)|1,0x00C0,0,0);
+	addSpriteTile(s,(0xC<<2),0x4128,-8,-16);
+	addSpriteTile(s,(0xC<<2),0x4129,8,-16);
+	addSpriteTile(s,(0xC<<2),0x4138,-8,0);
+	addSpriteTile(s,(0xC<<2),0x4139,8,0);
 }
 //Icy watermelon
 void drawSprite_005(sprite_t * s) {
 	addSpriteTile(s,(0xB<<2)|1,0x0068,0,0);
 }
-//Icy watermelon projectile
-void drawSprite_006(sprite_t * s) {
-	
-	
-	
-}
 //Watermelon
 void drawSprite_007(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2)|1,0x0068,0,0);
-}
-//Rubble from final boss
-void drawSprite_008(sprite_t * s) {
-	addSpriteTile(s,(0xE<<2),0x408E,-8,-8);
-	addSpriteTile(s,(0xE<<2),0x408F,8,-8);
-	addSpriteTile(s,(0xE<<2),0x409E,-8,8);
-	addSpriteTile(s,(0xE<<2),0x409F,8,8);
 }
 //Fire watermelon
 void drawSprite_009(sprite_t * s) {
@@ -193,22 +170,21 @@ void drawSprite_009(sprite_t * s) {
 //Kaboomba
 void drawSprite_00A(sprite_t * s) {
 	int base = findSpGfxFile(0x4A);
-	
-	
-	
-}
-//Kaboomba projectile
-void drawSprite_00B(sprite_t * s) {
-	int base = findSpGfxFile(0x4A);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2),base+0x03,0,-8);
+	addSpriteTile(s,(0xA<<2),base+0x0F,0,8);
+	addSpriteTile(s,(0xA<<2)|1,base,-8,0);
+	addSpriteTile(s,(0xA<<2)|1,base+0x01,0,0);
+	addSpriteTile(s,(0xA<<2),base+0x0F,4,8);
 }
 //Raphael Raven
 void drawSprite_00C(sprite_t * s) {
-	
-	
-	
+	for(int j=0; j<4; j++) {
+		for(int i=0; i<4; i++) {
+			int offsX = -24+(i<<4);
+			int offsY = -24+(j<<4);
+			addSpriteTile(s,(0xE<<2),0x4508+i+(j<<4),offsX,offsY);
+		}
+	}
 }
 //Goal Ring
 void drawSprite_00D(sprite_t * s) {
@@ -223,30 +199,20 @@ void drawSprite_00D(sprite_t * s) {
 	addSpriteTile(s,(0xA<<2),0x4034,41,-49);
 	addSpriteTile(s,(0x9<<2),0x4041,34,-25);
 }
-//GOAL!
-void drawSprite_00E(sprite_t * s) {
-	
-	
-	
-}
-//BONUS CHALLENGE
-void drawSprite_00F(sprite_t * s) {
-	
-	
-	
-}
 //Sewer ghost blob
 void drawSprite_010(sprite_t * s) {
+	
+	
+	
 	int base = findSpGfxFile(0x42);
-	
-	
-	
-}
-//Minigame prize card
-void drawSprite_011(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x26,-5,-17);
+	addSpriteTile(s,(0x9<<2)|1,base+0x24,-17,-17);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-16,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x22,0,12);
+	addSpriteTile(s,(0x9<<2)|1,base+0x20,-16,12);
+	addSpriteTile(s,(0x9<<2),base+0x3B,0,-11);
+	addSpriteTile(s,(0x9<<2),base+0x3B,-10,-11);
 }
 //Boss door
 void drawSprite_012(sprite_t * s) {
@@ -254,24 +220,6 @@ void drawSprite_012(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|0x40,0x416C,8,-16);
 	addSpriteTile(s,(0x9<<2),0x417C,-8,0);
 	addSpriteTile(s,(0x9<<2)|0x40,0x417C,8,0);
-}
-//Boss explosion
-void drawSprite_013(sprite_t * s) {
-	
-	
-	
-}
-//Boss key
-void drawSprite_014(sprite_t * s) {
-	
-	
-	
-}
-//Submarine Yoshi projectile
-void drawSprite_015(sprite_t * s) {
-	
-	
-	
 }
 //Bigger Boo
 void drawSprite_016(sprite_t * s) {
@@ -283,18 +231,6 @@ void drawSprite_016(sprite_t * s) {
 //Frog Pirate
 void drawSprite_017(sprite_t * s) {
 	int base = findSpGfxFile(0x68);
-	
-	
-	
-}
-//Fire watermelon projectile
-void drawSprite_018(sprite_t * s) {
-	
-	
-	
-}
-//Bubble
-void drawSprite_019(sprite_t * s) {
 	
 	
 	
@@ -315,12 +251,15 @@ void drawSprite_01B(sprite_t * s) {
 }
 //Dr. Freezegood
 void drawSprite_01C(sprite_t * s) {
-	//TODO
+	
+	
+	
 }
 //Dr. Freezegood with ski lift
 void drawSprite_01D(sprite_t * s) {
-	drawSprite_01A(s);
-	drawSprite_01C(s);
+	
+	
+	
 }
 //Shy-Guy
 void drawSprite_01E(sprite_t * s) {
@@ -357,12 +296,6 @@ void drawSprite_022(sprite_t * s) {
 	int pal = (0xB<<2)-spRef;
 	addSpriteTile(s,pal|1,0x0082,0,0);
 }
-//Giant egg from final boss
-void drawSprite_026(sprite_t * s) {
-	
-	
-	
-}
 //Key
 void drawSprite_027(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|1,0x00EE,0,0);
@@ -373,23 +306,31 @@ void drawSprite_065(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|1,0x00A0,0,0);
 }
 //TODO
+//Large spring
+void drawSprite_06C(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x414E,-8,-8);
+	addSpriteTile(s,(0x8<<2),0x414F,8,-8);
+	addSpriteTile(s,(0x8<<2),0x415E,-8,8);
+	addSpriteTile(s,(0x8<<2),0x415F,8,8);
+}
+//TODO
 
 //Sprite function pointer table and updater
 void drawSprite_unused(sprite_t * s) {}
 void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//000
-	drawSprite_000,drawSprite_001,drawSprite_002,drawSprite_003,
-	drawSprite_004,drawSprite_005,drawSprite_006,drawSprite_007,
-	drawSprite_008,drawSprite_009,drawSprite_00A,drawSprite_00B,
-	drawSprite_00C,drawSprite_00D,drawSprite_00E,drawSprite_00F,
+	drawSprite_000,drawSprite_001,drawSprite_unused,drawSprite_003,
+	drawSprite_unused,drawSprite_005,drawSprite_unused,drawSprite_007,
+	drawSprite_unused,drawSprite_009,drawSprite_00A,drawSprite_unused,
+	drawSprite_00C,drawSprite_00D,drawSprite_unused,drawSprite_unused,
 	//010
-	drawSprite_010,drawSprite_011,drawSprite_012,drawSprite_013,
-	drawSprite_014,drawSprite_015,drawSprite_016,drawSprite_017,
-	drawSprite_018,drawSprite_019,drawSprite_01A,drawSprite_01B,
+	drawSprite_010,drawSprite_unused,drawSprite_012,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_016,drawSprite_017,
+	drawSprite_unused,drawSprite_unused,drawSprite_01A,drawSprite_01B,
 	drawSprite_01C,drawSprite_01D,drawSprite_01E,drawSprite_01F,
 	//020
 	drawSprite_020,drawSprite_021,drawSprite_022,drawSprite_022,
-	drawSprite_022,drawSprite_022,drawSprite_026,drawSprite_027,
+	drawSprite_022,drawSprite_022,drawSprite_unused,drawSprite_027,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//030
@@ -411,7 +352,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_065,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_06C,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//070
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
@@ -569,7 +510,8 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 			int sptY = spY+thisSpriteTile->offsY;
 			switch(tile&0xC000) {
 				case 0x0000: {
-					dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY});
+					if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY});
+					else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY});
 					break;
 				}
 				case 0x4000: {
@@ -577,7 +519,7 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 					break;
 				}
 				case 0x8000: {
-					dispBackgroundRow(pixelBuf,width,height,props,tile&0x3FF,{sptX,sptY});
+					dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY});
 					break;
 				}
 				case 0xC000: {

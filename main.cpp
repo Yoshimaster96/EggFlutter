@@ -530,8 +530,8 @@ void onOpen() {
 			updateMenu();
 			//Load level
 			loadLevel();
-			updateEntireScreen();
 			updateDialogs();
+			updateEntireScreen();
 		}
 	}
 }
@@ -555,8 +555,8 @@ void onClose() {
 		wvisMap16 = false;
 		wvisPalette = false;
 		wvisBackground = false;
-		updateEntireScreen();
 		updateDialogs();
+		updateEntireScreen();
 	}
 }
 void onSave() {
@@ -652,8 +652,8 @@ void onOpenLevel() {
 		}
 		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
 			loadLevel();
-			updateEntireScreen();
 			updateDialogs();
+			updateEntireScreen();
 		}
 	}
 }
@@ -666,8 +666,8 @@ void onNextLevel() {
 		if(curLevel!=0xDD) {
 			curLevel++;
 			loadLevel();
-			updateEntireScreen();
 			updateDialogs();
+			updateEntireScreen();
 		}
 	}
 }
@@ -680,8 +680,8 @@ void onPrevLevel() {
 		if(curLevel) {
 			curLevel--;
 			loadLevel();
-			updateEntireScreen();
 			updateDialogs();
+			updateEntireScreen();
 		}
 	}
 }
@@ -743,22 +743,22 @@ void onViewW6() {
 	updateMenu();
 	updateMap8W6(vW6);
 	updatePaletteW6(vW6);
-	updateEntireScreen();
 	updateDialogs();
+	updateEntireScreen();
 }
 void onViewSwA() {
 	vSwA = !vSwA;
 	updateMenu();
 	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
-	updateEntireScreen();
 	updateDialogs();
+	updateEntireScreen();
 }
 void onViewSwB() {
 	vSwB = !vSwB;
 	updateMenu();
 	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
-	updateEntireScreen();
 	updateDialogs();
+	updateEntireScreen();
 }
 //Tools
 void onChgEnt() {
@@ -778,8 +778,8 @@ void onChgExit() {
 }
 void onChgHead() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader)) {
-		updateEntireScreen();
 		updateDialogs();
+		updateEntireScreen();
 	}
 }
 void onChgLevName() {
@@ -1029,8 +1029,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			if(isRomOpen && vAnim) {
 				updateMap8();
 				updatePalette();
-				updateEntireScreen();
 				updateDialogs();
+				updateEntireScreen();
 			}
 			break;
 		}

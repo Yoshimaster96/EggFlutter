@@ -363,9 +363,16 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POI
 				if(flipV) toff ^= 0x10;
 				int dx = offsX+i;
 				int dy = offsY+j;
-				int idx = getIndexFromTile(map8Buffer,tile+toff,{sx,sy});
-				if(idx) {
-					putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+				if(tile&0x2000) {
+					int idx = getIndexFromTile(commonBuffer,(tile+toff)&0x1FFF,{sx,sy});
+					if(idx) {
+						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+					}
+				} else {
+					int idx = getIndexFromTile(map8Buffer,tile+toff,{sx,sy});
+					if(idx) {
+						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+					}
 				}
 			}
 		}
@@ -376,9 +383,16 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POI
 				int sy = flipV?(7-j):j;
 				int dx = offsX+i;
 				int dy = offsY+j;
-				int idx = getIndexFromTile(map8Buffer,tile,{sx,sy});
-				if(idx) {
-					putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+				if(tile&0x2000) {
+					int idx = getIndexFromTile(commonBuffer,tile&0x1FFF,{sx,sy});
+					if(idx) {
+						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+					}
+				} else {
+					int idx = getIndexFromTile(map8Buffer,tile,{sx,sy});
+					if(idx) {
+						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+					}
 				}
 			}
 		}
