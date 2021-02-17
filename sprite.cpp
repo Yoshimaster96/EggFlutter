@@ -87,10 +87,49 @@ void drawSpriteText(sprite_t * s,char * text) {
 	}
 }
 //Helper function for drawing HDMA sprites from polygon data
-void drawSpriteHDMAPolygon(sprite_t * s,int dataOffset,int numPoints) {
-	//TODO
+void drawSpriteHDMAPolygon(sprite_t * s,int dataOffset,int coneBase,int numPoints) {
+	int lineLeft[0x100],lineRight[0x100];
+	memset(lineLeft,0,0x100*sizeof(int));
+	memset(lineRight,0,0x100*sizeof(int));
 	for(int n=0; n<numPoints; n++) {
-		//TODO
+		int curX = romBuf[dataOffset+(n<<1)];
+		int curY = romBuf[dataOffset+(n<<1)+1];
+		int nextX = romBuf[dataOffset+(n<<1)+2];
+		int nextY = romBuf[dataOffset+(n<<1)+3];
+		if((n+1)==numPoints) {
+			nextX = romBuf[dataOffset];
+			nextY = romBuf[dataOffset+1];
+		}
+		if(curX&0x80) curX -= 0x100;
+		if(nextX&0x80) nextX -= 0x100;
+		curY ^= 0x80;
+		nextY ^= 0x80;
+		if(curY<nextY) {
+			int dx = (nextX-curX)<<8;
+			int dy = nextY-curY;
+			int dxdy = dx/dy;
+			int x = curX<<8;
+			for(int j=curY; j<=nextY; j++) {
+				lineRight[j] = x/0x100;
+				x += dxdy;
+			}
+		} else if(curY>nextY) {
+			int dx = (nextX-curX)<<8;
+			int dy = curY-nextY;
+			int dxdy = dx/dy;
+			int x = curX<<8;
+			for(int j=curY; j>=nextY; j--) {
+				lineLeft[j] = x/0x100;
+				x += dxdy;
+			}
+		}
+	}
+	for(int i=0; i<0x100; i++) {
+		if(lineLeft[i]!=lineRight[i]) {
+			int width = (lineRight[i]-lineLeft[i])<<1;
+			int offsX = (lineRight[i]+lineLeft[i])/2;
+			addSpriteTile(s,0,coneBase+width,offsX-0x80,i-0x80);
+		}
 	}
 }
 
@@ -274,18 +313,16 @@ void drawSprite_00F(sprite_t * s) {
 }
 //Sewer ghost blob
 void drawSprite_010(sprite_t * s) {
-	
-	
-	
+	drawSpriteHDMAPolygon(s,0x036407,0x8400,20);
 	int base = findSpGfxFile(0x42);
-	addSpriteTile(s,(0x9<<2)|1,base+0x26,-5,-17);
-	addSpriteTile(s,(0x9<<2)|1,base+0x24,-17,-17);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,-16,0);
-	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,0);
-	addSpriteTile(s,(0x9<<2)|1,base+0x22,0,12);
-	addSpriteTile(s,(0x9<<2)|1,base+0x20,-16,12);
-	addSpriteTile(s,(0x9<<2),base+0x3B,0,-11);
-	addSpriteTile(s,(0x9<<2),base+0x3B,-10,-11);
+	addSpriteTile(s,(0x9<<2)|1,base+0x26,-5,-105);
+	addSpriteTile(s,(0x9<<2)|1,base+0x24,-17,-105);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-16,-88);
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,-88);
+	addSpriteTile(s,(0x9<<2)|1,base+0x22,0,-76);
+	addSpriteTile(s,(0x9<<2)|1,base+0x20,-16,-76);
+	addSpriteTile(s,(0x9<<2),base+0x3B,0,-99);
+	addSpriteTile(s,(0x9<<2),base+0x3B,-10,-99);
 }
 //Minigame prize card
 void drawSprite_011(sprite_t * s) {
@@ -467,6 +504,13 @@ void drawSprite_06C(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x415F,8,8);
 }
 //TODO
+//Nep-Enut/Gargantua Blargg
+void drawSprite_0A5(sprite_t * s) {
+	drawSpriteHDMAPolygon(s,0x0146E4,0x8400,62);
+	
+	
+	
+}
 
 //Sprite function pointer table and updater
 void drawSprite_unused(sprite_t * s) {}
@@ -523,7 +567,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0A0
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_0A5,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0B0
