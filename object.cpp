@@ -3180,11 +3180,11 @@ void drawObject_30(object_t * o) {
 		if((j+1)==height) {
 			WORD orig = getOriginalMap16Tile(mtOff);
 			if((orig&0xFF00)==0x9200) {
-				if(orig>=0x9210) {
-					int offset = (orig-0x9210)<<1;
+				if(orig>=0x920F) {
+					int offset = (orig-0x920F)<<1;
 					WORD tile = romBuf[0x0996AA+offset]|(romBuf[0x0996AB+offset]<<8);
 					addObjectTile(o,tile,mtOff);
-				} else addObjectTile(o,0x9216,mtOff);
+				} else addObjectTile(o,0x9215,mtOff);
 			} else addObjectTile(o,0x00AC+(noiseTilemap[mtOff]&1)+(seed?2:0),mtOff);
 		} else {
 			WORD orig = getOriginalMap16Tile(mtOff);

@@ -10,8 +10,8 @@ extern bool wvisBackground;
 extern DWORD * bmpDataBg;
 
 //Functions
-void loadBackground2();
-void loadBackground3();
+void loadBackground();
+void updateBackground();
 //Window
 LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

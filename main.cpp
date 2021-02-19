@@ -38,8 +38,7 @@ void loadLevel() {
 	loadMap8();
 	loadMap16();
 	loadPalette();
-	loadBackground2();
-	loadBackground3();
+	loadBackground();
 }
 void saveLevel() {
 	//Determine level size
@@ -743,6 +742,7 @@ void onViewW6() {
 	updateMenu();
 	updateMap8W6(vW6);
 	updatePaletteW6(vW6);
+	updateBackground();
 	updateDialogs();
 	updateEntireScreen();
 }
@@ -750,6 +750,7 @@ void onViewSwA() {
 	vSwA = !vSwA;
 	updateMenu();
 	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
+	updateBackground();
 	updateDialogs();
 	updateEntireScreen();
 }
@@ -757,6 +758,7 @@ void onViewSwB() {
 	vSwB = !vSwB;
 	updateMenu();
 	updateMap8Sw((vSwA?0x08:0)|(vSwB?0x10:0));
+	updateBackground();
 	updateDialogs();
 	updateEntireScreen();
 }
@@ -1029,6 +1031,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			if(isRomOpen && vAnim) {
 				updateMap8();
 				updatePalette();
+				updateBackground();
 				updateDialogs();
 				updateEntireScreen();
 			}
