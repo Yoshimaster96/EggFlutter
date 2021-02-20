@@ -625,7 +625,7 @@ void drawSprite_034(sprite_t * s) {
 //Fake falling wall
 void drawSprite_036(sprite_t * s) {
 	for(int j=-96; j<16; j++) {
-		addSpriteTile(s,0,0x8560,-0x78,j);
+		addSpriteTile(s,0,0x8560,-0x80,j);
 	}
 }
 //Grim Leecher
@@ -701,21 +701,26 @@ void drawSprite_03C(sprite_t * s) {
 }
 //Seesaw
 void drawSprite_03D(sprite_t * s) {
-	
-	
-	
+	drawSpriteHDMAPolygon(s,&romBuf[0x023330],0x8400,16,false,false);
 }
 //Skinny platform
 void drawSprite_03E(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),0x0066,-32,0);
+	addSpriteTile(s,(0x9<<2),0x0067,-24,0);
+	addSpriteTile(s,(0x9<<2),0x0067,-16,0);
+	addSpriteTile(s,(0x9<<2),0x0067,-8,0);
+	addSpriteTile(s,(0x9<<2),0x0067,0,0);
+	addSpriteTile(s,(0x9<<2),0x0067,8,0);
+	addSpriteTile(s,(0x9<<2),0x0067,16,0);
+	addSpriteTile(s,(0x9<<2)|0x40,0x0066,24,0);
 }
 //Slime
 void drawSprite_03F(sprite_t * s) {
-	
-	
-	
+	drawSpriteHDMAPolygon(s,&romBuf[0x030D80],0x8400,64,false,false);
+	addSpriteTile(s,(0x8<<2),0x012D,-40,-56);
+	addSpriteTile(s,(0x8<<2),0x012D,-32,-56);
+	addSpriteTile(s,(0x8<<2),0x013D,-40,-48);
+	addSpriteTile(s,(0x8<<2),0x013D,-32,-48);
 }
 //Baby Luigi
 void drawSprite_040(sprite_t * s) {
@@ -746,10 +751,38 @@ void drawSprite_043(sprite_t * s) {
 }
 //Prince Froggy
 void drawSprite_045(sprite_t * s) {
-	int base = findSpGfxFile(0x70);
-	
-	
-	
+	int offset = (s->data[2]&1)|(s->data[1]&2);
+	switch(offset) {
+		case 0:
+		case 2: {
+			int base = findSpGfxFile(0x70);
+			
+			
+			
+			break;
+		}
+		case 1: {
+			int base = findSpGfxFile(0x68);
+			addSpriteTile(s,(0x9<<2),base+0x08,-2,2);
+			addSpriteTile(s,(0x9<<2),base+0x18,-2,10);
+			addSpriteTile(s,(0x9<<2)|1,base+0x00,-8,0);
+			addSpriteTile(s,(0x9<<2)|1,base+0x01,0,0);
+			addSpriteTile(s,(0x9<<2),base+0x0C,-3,-5);
+			addSpriteTile(s,(0x9<<2),base+0x0C,4,-5);
+			addSpriteTile(s,(0x9<<2),base+0x08,14,2);
+			addSpriteTile(s,(0x9<<2),base+0x18,14,10);
+			addSpriteTile(s,(0x9<<2),base+0x06,5,10);
+			addSpriteTile(s,(0x9<<2),base+0x06,-4,10);
+			break;
+		}
+		case 3: {
+			int base = findSpGfxFile(0x68);
+			
+			
+			
+			break;
+		}
+	}
 }
 //Burt the Bashful
 void drawSprite_046(sprite_t * s) {
@@ -805,12 +838,22 @@ void drawSprite_06A(sprite_t * s) {
 void drawSprite_06B(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2)|1,0x4074,0,0);
 }
-//Large spring
+//Large spring ball
 void drawSprite_06C(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x414E,-8,-8);
 	addSpriteTile(s,(0x8<<2),0x414F,8,-8);
 	addSpriteTile(s,(0x8<<2),0x415E,-8,8);
 	addSpriteTile(s,(0x8<<2),0x415F,8,8);
+}
+//Propeller Piranha
+void drawSprite_06D(sprite_t * s) {
+	
+	
+	
+}
+//Spring ball
+void drawSprite_06F(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|1,0x00C2,0,0);
 }
 //TODO
 //Pot for Potted Spiked Fun Guy
@@ -838,6 +881,29 @@ void drawSprite_193(sprite_t * s) {
 	
 	
 	
+}
+//TODO
+//Graphics/palette changer command
+void drawSprite_1BA(sprite_t * s) {
+	char spStr[256];
+	int spRef = (s->data[0]-0xBA);
+	snprintf(spStr,256,"Graphics/Palette\n   Changer %02X   ",spRef);
+	drawSpriteText(s,spStr);
+}
+//Very slow auto-scroll command
+void drawSprite_1CA(sprite_t * s) {
+	drawSpriteText(s," Very Slow \nAuto-Scroll");
+}
+//Special auto-scroll command
+void drawSprite_1CB(sprite_t * s) {
+	char spStr[256];
+	int spRef = (s->data[0]-0xCB);
+	snprintf(spStr,256,"   Special   \nAuto-Scroll %d",spRef);
+	drawSpriteText(s,spStr);
+}
+//Slow auto-scroll command
+void drawSprite_1D4(sprite_t * s) {
+	drawSpriteText(s,"   Slow    \nAuto-Scroll");
 }
 //TODO
 
@@ -878,7 +944,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_065,drawSprite_066,drawSprite_067,
 	drawSprite_068,drawSprite_069,drawSprite_06A,drawSprite_06B,
-	drawSprite_06C,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_06C,drawSprite_06D,drawSprite_06D,drawSprite_06F,
 	//070
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
@@ -910,7 +976,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
 	drawSprite_067,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0D0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_042,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
@@ -982,16 +1048,16 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//1B0
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_020,
 	drawSprite_unused,drawSprite_020,drawSprite_unused,drawSprite_020,
-	drawSprite_unused,drawSprite_020,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_020,drawSprite_1BA,drawSprite_1BA,
+	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
 	//1C0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
+	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
+	drawSprite_1BA,drawSprite_1BA,drawSprite_1CA,drawSprite_1CB,
+	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
 	//1D0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
+	drawSprite_1D4,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//1E0

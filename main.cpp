@@ -868,6 +868,9 @@ RECT selRect = {0,0,0,0};
 
 //Extra UI drawing stuff
 void dispEntrances(RECT rect) {
+	//Draw main entrances
+	//TODO
+	//Draw midway entrances
 	//TODO
 }
 void dispExits(RECT rect) {
