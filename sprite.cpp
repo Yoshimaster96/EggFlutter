@@ -89,8 +89,10 @@ void drawSpriteText(sprite_t * s,char * text) {
 //Helper function for drawing HDMA sprites from polygon data
 void drawSpriteHDMAPolygon(sprite_t * s,BYTE * data,int coneBase,int numPoints,bool ux,bool ny) {
 	int lineLeft[0x100],lineRight[0x100];
-	memset(lineLeft,0,0x100*sizeof(int));
-	memset(lineRight,0,0x100*sizeof(int));
+	for(int j=0; j<0x100; j++) {
+		lineLeft[j] = 1000;
+		lineRight[j] = -1000;
+	}
 	for(int n=0; n<numPoints; n++) {
 		int curX = data[(n<<1)];
 		int curY = data[(n<<1)+1];
@@ -114,7 +116,8 @@ void drawSpriteHDMAPolygon(sprite_t * s,BYTE * data,int coneBase,int numPoints,b
 			int dxdy = dx/dy;
 			int x = curX<<16;
 			for(int j=curY; j<=nextY; j++) {
-				lineRight[j] = x>>16;
+				int rhs = x>>16;
+				if(rhs>lineRight[j]) lineRight[j] = rhs;
 				x += dxdy;
 			}
 		} else if(curY>nextY) {
@@ -123,7 +126,8 @@ void drawSpriteHDMAPolygon(sprite_t * s,BYTE * data,int coneBase,int numPoints,b
 			int dxdy = dx/dy;
 			int x = curX<<16;
 			for(int j=curY; j>=nextY; j--) {
-				lineLeft[j] = x>>16;
+				int lhs = x>>16;
+				if(lhs<lineLeft[j]) lineLeft[j] = lhs;
 				x += dxdy;
 			}
 		}
@@ -512,7 +516,7 @@ void drawSprite_027(sprite_t * s) {
 //Huffin' Puffin
 void drawSprite_028(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),0x009E,4,8);
-	addSpriteTile(s,(0x9<<2)|0x40,0x4460,0,-2);
+	addSpriteTile(s,(0x9<<2)|0x41,0x0100,0,-2);
 }
 //Giant egg which follows Superstar Mario
 void drawSprite_029(sprite_t * s) {
@@ -597,7 +601,7 @@ void drawSprite_031(sprite_t * s) {
 }
 //Roger the Potted Ghost
 void drawSprite_034(sprite_t * s) {
-	drawSpriteHDMAPolygon(s,&romBuf[0x010E7D],0x8000,64,false,false);
+	drawSpriteHDMAPolygon(s,&romBuf[0x010E7D],0x8000,66,false,false);
 	int base = findSpGfxFile(0x42);
 	addSpriteTile(s,(0x9<<2)|1,base+0x20,-5,-86);
 	addSpriteTile(s,(0x9<<2)|1,base+0x22,11,-86);
@@ -621,7 +625,7 @@ void drawSprite_034(sprite_t * s) {
 //Fake falling wall
 void drawSprite_036(sprite_t * s) {
 	for(int j=-96; j<16; j++) {
-		addSpriteTile(s,0,0x8560,-0x80,j);
+		addSpriteTile(s,0,0x8560,-0x78,j);
 	}
 }
 //Grim Leecher
@@ -636,29 +640,64 @@ void drawSprite_038(sprite_t * s) {
 }
 //Spinning platform
 void drawSprite_039(sprite_t * s) {
-	
-	
-	
+	for(int j=0; j<48; j++) {
+		addSpriteTile(s,0,0x84D0,-0x70,j);
+	}
 }
 //3 Mini Ravens
 void drawSprite_03A(sprite_t * s) {
 	int base = findSpGfxFile(0x4F);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-18,-2);
+	addSpriteTile(s,(0x9<<2),base+0x12,-13,-1);
+	addSpriteTile(s,(0x9<<2),base+0x02,-18,3);
+	addSpriteTile(s,(0x9<<2),base+0x16,-5,-5);
+	addSpriteTile(s,(0x9<<2),base+0x05,-16,13);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,-8,13);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-2,-2);
+	addSpriteTile(s,(0x9<<2),base+0x12,3,-1);
+	addSpriteTile(s,(0x9<<2),base+0x02,-2,3);
+	addSpriteTile(s,(0x9<<2),base+0x16,11,-5);
+	addSpriteTile(s,(0x9<<2),base+0x05,0,13);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,8,13);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,14,-2);
+	addSpriteTile(s,(0x9<<2),base+0x12,19,-1);
+	addSpriteTile(s,(0x9<<2),base+0x02,14,3);
+	addSpriteTile(s,(0x9<<2),base+0x16,27,-5);
+	addSpriteTile(s,(0x9<<2),base+0x05,16,13);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,24,13);
 }
 //Mini Raven
 void drawSprite_03B(sprite_t * s) {
 	int base = findSpGfxFile(0x4F);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-2,-2);
+	addSpriteTile(s,(0x9<<2),base+0x12,3,-1);
+	addSpriteTile(s,(0x9<<2),base+0x02,-2,3);
+	addSpriteTile(s,(0x9<<2),base+0x16,11,-5);
+	addSpriteTile(s,(0x9<<2),base+0x05,0,13);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,8,13);
 }
 //Tap-Tap the Red Nose
 void drawSprite_03C(sprite_t * s) {
-	
-	
-	
+	for(int j=0; j<4; j++) {
+		for(int i=0; i<4; i++) {
+			int offsX = -24+(i<<4);
+			int offsY = -33+(j<<4);
+			addSpriteTile(s,(0xE<<2),0x450C+i+(j<<4),offsX,offsY);
+		}
+	}
+	addSpriteTile(s,(0xE<<2),0x4548,-14,-25);
+	addSpriteTile(s,(0xE<<2),0x4549,2,-25);
+	addSpriteTile(s,(0xE<<2),0x4558,-14,-9);
+	addSpriteTile(s,(0xE<<2),0x4559,2,-9);
+	addSpriteTile(s,(0xE<<2),0x456A,-25,9);
+	addSpriteTile(s,(0xE<<2),0x456B,-9,9);
+	addSpriteTile(s,(0xE<<2),0x457A,-25,25);
+	addSpriteTile(s,(0xE<<2),0x457B,-9,25);
+	addSpriteTile(s,(0xE<<2),0x456A,9,9);
+	addSpriteTile(s,(0xE<<2),0x456B,25,9);
+	addSpriteTile(s,(0xE<<2),0x457A,9,25);
+	addSpriteTile(s,(0xE<<2),0x457B,25,25);
+	addSpriteTile(s,(0xE<<2)|1,0x010E,-21,-18);
 }
 //Seesaw
 void drawSprite_03D(sprite_t * s) {
@@ -790,12 +829,12 @@ void drawSprite_0A5(sprite_t * s) {
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
-	BYTE tempBuf[26*2];
-	memcpy(tempBuf,&romBuf[0x035A63],26*2);
-	for(int i=0; i<26; i++) {
+	BYTE tempBuf[27*2];
+	memcpy(tempBuf,&romBuf[0x035A61],27*2);
+	for(int i=0; i<27; i++) {
 		tempBuf[(i<<1)+1] += 0xD0;
 	}
-	drawSpriteHDMAPolygon(s,tempBuf,0x8400,26,true,false);
+	drawSpriteHDMAPolygon(s,tempBuf,0x8400,27,true,false);
 	
 	
 	
