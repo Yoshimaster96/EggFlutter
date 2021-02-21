@@ -187,7 +187,7 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs) {
 	int offsX = offs.x;
 	int offsY = offs.y;
-	int base = ((row&0x1FF)<<10)|((row&0x400)>>1);
+	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
 	for(int i=0; i<0x100; i++) {
 		DWORD color = bmpDataBg[base+i];
 		if(color) {
@@ -772,9 +772,21 @@ void drawSprite_045(sprite_t * s) {
 	if(offsX) {
 		int base = findSpGfxFile(0x68);
 		if(offsY) {
-			
-			
-			
+			addSpriteTile(s,(0x9<<2)|0x40,base+0x0C,43,29);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x19,22,9);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x19,31,7);
+			addSpriteTile(s,(0x9<<2)|0x40,base+0x03,48,26);
+			addSpriteTile(s,(0x9<<2)|0x80,base+0x19,41,12);
+			addSpriteTile(s,(0x9<<2),base+0x09,36,12);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x04,40,25);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x05,32,22);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x12,32,15);
+			addSpriteTile(s,(0x9<<2),base+0x16,41,18);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x14,40,16);
+			addSpriteTile(s,(0x9<<2),base+0x09,26,13);
+			addSpriteTile(s,(0x9<<2),base+0x0C,36,27);
+			addSpriteTile(s,(0x9<<2)|0xC0,base+0x19,31,14);
+			addSpriteTile(s,(0x9<<2),base+0x0D,46,16);
 		} else {
 			addSpriteTile(s,(0x9<<2),base+0x08,-2,2);
 			addSpriteTile(s,(0x9<<2),base+0x18,-2,10);
@@ -825,6 +837,17 @@ void drawSprite_045(sprite_t * s) {
 }
 //Burt the Bashful
 void drawSprite_046(sprite_t * s) {
+	for(int j=0; j<64; j++) {
+		int row = romBuf[0x050A51+j];
+		addSpriteTile(s,0,0x8200|row,-0x80,j-0x80);
+	}
+	
+	
+	
+	for(int j=0; j<64; j++) {
+		int row = romBuf[0x050A90+j];
+		addSpriteTile(s,0,0x8100|row,-0x80,j-0x40);
+	}
 	
 	
 	
