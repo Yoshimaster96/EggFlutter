@@ -511,7 +511,7 @@ void drawSprite_026(sprite_t * s) {
 }
 //Key
 void drawSprite_027(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2)|1,0x00EE,0,0);
+	addSpriteTile(s,(0x9<<2)|0x41,0x00EE,0,0);
 }
 //Huffin' Puffin
 void drawSprite_028(sprite_t * s) {
@@ -724,45 +724,58 @@ void drawSprite_03F(sprite_t * s) {
 }
 //Baby Luigi
 void drawSprite_040(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xE<<2),0x40AA,-8,-10);
+	addSpriteTile(s,(0xE<<2)|1,0x01A4,0,-14);
 }
 //Stork
 void drawSprite_041(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xE<<2)|0x40,0x019D,-27,72);
+	addSpriteTile(s,(0xE<<2)|0x41,0x018B,-19,64);
+	addSpriteTile(s,(0xE<<2)|0x41,0x018E,-24,80);
+	addSpriteTile(s,(0xE<<2)|1,0x0187,-8,55);
+	addSpriteTile(s,(0xE<<2)|1,0x0189,-8,40);
+	addSpriteTile(s,(0xE<<2)|1,0x014C,-12,71);
+	addSpriteTile(s,(0xE<<2)|1,0x018B,3,64);
+	addSpriteTile(s,(0xE<<2)|1,0x018E,8,80);
+	addSpriteTile(s,(0xE<<2),0x019D,21,72);
+	addSpriteTile(s,(0xE<<2)|0x80,0x0190,-20,80);
+	addSpriteTile(s,(0xE<<2),0x018D,-4,16);
+	addSpriteTile(s,(0xE<<2),0x018D,-4,24);
+	addSpriteTile(s,(0xE<<2),0x018D,-4,32);
+	addSpriteTile(s,(0xE<<2)|1,0x014A,-8,0);
 }
 //Vertical pipe entrance
 void drawSprite_042(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),0x00C4,3,-32);
+	addSpriteTile(s,(0x9<<2)|0x40,0x00C4,5,-32);
+	addSpriteTile(s,(0x9<<2)|0xC0,0x00C5,0,-24);
+	addSpriteTile(s,(0x9<<2)|0x80,0x00C5,8,-24);
 }
 //Giant Shy-Guy
 void drawSprite_043(sprite_t * s) {
 	int spRef = (s->data[0]-0x43)<<2;
 	int pal = ((0x9<<2)-spRef)|1;
 	int base = findSpGfxFile(0x70);
-	
-	
-	
+	addSpriteTile(s,pal|1,base+0x00,-8,6);
+	addSpriteTile(s,pal|1,base+0x02,8,6);
+	addSpriteTile(s,pal|1,base+0x04,-8,-10);
+	addSpriteTile(s,pal|1,base+0x06,8,-10);
+	addSpriteTile(s,pal|0x40,base+0x1A,-9,12);
+	addSpriteTile(s,pal|0x40,base+0x0A,-11,8);
+	addSpriteTile(s,pal,base+0x1A,16,12);
+	addSpriteTile(s,pal,base+0x0A,18,8);
 }
 //Prince Froggy
 void drawSprite_045(sprite_t * s) {
-	int offset = (s->data[2]&1)|(s->data[1]&2);
-	switch(offset) {
-		case 0:
-		case 2: {
-			int base = findSpGfxFile(0x70);
+	int offsX = (s->data[2]&1);
+	int offsY = (s->data[1]&2);
+	if(offsX) {
+		int base = findSpGfxFile(0x68);
+		if(offsY) {
 			
 			
 			
-			break;
-		}
-		case 1: {
-			int base = findSpGfxFile(0x68);
+		} else {
 			addSpriteTile(s,(0x9<<2),base+0x08,-2,2);
 			addSpriteTile(s,(0x9<<2),base+0x18,-2,10);
 			addSpriteTile(s,(0x9<<2)|1,base+0x00,-8,0);
@@ -773,14 +786,40 @@ void drawSprite_045(sprite_t * s) {
 			addSpriteTile(s,(0x9<<2),base+0x18,14,10);
 			addSpriteTile(s,(0x9<<2),base+0x06,5,10);
 			addSpriteTile(s,(0x9<<2),base+0x06,-4,10);
-			break;
 		}
-		case 3: {
-			int base = findSpGfxFile(0x68);
-			
-			
-			
-			break;
+	} else {
+		BYTE tempBuf[128*2];
+		for(int n=0; n<16; n++) {
+			int px0 = romBuf[0x014774+(n<<1)];
+			int py0 = romBuf[0x014775+(n<<1)];
+			int px1 = romBuf[0x014774+(((n+1)&0xF)<<1)];
+			int py1 = romBuf[0x014775+(((n+1)&0xF)<<1)];
+			int px2 = romBuf[0x014774+(((n+2)&0xF)<<1)];
+			int py2 = romBuf[0x014775+(((n+2)&0xF)<<1)];
+			if(px0&0x80) px0 -= 0x100;
+			if(py0&0x80) py0 -= 0x100;
+			if(px1&0x80) px1 -= 0x100;
+			if(py1&0x80) py1 -= 0x100;
+			if(px2&0x80) px2 -= 0x100;
+			if(py2&0x80) py2 -= 0x100;
+			for(int m=0; m<8; m++) {
+				int offset = ((n<<3)+m)<<1;
+				int c0 = (8-m)*(8-m);
+				int c2 = m*m;
+				int c1 = 128-c0-c2;
+				tempBuf[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
+				tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
+			}
+		}
+		drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false);
+		if(offsY) {
+			int base = findSpGfxFile(0x70);
+			addSpriteTile(s,(0xF<<2),base+0x0B,-8,-79);
+			addSpriteTile(s,(0xF<<2)|0x40,base+0x0B,0,-79);
+			addSpriteTile(s,(0xF<<2),0x4664,-16,-76);
+			addSpriteTile(s,(0xF<<2),0x4665,0,-76);
+			addSpriteTile(s,(0xF<<2),0x4674,-16,-60);
+			addSpriteTile(s,(0xF<<2),0x4675,0,-60);
 		}
 	}
 }
