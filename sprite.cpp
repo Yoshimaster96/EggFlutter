@@ -452,7 +452,7 @@ void drawSprite_01D(sprite_t * s) {
 void drawSprite_01E(sprite_t * s) {
 	int offset = ((s->data[2]&1)|(s->data[1]&2))<<1;
 	int pal = ((romBuf[0x0209B8+offset]-1)<<1)|0x21;
-	addSpriteTile(s,pal|1,0x0088,0,-4);
+	addSpriteTile(s,pal|1,0x0088,0,-3);
 	addSpriteTile(s,(0x8<<2),0x009E,1,8);
 	addSpriteTile(s,(0x8<<2),0x009E,7,8);
 }
@@ -681,23 +681,23 @@ void drawSprite_03C(sprite_t * s) {
 	for(int j=0; j<4; j++) {
 		for(int i=0; i<4; i++) {
 			int offsX = -24+(i<<4);
-			int offsY = -33+(j<<4);
+			int offsY = -32+(j<<4);
 			addSpriteTile(s,(0xE<<2),0x450C+i+(j<<4),offsX,offsY);
 		}
 	}
-	addSpriteTile(s,(0xE<<2),0x4548,-14,-25);
-	addSpriteTile(s,(0xE<<2),0x4549,2,-25);
-	addSpriteTile(s,(0xE<<2),0x4558,-14,-9);
-	addSpriteTile(s,(0xE<<2),0x4559,2,-9);
-	addSpriteTile(s,(0xE<<2),0x456A,-25,9);
-	addSpriteTile(s,(0xE<<2),0x456B,-9,9);
-	addSpriteTile(s,(0xE<<2),0x457A,-25,25);
-	addSpriteTile(s,(0xE<<2),0x457B,-9,25);
-	addSpriteTile(s,(0xE<<2),0x456A,9,9);
-	addSpriteTile(s,(0xE<<2),0x456B,25,9);
-	addSpriteTile(s,(0xE<<2),0x457A,9,25);
-	addSpriteTile(s,(0xE<<2),0x457B,25,25);
-	addSpriteTile(s,(0xE<<2)|1,0x010E,-21,-18);
+	addSpriteTile(s,(0xE<<2),0x4548,-14,-24);
+	addSpriteTile(s,(0xE<<2),0x4549,2,-24);
+	addSpriteTile(s,(0xE<<2),0x4558,-14,-8);
+	addSpriteTile(s,(0xE<<2),0x4559,2,-8);
+	addSpriteTile(s,(0xE<<2),0x456A,-25,10);
+	addSpriteTile(s,(0xE<<2),0x456B,-9,10);
+	addSpriteTile(s,(0xE<<2),0x457A,-25,26);
+	addSpriteTile(s,(0xE<<2),0x457B,-9,26);
+	addSpriteTile(s,(0xE<<2),0x456A,9,10);
+	addSpriteTile(s,(0xE<<2),0x456B,25,10);
+	addSpriteTile(s,(0xE<<2),0x457A,9,26);
+	addSpriteTile(s,(0xE<<2),0x457B,25,26);
+	addSpriteTile(s,(0xE<<2)|1,0x010E,-21,-17);
 }
 //Seesaw
 void drawSprite_03D(sprite_t * s) {
@@ -837,33 +837,112 @@ void drawSprite_045(sprite_t * s) {
 }
 //Burt the Bashful
 void drawSprite_046(sprite_t * s) {
+	addSpriteTile(s,(0xE<<2),0x4263,17,-122);
 	for(int j=0; j<64; j++) {
 		int row = romBuf[0x050A51+j];
-		addSpriteTile(s,0,0x8200|row,-0x80,j-0x80);
+		addSpriteTile(s,0,0x8200|row,-0x80,j-0x78);
 	}
-	
-	
-	
+	addSpriteTile(s,(0xE<<2),0x4264,0,-108);
+	addSpriteTile(s,(0xE<<2),0x4265,16,-108);
+	addSpriteTile(s,(0xE<<2),0x4274,0,-92);
+	addSpriteTile(s,(0xE<<2),0x4275,16,-92);
+	addSpriteTile(s,(0xE<<2),0x4273,17,-64);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4273,33,-64);
+	addSpriteTile(s,(0xE<<2),0x4272,17,-48);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4272,33,-48);
 	for(int j=0; j<64; j++) {
 		int row = romBuf[0x050A90+j];
-		addSpriteTile(s,0,0x8100|row,-0x80,j-0x40);
+		addSpriteTile(s,0,0x8100|row,-0x80,j-0x38);
 	}
-	
-	
-	
+	addSpriteTile(s,(0xE<<2),0x4262,-18,-122);
+	addSpriteTile(s,(0xE<<2),0x4262,-3,-122);
+	addSpriteTile(s,(0xE<<2),0x4260,-65,-118);
+	addSpriteTile(s,(0xE<<2),0x4261,-49,-118);
+	addSpriteTile(s,(0xE<<2),0x4270,-65,-102);
+	addSpriteTile(s,(0xE<<2),0x4271,-49,-102);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x4260,-25,-102);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x4261,-41,-102);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x4270,-25,-118);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x4271,-41,-118);
+	addSpriteTile(s,(0xE<<2)|0x80,0x4260,-56,8);
+	addSpriteTile(s,(0xE<<2)|0x80,0x4261,-40,8);
+	addSpriteTile(s,(0xE<<2)|0x80,0x4270,-56,-8);
+	addSpriteTile(s,(0xE<<2)|0x80,0x4271,-40,-8);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4260,-16,-8);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4261,-32,-8);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4270,-16,8);
+	addSpriteTile(s,(0xF<<2)|0x40,0x4271,-32,8);
+	addSpriteTile(s,(0xE<<2)|0xC0,0x4260,40,8);
+	addSpriteTile(s,(0xE<<2)|0xC0,0x4261,24,8);
+	addSpriteTile(s,(0xE<<2)|0xC0,0x4270,40,-8);
+	addSpriteTile(s,(0xE<<2)|0xC0,0x4271,24,-8);
+	addSpriteTile(s,(0xF<<2),0x4260,0,-8);
+	addSpriteTile(s,(0xF<<2),0x4261,16,-8);
+	addSpriteTile(s,(0xF<<2),0x4270,0,8);
+	addSpriteTile(s,(0xF<<2),0x4271,16,8);
 }
 //Shy Guy from Roger the Potted Ghost
 void drawSprite_047(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|1,0x012C,-1,-3);
+	addSpriteTile(s,(0x8<<2),0x010B,9,-8);
+	addSpriteTile(s,(0x8<<2),0x010C,8,8);
 }
 //Kamek cutscene
 void drawSprite_048(sprite_t * s) {
 	int base = findSpGfxFile(0x6A);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x0E,16,4);
+	addSpriteTile(s,(0x9<<2),base+0x1A,9,10);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-9,-8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,-13,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,3,0);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x10,5,-8);
+	addSpriteTile(s,(0x9<<2),base+0x0A,-5,8);
+}
+//Fire from Thunder Lakitu
+void drawSprite_049(sprite_t * s) {
+	addSpriteTile(s,(0xA<<2)|0x41,0x01AE,0,0);
+	addSpriteTile(s,(0xA<<2)|0x41,0x01AC,0,-16);
+}
+//Upside-down Blow Hard
+void drawSprite_04C(sprite_t * s) {
+	int base = findSpGfxFile(0x36);
+	addSpriteTile(s,(8<<2)|0x81,base+0x00,-8,0);
+	addSpriteTile(s,(8<<2)|0x81,base+0x02,8,0);
+	addSpriteTile(s,(8<<2)|0x80,0x4122,-16,20);
+	addSpriteTile(s,(8<<2)|0x80,0x4123,0,20);
+	addSpriteTile(s,(8<<2)|0x80,0x4132,-16,4);
+	addSpriteTile(s,(8<<2)|0x80,0x4133,0,4);
+}
+//Unused sprite
+void drawSprite_04D(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|0x41,0x0182,-8,-8);
+	addSpriteTile(s,(0x8<<2)|0x41,0x0180,8,-8);
+	addSpriteTile(s,(0x8<<2)|0x41,0x01A2,-8,8);
+	addSpriteTile(s,(0x8<<2)|0x41,0x01A0,8,8);
+}
+//Locked door
+void drawSprite_04E(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x4160,-8,0);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4160,8,0);
+	addSpriteTile(s,(0x8<<2),0x4170,-8,16);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4170,8,16);
+}
+//Middle Ring
+void drawSprite_04F(sprite_t * s) {
+	addSpriteTile(s,(0xB<<2),0x0055,8,39);
+	addSpriteTile(s,(0xB<<2),0x0045,1,35);
+	addSpriteTile(s,(0xB<<2),0x0054,-5,27);
+	addSpriteTile(s,(0xB<<2),0x0044,-8,14);
+	addSpriteTile(s,(0xB<<2),0x0054,-8,0);
+	addSpriteTile(s,(0xB<<2),0x0045,-5,-13);
+	addSpriteTile(s,(0xB<<2),0x0055,0,-22);
+	addSpriteTile(s,(0xB<<2),0x0045,8,-25);
+	addSpriteTile(s,(0xB<<2),0x0054,14,-22);
+	addSpriteTile(s,(0xB<<2),0x0044,20,-14);
+	addSpriteTile(s,(0xB<<2),0x0054,23,-1);
+	addSpriteTile(s,(0xB<<2),0x0045,23,14);
+	addSpriteTile(s,(0xB<<2),0x0055,20,26);
+	addSpriteTile(s,(0xB<<2),0x0045,15,35);
 }
 //TODO
 //Red coin
@@ -995,8 +1074,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//040
 	drawSprite_040,drawSprite_041,drawSprite_042,drawSprite_043,
 	drawSprite_043,drawSprite_045,drawSprite_046,drawSprite_047,
-	drawSprite_048,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_048,drawSprite_049,drawSprite_049,drawSprite_049,
+	drawSprite_04C,drawSprite_04D,drawSprite_04E,drawSprite_04F,
 	//050
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_048,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
@@ -1068,7 +1147,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//130
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_04E,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
