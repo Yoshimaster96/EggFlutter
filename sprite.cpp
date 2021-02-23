@@ -625,7 +625,7 @@ void drawSprite_034(sprite_t * s) {
 //Fake falling wall
 void drawSprite_036(sprite_t * s) {
 	for(int j=-96; j<16; j++) {
-		addSpriteTile(s,0,0x8560,-0x80,j);
+		addSpriteTile(s,0,0x855F,-0x50,j);
 	}
 }
 //Grim Leecher
@@ -701,7 +701,13 @@ void drawSprite_03C(sprite_t * s) {
 }
 //Seesaw
 void drawSprite_03D(sprite_t * s) {
-	drawSpriteHDMAPolygon(s,&romBuf[0x023330],0x8400,16,false,false);
+	BYTE tempBuf[32];
+	memcpy(tempBuf,&romBuf[0x023330],32);
+	for(int n=0; n<32; n+=2) {
+		tempBuf[n] ^= 0x80;
+		tempBuf[n+1] += 0x10;
+	}
+	drawSpriteHDMAPolygon(s,tempBuf,0x8400,16,true,false);
 }
 //Skinny platform
 void drawSprite_03E(sprite_t * s) {
@@ -826,12 +832,12 @@ void drawSprite_045(sprite_t * s) {
 		drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false);
 		if(offsY) {
 			int base = findSpGfxFile(0x70);
-			addSpriteTile(s,(0xF<<2),base+0x0B,-8,-79);
-			addSpriteTile(s,(0xF<<2)|0x40,base+0x0B,0,-79);
-			addSpriteTile(s,(0xF<<2),0x4664,-16,-76);
-			addSpriteTile(s,(0xF<<2),0x4665,0,-76);
-			addSpriteTile(s,(0xF<<2),0x4674,-16,-60);
-			addSpriteTile(s,(0xF<<2),0x4675,0,-60);
+			addSpriteTile(s,(0xF<<2),base+0x0B,-8,-80);
+			addSpriteTile(s,(0xF<<2)|0x40,base+0x0B,0,-80);
+			addSpriteTile(s,(0xF<<2),0x4664,-16,-77);
+			addSpriteTile(s,(0xF<<2),0x4665,0,-77);
+			addSpriteTile(s,(0xF<<2),0x4674,-16,-61);
+			addSpriteTile(s,(0xF<<2),0x4675,0,-61);
 		}
 	}
 }
@@ -944,6 +950,46 @@ void drawSprite_04F(sprite_t * s) {
 	addSpriteTile(s,(0xB<<2),0x0055,20,26);
 	addSpriteTile(s,(0xB<<2),0x0045,15,35);
 }
+//Wide plank
+void drawSprite_050(sprite_t * s) {
+	for(int j=0; j<16; j++) {
+		addSpriteTile(s,0,0x845A,-0x58,j);
+	}
+}
+//Octagonal log
+void drawSprite_051(sprite_t * s) {
+	int x = 95<<16;
+	for(int j=-55; j<-45; j++) {
+		int width = x>>16;
+		x += (16<<16)/10;
+		addSpriteTile(s,0,0x8400+width,-0x58,j+0x10);
+	}
+	x = 111<<16;
+	for(int j=-45; j<0; j++) {
+		int width = x>>16;
+		x += (9<<16)/45;
+		addSpriteTile(s,0,0x8500+width,-0x58,j+0x10);
+	}
+	x = 120<<16;
+	for(int j=0; j<45; j++) {
+		int width = x>>16;
+		x -= (9<<16)/45;
+		addSpriteTile(s,0,0x8480+width,-0x58,j+0x10);
+	}
+	x = 111<<16;
+	for(int j=45; j<55; j++) {
+		int width = x>>16;
+		x -= (16<<16)/10;
+		addSpriteTile(s,0,0x8580+width,-0x58,j+0x10);
+	}
+}
+//TODO
+//Short plank
+void drawSprite_05E(sprite_t * s) {
+	for(int j=0; j<16; j++) {
+		addSpriteTile(s,0,0x8434,-0x78,j);
+	}
+}
 //TODO
 //Red coin
 void drawSprite_065(sprite_t * s) {
@@ -1006,6 +1052,38 @@ void drawSprite_0A1(sprite_t * s) {
 //Nep-Enut/Gargantua Blargg
 void drawSprite_0A5(sprite_t * s) {
 	drawSpriteHDMAPolygon(s,&romBuf[0x0146E4],0x8400,62,false,false);
+	
+	
+	
+}
+//TODO
+//Sluggy the Unshaven
+void drawSprite_0D7(sprite_t * s) {
+	BYTE tempBuf[128*2];
+	for(int n=0; n<16; n++) {
+		int px0 = romBuf[0x015109+(n<<1)];
+		int py0 = romBuf[0x01510A+(n<<1)];
+		int px1 = romBuf[0x015109+(((n+1)&0xF)<<1)];
+		int py1 = romBuf[0x01510A+(((n+1)&0xF)<<1)];
+		int px2 = romBuf[0x015109+(((n+2)&0xF)<<1)];
+		int py2 = romBuf[0x01510A+(((n+2)&0xF)<<1)];
+		if(px0&0x80) px0 -= 0x100;
+		if(py0&0x80) py0 -= 0x100;
+		if(px1&0x80) px1 -= 0x100;
+		if(py1&0x80) py1 -= 0x100;
+		if(px2&0x80) px2 -= 0x100;
+		if(py2&0x80) py2 -= 0x100;
+		for(int m=0; m<8; m++) {
+			int offset = ((n<<3)+m)<<1;
+			int c0 = (8-m)*(8-m);
+			int c2 = m*m;
+			int c1 = 128-c0-c2;
+			tempBuf[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
+			tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
+			tempBuf[offset+1] += 0x48;
+		}
+	}
+	drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false);
 	
 	
 	
@@ -1077,10 +1155,10 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_048,drawSprite_049,drawSprite_049,drawSprite_049,
 	drawSprite_04C,drawSprite_04D,drawSprite_04E,drawSprite_04F,
 	//050
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_048,
+	drawSprite_050,drawSprite_051,drawSprite_unused,drawSprite_048,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_05E,drawSprite_05E,
 	//060
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_065,drawSprite_066,drawSprite_067,
@@ -1118,7 +1196,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_067,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0D0
 	drawSprite_unused,drawSprite_042,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_0D7,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0E0
