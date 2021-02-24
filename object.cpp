@@ -9143,7 +9143,7 @@ void deleteObjects() {
 			}
 		}
 	}
-	//Delete selected sprites
+	//Delete selected objects
 	remove_if(objectContexts[0].objects.begin(),objectContexts[0].objects.end(),object_delPred);
 }
 void moveObjects(int dx,int dy) {
