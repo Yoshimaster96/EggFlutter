@@ -1592,64 +1592,72 @@ void drawSprite_0A1(sprite_t * s) {
 //Thunder Lakitu projectile
 void drawSprite_0A2(sprite_t * s) {
 	int base = findSpGfxFile(0x4B);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|0x40,base+0x19,0,0);
+	addSpriteTile(s,(0xA<<2),base+0x19,8,0);
+	addSpriteTile(s,(0xA<<2)|0xC0,base+0x19,0,8);
+	addSpriteTile(s,(0xA<<2)|0x80,base+0x19,8,8);
 }
 //Nep-Enut/Gargantua Blargg
 void drawSprite_0A5(sprite_t * s) {
-	drawSpriteHDMAPolygon(s,&romBuf[0x0146E4],0x8400,62,false,false,0,0);
 	int base = findSpGfxFile(0x53);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x00,-11,-100);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x00,26,-113);
+	drawSpriteHDMAPolygon(s,&romBuf[0x0146E4],0x8400,62,false,false,8,-8);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x0C,10,-142);
+	addSpriteTile(s,(0x8<<2)|0x81,base+0x0C,10,-126);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x0C,-10,-142);
+	addSpriteTile(s,(0x8<<2)|0x81,base+0x0C,-10,-126);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x08,-8,-152);
+	addSpriteTile(s,(0x8<<2)|1,base+0x08,8,-152);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x0A,-17,-162);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0A,16,-161);
+	addSpriteTile(s,(0x8<<2)|0x40,base+0x07,14,-139);
+	addSpriteTile(s,(0x8<<2)|0x40,base+0x07,-6,-139);
 }
 //Incoming Chomp, in background
 void drawSprite_0A6(sprite_t * s) {
 	int base = findSpGfxFile(0x1B);
-	
-	
-	
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,0,0);
 }
 //Incoming Chomp, flock in background
 void drawSprite_0A7(sprite_t * s) {
 	int base = findSpGfxFile(0x1B);
-	
-	
-	
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,-8,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,8,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,-16,0);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,0,0);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,16,0);
 }
 //Falling Incoming Chomp
 void drawSprite_0A8(sprite_t * s) {
-	int base = findSpGfxFile(0x1B);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),0x40C2,-8,-8);
+	addSpriteTile(s,(0x9<<2)|0x40,0x40C2,8,-8);
+	addSpriteTile(s,(0x9<<2),0x40D2,-8,8);
+	addSpriteTile(s,(0x9<<2)|0x40,0x40D2,8,8);
 }
 //Incoming Chomp shadow
 void drawSprite_0A9(sprite_t * s) {
 	int base = findSpGfxFile(0x1B);
-	
-	
-	
+	addSpriteTile(s,(0xD<<2),base+0x00,-24,1);
+	addSpriteTile(s,(0xD<<2),base+0x02,-8,1);
+	addSpriteTile(s,(0xD<<2)|0x40,base+0x02,8,1);
+	addSpriteTile(s,(0xD<<2)|0x40,base+0x00,24,1);
 }
 //Shy Guy in background
 void drawSprite_0AA(sprite_t * s) {
 	int base = findSpGfxFile(0x1B);
-	
-	
-	
+	addSpriteTile(s,(0xE<<2),base+0x04,4,0);
 }
-//Fill Eggs command
+//Fill Eggs
 void drawSprite_0AB(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|1,0x0082,0,0);
 }
 //Signal arrow from final boss
 void drawSprite_0AC(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),0x00C4,11,-32);
+	addSpriteTile(s,(0x9<<2)|0x40,0x00C4,13,-32);
+	addSpriteTile(s,(0x9<<2)|0xC0,0x00C5,8,-24);
+	addSpriteTile(s,(0x9<<2)|0x80,0x00C5,16,-24);
 }
 //Message Block
 void drawSprite_0AD(sprite_t * s) {
@@ -1661,13 +1669,75 @@ void drawSprite_0AE(sprite_t * s) {
 	
 	
 }
-//TODO
+//Morph Bubble, Car
+void drawSprite_0AF(sprite_t * s) {
+	addSpriteTile(s,(0xD<<2),0x4566,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Morph Bubble, Mole Tank
+void drawSprite_0B0(sprite_t * s) {
+	addSpriteTile(s,(0xD<<2),0x4567,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Morph Bubble, Helicopter
+void drawSprite_0B1(sprite_t * s) {
+	addSpriteTile(s,(0xD<<2),0x4576,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Morph Bubble, Train
+void drawSprite_0B2(sprite_t * s) {
+	addSpriteTile(s,(0xD<<2),0x4577,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Fuzzy cloud
+void drawSprite_0B3(sprite_t * s) {
+	addSpriteTile(s,(0xB<<2)|1,0x00F0,0,0);
+}
+//Morph Bubble, Submarine
+void drawSprite_0B4(sprite_t * s) {
+	addSpriteTile(s,(0xD<<2),0x417F,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Baron Von Zeppelin, Giant Egg
+void drawSprite_0CD(sprite_t * s) {
+	
+	
+	
+}
+//Baby Bowser projectile
+void drawSprite_0CE(sprite_t * s) {
+	
+	
+	
+}
+//Baby Bowser quake
+void drawSprite_0CF(sprite_t * s) {
+	
+	
+	
+}
+//Horizontal pipe exit right
+void drawSprite_0D0(sprite_t * s) {
+	drawSpriteText(s,"Horizontal  Pipe\n   Exit Right   ");
+}
 //Hidden vertical pipe entrance
 void drawSprite_0D1(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2),0x00C4,11,-32);
-	addSpriteTile(s,(0x9<<2)|0x40,0x00C4,13,-32);
-	addSpriteTile(s,(0x9<<2)|0xC0,0x00C5,8,-24);
-	addSpriteTile(s,(0x9<<2)|0x80,0x00C5,16,-24);
+	drawSpriteText(s,"  Vertical  Pipe  \nExit Down (Hidden)");
 }
 //Marching Milde
 void drawSprite_0D2(sprite_t * s) {
@@ -1729,6 +1799,19 @@ void drawSprite_0D7(sprite_t * s) {
 	
 	
 }
+//Chomp signboard
+void drawSprite_0D8(sprite_t * s) {
+	addSpriteTile(s,(0x9<<2),0x448C,-8,-8);
+	addSpriteTile(s,(0x9<<2),0x448D,8,-8);
+	addSpriteTile(s,(0x9<<2),0x449C,-8,8);
+	addSpriteTile(s,(0x9<<2),0x449D,8,8);
+}
+//Fishin' Lakitu
+void drawSprite_0D9(sprite_t * s) {
+	
+	
+	
+}
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
@@ -1759,6 +1842,11 @@ void drawSprite_1CB(sprite_t * s) {
 //Slow auto-scroll command
 void drawSprite_1D4(sprite_t * s) {
 	drawSpriteText(s,"   Slow    \nAuto-Scroll");
+}
+//TODO
+//Lock horizontal scroll
+void drawSprite_1D6(sprite_t * s) {
+	drawSpriteText(s,"Lock  Scroll\n Horizontal ");
 }
 //TODO
 
@@ -1819,21 +1907,21 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_0A0,drawSprite_0A1,drawSprite_0A2,drawSprite_020,
 	drawSprite_020,drawSprite_0A5,drawSprite_0A6,drawSprite_0A7,
 	drawSprite_0A8,drawSprite_0A9,drawSprite_0AA,drawSprite_0AB,
-	drawSprite_0AC,drawSprite_0AD,drawSprite_0AE,drawSprite_unused,
+	drawSprite_0AC,drawSprite_0AD,drawSprite_0AE,drawSprite_0AF,
 	//0B0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_067,drawSprite_067,drawSprite_067,
+	drawSprite_0B0,drawSprite_0B1,drawSprite_0B2,drawSprite_0B3,
+	drawSprite_0B4,drawSprite_067,drawSprite_067,drawSprite_067,
 	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
 	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
 	//0C0
 	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
 	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
-	drawSprite_067,drawSprite_067,drawSprite_067,drawSprite_067,
-	drawSprite_067,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_067,drawSprite_067,drawSprite_012,drawSprite_067,
+	drawSprite_067,drawSprite_0CD,drawSprite_0CE,drawSprite_0CF,
 	//0D0
-	drawSprite_unused,drawSprite_0D1,drawSprite_0D2,drawSprite_0D3,
+	drawSprite_0D0,drawSprite_0D1,drawSprite_0D2,drawSprite_0D3,
 	drawSprite_0D4,drawSprite_0D5,drawSprite_0D6,drawSprite_0D7,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_0D8,drawSprite_0D9,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//0E0
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
@@ -1912,7 +2000,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
 	//1D0
 	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
-	drawSprite_1D4,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1D4,drawSprite_unused,drawSprite_1D6,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//1E0
