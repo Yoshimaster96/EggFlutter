@@ -1665,9 +1665,27 @@ void drawSprite_0AD(sprite_t * s) {
 }
 //Hookbill Koopa
 void drawSprite_0AE(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xF<<2)|1,0x010E,25,11);
+	addSpriteTile(s,(0xF<<2)|1,0x010C,17,19);
+	addSpriteTile(s,(0xF<<2),0x011E,33,27);
+	addSpriteTile(s,(0xF<<2),0x0120,17,11);
+	addSpriteTile(s,(0xF<<2),0x0120,-18,18);
+	addSpriteTile(s,(0xF<<2)|1,0x0120,-18,18);
+	addSpriteTile(s,(0xF<<2),0x012C,-26,26);
+	addSpriteTile(s,(0xF<<2)|1,0x0122,-18,10);
+	addSpriteTile(s,(0xE<<2),0x44EC,-45,-7);
+	addSpriteTile(s,(0xE<<2),0x44ED,-29,-7);
+	addSpriteTile(s,(0xE<<2),0x44FC,-45,9);
+	addSpriteTile(s,(0xE<<2),0x44FD,-29,9);
+	addSpriteTile(s,(0xE<<2),0x44EA,32,1);
+	addSpriteTile(s,(0xE<<2),0x0124,-8,11);
+	addSpriteTile(s,(0xE<<2)|1,0x0124,-8,11);
+	addSpriteTile(s,(0xE<<2)|1,0x0126,0,19);
+	addSpriteTile(s,(0xE<<2),0x0135,-8,27);
+	addSpriteTile(s,(0xE<<2),0x44E8,-1,6);
+	addSpriteTile(s,(0xE<<2),0x44E9,15,6);
+	addSpriteTile(s,(0xE<<2),0x44F8,-1,22);
+	addSpriteTile(s,(0xE<<2),0x44F9,15,22);
 }
 //Morph Bubble, Car
 void drawSprite_0AF(sprite_t * s) {
