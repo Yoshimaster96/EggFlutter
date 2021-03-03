@@ -1938,28 +1938,40 @@ void drawSprite_0D8(sprite_t * s) {
 //Fishin' Lakitu
 void drawSprite_0D9(sprite_t * s) {
 	int base = findSpGfxFile(0x49);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2),base+0x1D,9,-3);
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x08,4,4);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,-4,4);
+	addSpriteTile(s,(0x9<<2),base+0x0D,3,-13);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,-3,-6);
+	addSpriteTile(s,(0x9<<2)|1,base+0x24,-10,-5);
+	addSpriteTile(s,(0x9<<2)|1,base+0x26,-18,11);
 }
 //Flower pot
 void drawSprite_0DA(sprite_t * s) {
 	int base = findSpGfxFile(0x44);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,-8,-22);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,8,-22);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,0,-38);
+	addSpriteTile(s,(0x9<<2)|1,base+0x08,-4,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x09,4,0);
+	addSpriteTile(s,(0x9<<2),base+0x0D,-4,-8);
+	addSpriteTile(s,(0x9<<2),base+0x0E,4,-8);
+	addSpriteTile(s,(0x9<<2),base+0x0F,12,-8);
 }
 //Squishy block
 void drawSprite_0DB(sprite_t * s) {
-	
-	
-	
+	BYTE tempBuf[32] = {0xE0,0xEC,0xE1,0xEA,0xE2,0xE9,0xE4,0xE8,
+		0x1C,0xE8,0x1E,0xE9,0x1F,0xEA,0x20,0xEC,
+		0x20,0x14,0x1F,0x16,0x1E,0x17,0x1C,0x18,
+		0xE4,0x18,0xE2,0x17,0xE1,0x16,0xE0,0x14};
+	drawSpriteHDMAPolygon(s,tempBuf,0x8400,16,false,false,0,8);
 }
 //Snowball
 void drawSprite_0DC(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xB<<2),0x40E8,-8,-8);
+	addSpriteTile(s,(0xB<<2),0x40E9,8,-8);
+	addSpriteTile(s,(0xB<<2),0x40F8,-8,8);
+	addSpriteTile(s,(0xB<<2),0x40F9,8,8);
 }
 //Boss closer, Naval Piranha
 void drawSprite_0DD(sprite_t * s) {
