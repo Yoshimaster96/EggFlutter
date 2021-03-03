@@ -1852,9 +1852,20 @@ void drawSprite_0D5(sprite_t * s) {
 }
 //Blarggwich
 void drawSprite_0D6(sprite_t * s) {
-	
-	
-	
+	drawSpriteHDMAPolygon(s,&romBuf[0x0368FC],0x8400,16,false,false,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x0028,-24,-137);
+	addSpriteTile(s,(0x8<<2)|1,0x0029,-8,-137);
+	addSpriteTile(s,(0x8<<2)|1,0x002A,8,-137);
+	addSpriteTile(s,(0x8<<2)|1,0x010C,-18,-127);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x010C,-18,-111);
+	addSpriteTile(s,(0x8<<2)|1,0x010C,2,-127);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x010C,2,-111);
+	addSpriteTile(s,(0x8<<2)|1,0x0108,0,-137);
+	addSpriteTile(s,(0x8<<2)|0x41,0x0108,-16,-137);
+	addSpriteTile(s,(0x8<<2)|1,0x010A,9,-147);
+	addSpriteTile(s,(0x8<<2)|0x41,0x010A,-24,-146);
+	addSpriteTile(s,(0x8<<2),0x0107,-14,-124);
+	addSpriteTile(s,(0x8<<2),0x0107,6,-124);
 }
 //Sluggy the Unshaven
 void drawSprite_0D7(sprite_t * s) {
@@ -1872,6 +1883,9 @@ void drawSprite_0D7(sprite_t * s) {
 		if(py1&0x80) py1 -= 0x100;
 		if(px2&0x80) px2 -= 0x100;
 		if(py2&0x80) py2 -= 0x100;
+		if(py0<-72) py0 = -72;
+		if(py1<-72) py1 = -72;
+		if(py2<-72) py2 = -72;
 		for(int m=0; m<8; m++) {
 			int offset = ((n<<3)+m)<<1;
 			int c0 = (8-m)*(8-m);
@@ -1881,10 +1895,38 @@ void drawSprite_0D7(sprite_t * s) {
 			tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
 		}
 	}
-	drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false,0,0x48);
-	
-	
-	
+	drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false,0x08,0x48);
+	addSpriteTile(s,(0x8<<2),0x4678,-61,11);
+	addSpriteTile(s,(0x8<<2)|0x80,0x4678,-61,27);
+	addSpriteTile(s,(0x8<<2),0x4678,-27,11);
+	addSpriteTile(s,(0x8<<2)|0x80,0x4678,-27,27);
+	addSpriteTile(s,(0x8<<2),0x4679,-41,55);
+	addSpriteTile(s,(0xF<<2),0x466A,18,17);
+	addSpriteTile(s,(0xF<<2),0x466B,34,17);
+	addSpriteTile(s,(0xF<<2),0x467A,18,33);
+	addSpriteTile(s,(0xF<<2),0x467B,34,33);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x466A,34,65);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x466B,18,65);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x467A,34,49);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x467B,18,49);
+	addSpriteTile(s,(0xF<<2),0x4669,19,69);
+	addSpriteTile(s,(0xF<<2)|0xC0,0x4669,19,85);
+	addSpriteTile(s,(0xF<<2),0x4668,44,87);
+	addSpriteTile(s,(0x8<<2),0x467F,-104,-1);
+	addSpriteTile(s,(0x8<<2)|0x40,0x466F,-88,-17);
+	addSpriteTile(s,(0x8<<2)|0x40,0x466E,-72,-17);
+	addSpriteTile(s,(0x8<<2)|0x40,0x467F,-88,-1);
+	addSpriteTile(s,(0x8<<2)|0x40,0x467E,-72,-1);
+	addSpriteTile(s,(0x8<<2)|0x40,0x467F,59,3);
+	addSpriteTile(s,(0x8<<2),0x466E,29,-13);
+	addSpriteTile(s,(0x8<<2),0x466F,45,-13);
+	addSpriteTile(s,(0x8<<2),0x467E,29,3);
+	addSpriteTile(s,(0x8<<2),0x467F,45,3);
+	addSpriteTile(s,(0x8<<2)|0x40,0x467F,49,21);
+	addSpriteTile(s,(0xF<<2),0x466C,-16,54);
+	addSpriteTile(s,(0xF<<2),0x466D,0,54);
+	addSpriteTile(s,(0xF<<2),0x467C,-16,70);
+	addSpriteTile(s,(0xF<<2),0x467D,0,70);
 }
 //Chomp signboard
 void drawSprite_0D8(sprite_t * s) {
