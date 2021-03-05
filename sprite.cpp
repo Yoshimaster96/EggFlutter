@@ -1977,6 +1977,199 @@ void drawSprite_0DC(sprite_t * s) {
 void drawSprite_0DD(sprite_t * s) {
 	drawSpriteText(s," Boss  Closer \nNaval  Piranha");
 }
+//Falling rock from background
+void drawSprite_0DE(sprite_t * s) {
+	int base = findSpGfxFile(0x20);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,-16,0);
+	addSpriteTile(s,(0xE<<2)|1,base+0x02,0,0);
+	addSpriteTile(s,(0xE<<2)|1,base+0x04,16,0);
+}
+//Piscatory Pete
+void drawSprite_0DF(sprite_t * s) {
+	int base = findSpGfxFile(0x3E);
+	int pal = ((s->data[2]&1)^0xF)<<2;
+	addSpriteTile(s,pal|1,base+0x08,0,0);
+}
+//Preying Mantas
+void drawSprite_0E0(sprite_t * s) {
+	int base = findSpGfxFile(0x3E);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,0,0);
+}
+//Loch Nestor
+void drawSprite_0E1(sprite_t * s) {
+	int base = findSpGfxFile(0x3E);
+	addSpriteTile(s,(0xF<<2)|1,base+0x0E,0,0);
+}
+//Boo Blah
+void drawSprite_0E2(sprite_t * s) {
+	int base = findSpGfxFile(0x22);
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0C,-10,32);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0C,0,32);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x09,-8,16);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0A,0,16);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x28,-8,0);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x29,0,0);
+	} else {
+		addSpriteTile(s,(0x9<<2)|1,base+0x0C,-10,-32);
+		addSpriteTile(s,(0x9<<2)|1,base+0x0C,0,-32);
+		addSpriteTile(s,(0x9<<2)|1,base+0x09,-8,-16);
+		addSpriteTile(s,(0x9<<2)|1,base+0x0A,0,-16);
+		addSpriteTile(s,(0x9<<2)|1,base+0x28,-8,0);
+		addSpriteTile(s,(0x9<<2)|1,base+0x29,0,0);
+	}
+}
+//Boo Blah with Piro Dangle
+void drawSprite_0E3(sprite_t * s) {
+	int base = findSpGfxFile(0x22);
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0C,-10,32);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0C,0,32);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x09,-8,16);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x0A,0,16);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x28,-8,0);
+		addSpriteTile(s,(0x9<<2)|0x81,base+0x29,0,0);
+		base = findSpGfxFile(0x45);
+		addSpriteTile(s,(0x9<<2),0x4063,-4,43);
+		addSpriteTile(s,(0x9<<2),base+0x02,-4,47);
+		addSpriteTile(s,(0x9<<2)|0x40,base+0x02,4,47);
+	} else {
+		addSpriteTile(s,(0x9<<2)|1,base+0x0C,-10,-32);
+		addSpriteTile(s,(0x9<<2)|1,base+0x0C,0,-32);
+		addSpriteTile(s,(0x9<<2)|1,base+0x09,-8,-16);
+		addSpriteTile(s,(0x9<<2)|1,base+0x0A,0,-16);
+		addSpriteTile(s,(0x9<<2)|1,base+0x28,-8,0);
+		addSpriteTile(s,(0x9<<2)|1,base+0x29,0,0);
+		base = findSpGfxFile(0x45);
+		addSpriteTile(s,(0x9<<2),0x4063,-4,-43);
+		addSpriteTile(s,(0x9<<2),base+0x02,-4,-39);
+		addSpriteTile(s,(0x9<<2)|0x40,base+0x02,4,-39);
+	}
+}
+//Pokey
+void drawSprite_0E4(sprite_t * s) {
+	int base = findSpGfxFile(0x24);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0A,0,-16);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0C,0,0);
+	addSpriteTile(s,(0x8<<2)|1,0x008A,0,-32);
+}
+//Needlenose, green
+void drawSprite_0E5(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|1,0x008A,0,0);
+}
+//Gusty
+void drawSprite_0E6(sprite_t * s) {
+	int offs = (s->data[1]&2)|(s->data[2]&1);
+	int base = findSpGfxFile(0x25);
+	if(offs==1 || offs==2) {
+		addSpriteTile(s,(0xA<<2)|0x41,base+0x06,8,-1);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x09,-8,1);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x19,-8,9);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x08,0,0);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x18,0,8);
+	} else {
+		addSpriteTile(s,(0xA<<2)|1,base+0x06,-8,-1);
+		addSpriteTile(s,(0xA<<2),base+0x09,16,1);
+		addSpriteTile(s,(0xA<<2),base+0x19,16,9);
+		addSpriteTile(s,(0xA<<2),base+0x08,8,0);
+		addSpriteTile(s,(0xA<<2),base+0x18,8,8);
+	}
+	if(offs&2) {
+		addSpriteTile(s,(0xC<<2),0x0077,16,0);
+	}
+}
+//Burt
+void drawSprite_0E7(sprite_t * s) {
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0x8<<2),0x448E,-8,-16);
+		addSpriteTile(s,(0x8<<2),0x448F,8,-16);
+		addSpriteTile(s,(0x8<<2),0x449E,-8,0);
+		addSpriteTile(s,(0x8<<2),0x449F,8,0);
+		addSpriteTile(s,(0x8<<2)|0x40,0x009E,0,8);
+		addSpriteTile(s,(0x8<<2),0x009E,8,8);
+	} else {
+		addSpriteTile(s,(0x8<<2),0x448E,-24,-16);
+		addSpriteTile(s,(0x8<<2),0x448F,-8,-16);
+		addSpriteTile(s,(0x8<<2),0x449E,-24,0);
+		addSpriteTile(s,(0x8<<2),0x449F,-8,0);
+		addSpriteTile(s,(0x8<<2)|0x40,0x009E,-16,8);
+		addSpriteTile(s,(0x8<<2),0x009E,-8,8);
+		addSpriteTile(s,(0x8<<2),0x448E,8,-16);
+		addSpriteTile(s,(0x8<<2),0x448F,24,-16);
+		addSpriteTile(s,(0x8<<2),0x449E,8,0);
+		addSpriteTile(s,(0x8<<2),0x449F,24,0);
+		addSpriteTile(s,(0x8<<2)|0x40,0x009E,16,8);
+		addSpriteTile(s,(0x8<<2),0x009E,24,8);
+	}
+}
+//Goonie
+void drawSprite_0E8(sprite_t * s) {
+	int base = findSpGfxFile(0x2A);
+	if(s->data[1]&2) {
+		if(s->data[2]&1) {
+			addSpriteTile(s,(0xA<<2)|0x41,base+0x04,-8,0);
+			addSpriteTile(s,(0xA<<2)|1,base+0x22,16,0);
+			addSpriteTile(s,(0xA<<2),base+0x24,32,0);
+			addSpriteTile(s,(0xA<<2),base+0x34,8,4);
+			addSpriteTile(s,(0xA<<2)|0x40,base+0x24,-31,0);
+			addSpriteTile(s,(0xA<<2)|0x41,base+0x00,8,0);
+			addSpriteTile(s,(0xA<<2)|0x40,base+0x34,-7,4);
+			addSpriteTile(s,(0xA<<2)|0x41,base+0x22,-23,0);
+			addSpriteTile(s,(0xC<<2),0x0077,8,0);
+		} else {
+			addSpriteTile(s,(0xA<<2)|1,base+0x04,8,0);
+			addSpriteTile(s,(0xA<<2)|0x41,base+0x22,-16,0);
+			addSpriteTile(s,(0xA<<2)|0x40,base+0x24,-24,0);
+			addSpriteTile(s,(0xA<<2)|0x40,base+0x34,0,4);
+			addSpriteTile(s,(0xA<<2),base+0x24,39,0);
+			addSpriteTile(s,(0xA<<2)|1,base+0x00,-8,0);
+			addSpriteTile(s,(0xA<<2),base+0x34,15,4);
+			addSpriteTile(s,(0xA<<2)|1,base+0x22,23,0);
+			addSpriteTile(s,(0xC<<2),0x0077,8,0);
+		}
+	} else {
+		addSpriteTile(s,(0xA<<2)|1,base+0x04,8,0);
+		addSpriteTile(s,(0xA<<2)|0x41,base+0x22,-16,0);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x24,-24,0);
+		addSpriteTile(s,(0xA<<2)|0x40,base+0x34,0,4);
+		addSpriteTile(s,(0xA<<2),base+0x24,39,0);
+		addSpriteTile(s,(0xA<<2)|1,base+0x00,-8,0);
+		addSpriteTile(s,(0xA<<2),base+0x34,15,4);
+		addSpriteTile(s,(0xA<<2)|1,base+0x22,23,0);
+	}
+}
+//Group of 3 Flightless Goonies
+void drawSprite_0E9(sprite_t * s) {
+	int base = findSpGfxFile(0x2A);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-24,-2);
+	addSpriteTile(s,(0xA<<2),base+0x04,-8,-2);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,-13,6);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-8,-2);
+	addSpriteTile(s,(0xA<<2),base+0x04,8,-2);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,3,6);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,8,-2);
+	addSpriteTile(s,(0xA<<2),base+0x04,24,-2);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,19,6);
+}
+//Cloud Drop, vertical
+void drawSprite_0EA(sprite_t * s) {
+	int base = findSpGfxFile(0x2C);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,0,0);
+	addSpriteTile(s,(0xA<<2),base+0x0C,4,16);
+	addSpriteTile(s,(0xA<<2),base+0x1C,3,1);
+}
+//Cloud Drop, horizontal
+void drawSprite_0EB(sprite_t * s) {
+	int base = findSpGfxFile(0x2D);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-4,0);
+	addSpriteTile(s,(0xA<<2),base+0x1B,12,5);
+}
+//Flamer Guy
+void drawSprite_0EC(sprite_t * s) {
+	
+	
+	
+}
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
@@ -2087,12 +2280,12 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_0D0,drawSprite_0D1,drawSprite_0D2,drawSprite_0D3,
 	drawSprite_0D4,drawSprite_0D5,drawSprite_0D6,drawSprite_0D7,
 	drawSprite_0D8,drawSprite_0D9,drawSprite_0DA,drawSprite_0DB,
-	drawSprite_0DC,drawSprite_0DD,drawSprite_unused,drawSprite_unused,
+	drawSprite_0DC,drawSprite_0DD,drawSprite_0DE,drawSprite_0DF,
 	//0E0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_0E0,drawSprite_0E1,drawSprite_0E2,drawSprite_0E3,
+	drawSprite_0E4,drawSprite_0E5,drawSprite_0E6,drawSprite_0E7,
+	drawSprite_0E8,drawSprite_0E9,drawSprite_0EA,drawSprite_0EB,
+	drawSprite_0EC,drawSprite_0EC,drawSprite_unused,drawSprite_unused,
 	//0F0
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
