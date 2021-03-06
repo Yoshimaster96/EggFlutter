@@ -1388,6 +1388,16 @@ void drawSprite_08C(sprite_t * s) {
 }
 //Fly Guy
 void drawSprite_08D(sprite_t * s) {
+	if(s->data[1]&2) {
+		addSpriteTile(s,(0xB<<2)|1,0x00E3,0,17);
+		addSpriteTile(s,(0x9<<2),0x0049,-2,22);
+		addSpriteTile(s,(0x9<<2),0x006E,0,22);
+		addSpriteTile(s,(0x9<<2),0x006F,8,22);	
+	} else if(s->data[2]&1) {
+		addSpriteTile(s,(0x9<<2)|1,0x00A0,0,16);
+	} else {
+		addSpriteTile(s,(0x8<<2)|1,0x00EA,0,16);
+	}
 	addSpriteTile(s,(0x9<<2),0x002C,0,-6);
 	addSpriteTile(s,(0x9<<2)|0x40,0x002C,8,-6);
 	addSpriteTile(s,(0x9<<2)|0x40,0x002F,6,14);
@@ -2088,18 +2098,18 @@ void drawSprite_0E7(sprite_t * s) {
 		addSpriteTile(s,(0x8<<2)|0x40,0x009E,0,8);
 		addSpriteTile(s,(0x8<<2),0x009E,8,8);
 	} else {
-		addSpriteTile(s,(0x8<<2),0x448E,-24,-16);
-		addSpriteTile(s,(0x8<<2),0x448F,-8,-16);
-		addSpriteTile(s,(0x8<<2),0x449E,-24,0);
-		addSpriteTile(s,(0x8<<2),0x449F,-8,0);
-		addSpriteTile(s,(0x8<<2)|0x40,0x009E,-16,8);
-		addSpriteTile(s,(0x8<<2),0x009E,-8,8);
-		addSpriteTile(s,(0x8<<2),0x448E,8,-16);
-		addSpriteTile(s,(0x8<<2),0x448F,24,-16);
-		addSpriteTile(s,(0x8<<2),0x449E,8,0);
-		addSpriteTile(s,(0x8<<2),0x449F,24,0);
-		addSpriteTile(s,(0x8<<2)|0x40,0x009E,16,8);
-		addSpriteTile(s,(0x8<<2),0x009E,24,8);
+		addSpriteTile(s,(0x8<<2),0x448E,-8,-16);
+		addSpriteTile(s,(0x8<<2),0x448F,8,-16);
+		addSpriteTile(s,(0x8<<2),0x449E,-8,0);
+		addSpriteTile(s,(0x8<<2),0x449F,8,0);
+		addSpriteTile(s,(0x8<<2)|0x40,0x009E,0,8);
+		addSpriteTile(s,(0x8<<2),0x009E,8,8);
+		addSpriteTile(s,(0x8<<2),0x448E,24,-16);
+		addSpriteTile(s,(0x8<<2),0x448F,40,-16);
+		addSpriteTile(s,(0x8<<2),0x449E,24,0);
+		addSpriteTile(s,(0x8<<2),0x449F,40,0);
+		addSpriteTile(s,(0x8<<2)|0x40,0x009E,32,8);
+		addSpriteTile(s,(0x8<<2),0x009E,40,8);
 	}
 }
 //Goonie
@@ -2141,15 +2151,15 @@ void drawSprite_0E8(sprite_t * s) {
 //Group of 3 Flightless Goonies
 void drawSprite_0E9(sprite_t * s) {
 	int base = findSpGfxFile(0x2A);
-	addSpriteTile(s,(0xA<<2)|1,base+0x00,-24,-2);
-	addSpriteTile(s,(0xA<<2),base+0x04,-8,-2);
-	addSpriteTile(s,(0xA<<2)|1,base+0x08,-13,6);
 	addSpriteTile(s,(0xA<<2)|1,base+0x00,-8,-2);
 	addSpriteTile(s,(0xA<<2),base+0x04,8,-2);
 	addSpriteTile(s,(0xA<<2)|1,base+0x08,3,6);
 	addSpriteTile(s,(0xA<<2)|1,base+0x00,8,-2);
 	addSpriteTile(s,(0xA<<2),base+0x04,24,-2);
 	addSpriteTile(s,(0xA<<2)|1,base+0x08,19,6);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,24,-2);
+	addSpriteTile(s,(0xA<<2),base+0x04,40,-2);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,35,6);
 }
 //Cloud Drop, vertical
 void drawSprite_0EA(sprite_t * s) {
@@ -2166,6 +2176,76 @@ void drawSprite_0EB(sprite_t * s) {
 }
 //Flamer Guy
 void drawSprite_0EC(sprite_t * s) {
+	addSpriteTile(s,(0x9<<2),0x4144,-8,-20);
+	addSpriteTile(s,(0x9<<2),0x4145,8,-20);
+	addSpriteTile(s,(0x9<<2),0x4154,-8,-4);
+	addSpriteTile(s,(0x9<<2),0x4155,8,-4);
+	addSpriteTile(s,(0x9<<2)|1,0x01AE,-1,-5);
+	addSpriteTile(s,(0x8<<2),0x009E,0,8);
+	addSpriteTile(s,(0x8<<2),0x009E,8,8);
+}
+//Eggo-Dil
+void drawSprite_0EE(sprite_t * s) {
+	
+	
+	
+}
+//Eggo-Dil face
+void drawSprite_0EF(sprite_t * s) {
+	
+	
+	
+}
+//Eggo-Dil petal
+void drawSprite_0F0(sprite_t * s) {
+	
+	
+	
+}
+//Bubble-Plant
+void drawSprite_0F1(sprite_t * s) {
+	
+	
+	
+}
+//Stilt Guy
+void drawSprite_0F2(sprite_t * s) {
+	
+	
+	
+}
+//Woozy Guy
+void drawSprite_0F3(sprite_t * s) {
+	
+	
+	
+}
+//Slugger
+void drawSprite_0F5(sprite_t * s) {
+	
+	
+	
+}
+//Huffin' Puffin group
+void drawSprite_0F6(sprite_t * s) {
+	
+	
+	
+}
+//Barney Bubble
+void drawSprite_0F7(sprite_t * s) {
+	
+	
+	
+}
+//Blow Hard
+void drawSprite_0F8(sprite_t * s) {
+	
+	
+	
+}
+//Needlenose, yellow
+void drawSprite_0F9(sprite_t * s) {
 	
 	
 	
@@ -2285,11 +2365,11 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_0E0,drawSprite_0E1,drawSprite_0E2,drawSprite_0E3,
 	drawSprite_0E4,drawSprite_0E5,drawSprite_0E6,drawSprite_0E7,
 	drawSprite_0E8,drawSprite_0E9,drawSprite_0EA,drawSprite_0EB,
-	drawSprite_0EC,drawSprite_0EC,drawSprite_unused,drawSprite_unused,
+	drawSprite_0EC,drawSprite_0EC,drawSprite_0EE,drawSprite_0EF,
 	//0F0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_0F0,drawSprite_0F1,drawSprite_0F2,drawSprite_0F3,
+	drawSprite_0F1,drawSprite_0F5,drawSprite_0F6,drawSprite_0F7,
+	drawSprite_0F8,drawSprite_0F9,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//100
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
