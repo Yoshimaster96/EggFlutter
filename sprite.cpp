@@ -2339,6 +2339,156 @@ void drawSprite_0FF(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|0x40,base+0x3C,15,-5);
 	addSpriteTile(s,(0x9<<2),base+0x3F,-10,-6);
 }
+//Bubble with 1-UP
+void drawSprite_100(sprite_t * s) {
+	addSpriteTile(s,(0x9<<2),0x0049,-1,4);
+	addSpriteTile(s,(0x9<<2),0x006E,1,4);
+	addSpriteTile(s,(0x9<<2),0x006F,8,4);
+	addSpriteTile(s,(0x8<<2)|1,0x009C,-7,-7);
+	addSpriteTile(s,(0x8<<2)|1,0x007E,7,-7);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x007E,-7,7);
+	addSpriteTile(s,(0x8<<2)|0x81,0x007E,7,7);
+}
+//Rotating spike mace, 1 end
+void drawSprite_101(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x410C,-8,-31);
+	addSpriteTile(s,(0x8<<2),0x410D,8,-31);
+	addSpriteTile(s,(0x8<<2),0x411C,-8,-15);
+	addSpriteTile(s,(0x8<<2),0x411D,8,-15);
+	addSpriteTile(s,(0x8<<2),0x410C,-8,-59);
+	addSpriteTile(s,(0x8<<2),0x410D,8,-59);
+	addSpriteTile(s,(0x8<<2),0x411C,-8,-43);
+	addSpriteTile(s,(0x8<<2),0x411D,8,-43);
+	addSpriteTile(s,(0x8<<2),0x410A,-8,-87);
+	addSpriteTile(s,(0x8<<2),0x410B,8,-87);
+	addSpriteTile(s,(0x8<<2),0x411A,-8,-71);
+	addSpriteTile(s,(0x8<<2),0x411B,8,-71);
+}
+//Rotating spike mace, 2 end
+void drawSprite_102(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x410C,-8,-31);
+	addSpriteTile(s,(0x8<<2),0x410D,8,-31);
+	addSpriteTile(s,(0x8<<2),0x411C,-8,-15);
+	addSpriteTile(s,(0x8<<2),0x411D,8,-15);
+	addSpriteTile(s,(0x8<<2),0x410C,-8,-59);
+	addSpriteTile(s,(0x8<<2),0x410D,8,-59);
+	addSpriteTile(s,(0x8<<2),0x411C,-8,-43);
+	addSpriteTile(s,(0x8<<2),0x411D,8,-43);
+	addSpriteTile(s,(0x8<<2),0x410A,-8,-87);
+	addSpriteTile(s,(0x8<<2),0x410B,8,-87);
+	addSpriteTile(s,(0x8<<2),0x411A,-8,-71);
+	addSpriteTile(s,(0x8<<2),0x411B,8,-71);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410C,8,31);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410D,-8,31);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411C,8,15);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411D,-8,15);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410C,8,59);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410D,-8,59);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411C,8,43);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411D,-8,43);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410A,8,87);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x410B,-8,87);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411A,8,71);
+	addSpriteTile(s,(0x8<<2)|0xC0,0x411B,-8,71);
+}
+//Boo Guys controlling rotating spike mace
+void drawSprite_103(sprite_t * s) {
+	int base = findSpGfxFile(0x3C);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,12,0);
+	addSpriteTile(s,(0x8<<2)|1,base+0x08,-4,0);
+}
+//Jean de Fillet
+void drawSprite_104(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x454E,-8,-8);
+	addSpriteTile(s,(0x8<<2),0x454F,8,-8);
+	addSpriteTile(s,(0x8<<2),0x455E,-8,8);
+	addSpriteTile(s,(0x8<<2),0x455F,8,8);
+}
+//Boo Guys carring bomb
+void drawSprite_105(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|1,0x0160,0,-8);
+}
+//Watermelon projectile
+void drawSprite_107(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x00BC,0,0);
+}
+//Milde
+void drawSprite_108(sprite_t * s) {
+	int base = findSpGfxFile(0x29);
+	addSpriteTile(s,(0xC<<2)|1,base+0x04,0,0);
+}
+//Tap-Tap
+void drawSprite_109(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|1,0x01AB,0,0);
+	addSpriteTile(s,(0x8<<2),0x009E,0,8);
+	addSpriteTile(s,(0x8<<2),0x009E,8,8);
+}
+//Falling spike mace
+void drawSprite_10C(sprite_t * s) {
+	int base = findSpGfxFile(0x3F);
+	
+	
+	
+}
+//Boo Guys controlling falling spike mace
+void drawSprite_10D(sprite_t * s) {
+	int base = findSpGfxFile(0x3F);
+	
+	
+	
+}
+//Boo Man Bluff
+void drawSprite_10F(sprite_t * s) {
+	int base = findSpGfxFile(0x30);
+	addSpriteTile(s,(0x8<<2),base+0x06,-4,12);
+	addSpriteTile(s,(0x8<<2),base+0x07,4,12);
+	addSpriteTile(s,(0x8<<2),base+0x08,12,12);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-4,-4);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,4,-4);
+	addSpriteTile(s,(0x8<<2),base+0x0B,0,-2);
+	addSpriteTile(s,(0x8<<2),base+0x09,3,10);
+}
+//Flower (character)
+void drawSprite_110(sprite_t * s) {
+	int base = findSpGfxFile(0x71);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,-8,-8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x06,8,-8);
+	addSpriteTile(s,(0x9<<2)|0xC1,base+0x06,-8,8);
+	addSpriteTile(s,(0x9<<2)|0xC1,base+0x04,8,8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,0);
+}
+//Georgette Jelly
+void drawSprite_111(sprite_t * s) {
+	int base = findSpGfxFile(0x41);
+	
+	
+	
+}
+//Georgette Jelly, flattened
+void drawSprite_112(sprite_t * s) {
+	int base = findSpGfxFile(0x41);
+	
+	
+	
+}
+//Snifit
+void drawSprite_113(sprite_t * s) {
+	int base = findSpGfxFile(0x40);
+	
+	
+	
+}
+//Snifit projectile
+void drawSprite_114(sprite_t * s) {
+	int base = findSpGfxFile(0x40);
+	
+	
+	
+}
+//Coin
+void drawSprite_115(sprite_t * s) {
+	addSpriteTile(s,(0xA<<2)|1,0x00A0,0,0);
+}
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
@@ -2461,13 +2611,13 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_0F8,drawSprite_0F9,drawSprite_0FA,drawSprite_0FB,
 	drawSprite_0FC,drawSprite_0FD,drawSprite_0FE,drawSprite_0FF,
 	//100
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_003,drawSprite_unused,
+	drawSprite_100,drawSprite_101,drawSprite_102,drawSprite_103,
+	drawSprite_104,drawSprite_105,drawSprite_105,drawSprite_107,
+	drawSprite_108,drawSprite_109,drawSprite_109,drawSprite_109,
+	drawSprite_10C,drawSprite_10D,drawSprite_003,drawSprite_10F,
 	//110
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_110,drawSprite_111,drawSprite_112,drawSprite_113,
+	drawSprite_114,drawSprite_115,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_099,drawSprite_unused,drawSprite_unused,
 	//120
@@ -2514,9 +2664,9 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_115,
 	//1B0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_020,
+	drawSprite_unused,drawSprite_unused,drawSprite_115,drawSprite_020,
 	drawSprite_unused,drawSprite_020,drawSprite_unused,drawSprite_020,
 	drawSprite_unused,drawSprite_020,drawSprite_1BA,drawSprite_1BA,
 	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
