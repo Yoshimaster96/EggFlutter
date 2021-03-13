@@ -790,7 +790,6 @@ void drawObject_extended52(object_t * o) {
 //Spike mace room, falling
 void drawObject_extended53(object_t * o) {
 	int mtOff = getBaseMap16Offset(o);
-	mtOff = offsetMap16Right(mtOff);
 	int preserve = mtOff;
 	for(int j=0; j<3; j++) {
 		for(int i=0; i<3; i++) {

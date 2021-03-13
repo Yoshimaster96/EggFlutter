@@ -2426,16 +2426,31 @@ void drawSprite_109(sprite_t * s) {
 //Falling spike mace
 void drawSprite_10C(sprite_t * s) {
 	int base = findSpGfxFile(0x3F);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,8);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,18);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,28);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,38);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,48);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,58);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,68);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,78);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,88);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,98);
+	addSpriteTile(s,(0x8<<2),base+0x0B,12,108);
+	addSpriteTile(s,(0x8<<2),0x410A,0,113);
+	addSpriteTile(s,(0x8<<2),0x410B,16,113);
+	addSpriteTile(s,(0x8<<2),0x411A,0,129);
+	addSpriteTile(s,(0x8<<2),0x411B,16,129);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0C,4,0);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-4,0);
+	addSpriteTile(s,(0x8<<2),base+0x1B,0,8);
 }
 //Boo Guys controlling falling spike mace
 void drawSprite_10D(sprite_t * s) {
 	int base = findSpGfxFile(0x3F);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|1,base+0x0C,4,0);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-4,0);
+	addSpriteTile(s,(0x8<<2),base+0x1B,0,8);
 }
 //Boo Man Bluff
 void drawSprite_10F(sprite_t * s) {
@@ -2460,30 +2475,30 @@ void drawSprite_110(sprite_t * s) {
 //Georgette Jelly
 void drawSprite_111(sprite_t * s) {
 	int base = findSpGfxFile(0x41);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,0,0);
+	addSpriteTile(s,(0x8<<2),base+0x04,-7,8);
+	addSpriteTile(s,(0x8<<2),base+0x14,15,8);
 }
-//Georgette Jelly, flattened
+//Georgette Jelly splat
 void drawSprite_112(sprite_t * s) {
 	int base = findSpGfxFile(0x41);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2),base+0x0C,0,0);
 }
 //Snifit
 void drawSprite_113(sprite_t * s) {
 	int base = findSpGfxFile(0x40);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x06,3,-7);
+	addSpriteTile(s,(0x8<<2),base+0x1E,1,5);
+	addSpriteTile(s,(0x8<<2)|0x80,base+0x0E,9,5);
+	addSpriteTile(s,(0xA<<2),base+0x1C,1,12);
+	addSpriteTile(s,(0xA<<2),base+0x1C,9,12);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-4,-7);
 }
 //Snifit projectile
 void drawSprite_114(sprite_t * s) {
 	int base = findSpGfxFile(0x40);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2),base+0x1F,0,4);
+	addSpriteTile(s,(0xA<<2),base+0x0F,8,4);
 }
 //Coin
 void drawSprite_115(sprite_t * s) {

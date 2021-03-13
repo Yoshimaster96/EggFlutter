@@ -32,9 +32,9 @@ CursorRow=10
 TopLine=1
 LeftChar=1
 [Editor_2]
-CursorCol=27
-CursorRow=9146
-TopLine=9038
+CursorCol=36
+CursorRow=792
+TopLine=765
 LeftChar=1
 [Editor_3]
 CursorCol=15
@@ -42,9 +42,9 @@ CursorRow=11
 TopLine=1
 LeftChar=1
 [Editor_4]
-CursorCol=2
-CursorRow=2429
-TopLine=2401
+CursorCol=42
+CursorRow=2501
+TopLine=2474
 LeftChar=1
 [Editor_5]
 CursorCol=16
