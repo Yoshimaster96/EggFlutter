@@ -1404,6 +1404,15 @@ void drawSprite_08D(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|0x40,0x002F,1,14);
 	addSpriteTile(s,(0x9<<2)|1,0x0088,0,0);
 }
+//Kamek in Bowser's Room
+void drawSprite_08E(sprite_t * s) {
+	int base = findSpGfxFile(0x67);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,-1,3);
+	addSpriteTile(s,(0x9<<2)|0x80,base+0x1F,-9,8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,-1,4);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,8,3);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,0,-10);
+}
 //Grinder, swing
 void drawSprite_08F(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x40C6,-78,-8);
@@ -2572,6 +2581,25 @@ void drawSprite_11F(sprite_t * s) {
 	addSpriteTile(s,(0xA<<2),0x4436,-8,8);
 	addSpriteTile(s,(0xA<<2),0x4437,8,8);
 }
+//Arrow lift, double-ended
+void drawSprite_120(sprite_t * s) {
+	addSpriteTile(s,(0xC<<2),0x4140,-8,-8);
+	addSpriteTile(s,(0xC<<2),0x4141,8,-8);
+	addSpriteTile(s,(0xC<<2),0x4150,-8,8);
+	addSpriteTile(s,(0xC<<2),0x4151,8,8);
+}
+//Number platform explosion
+void drawSprite_121(sprite_t * s) {
+	
+	
+	
+}
+//Stretch
+void drawSprite_124(sprite_t * s) {
+	
+	
+	
+}
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
@@ -2657,7 +2685,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_080,drawSprite_080,drawSprite_082,drawSprite_083,
 	drawSprite_084,drawSprite_085,drawSprite_unused,drawSprite_087,
 	drawSprite_059,drawSprite_089,drawSprite_08A,drawSprite_08B,
-	drawSprite_08C,drawSprite_08D,drawSprite_048,drawSprite_08F,
+	drawSprite_08C,drawSprite_08D,drawSprite_08E,drawSprite_08F,
 	//090
 	drawSprite_090,drawSprite_091,drawSprite_092,drawSprite_093,
 	drawSprite_094,drawSprite_095,drawSprite_095,drawSprite_097,
@@ -2704,8 +2732,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_118,drawSprite_119,drawSprite_11A,drawSprite_11B,
 	drawSprite_11C,drawSprite_11D,drawSprite_11E,drawSprite_11F,
 	//120
-	drawSprite_unused,drawSprite_unused,drawSprite_021,drawSprite_021,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
+	drawSprite_124,drawSprite_048,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//130
@@ -2747,7 +2775,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_115,
+	drawSprite_unused,drawSprite_08E,drawSprite_unused,drawSprite_115,
 	//1B0
 	drawSprite_unused,drawSprite_unused,drawSprite_115,drawSprite_020,
 	drawSprite_unused,drawSprite_020,drawSprite_unused,drawSprite_020,
