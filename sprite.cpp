@@ -2590,15 +2590,18 @@ void drawSprite_120(sprite_t * s) {
 }
 //Number platform explosion
 void drawSprite_121(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,0x0042,-8,-8);
+	addSpriteTile(s,(0x9<<2)|0x41,0x0042,8,-8);
+	addSpriteTile(s,(0x9<<2)|0x81,0x0042,-8,8);
+	addSpriteTile(s,(0x9<<2)|0xC1,0x0042,8,8);
 }
 //Stretch
 void drawSprite_124(sprite_t * s) {
-	
-	
-	
+	int offset = ((s->data[2]&1)|(s->data[1]&2))<<1;
+	int pal = ((romBuf[0x0209B8+offset]-1)<<1)|0x20;
+	int base = findSpGfxFile(0x27);
+	addSpriteTile(s,pal|1,base+0x08,0,-16);
+	addSpriteTile(s,pal|1,base+0x0C,0,0);
 }
 //TODO
 //Caged Ghost squeezed in tunnel
