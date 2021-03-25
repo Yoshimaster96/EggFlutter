@@ -2603,6 +2603,28 @@ void drawSprite_124(sprite_t * s) {
 	addSpriteTile(s,pal|1,base+0x08,0,-16);
 	addSpriteTile(s,pal|1,base+0x0C,0,0);
 }
+//Falling spike mace 2
+void drawSprite_126(sprite_t * s) {
+	
+	
+	
+}
+//Boo Guys controlling falling spike mace 2
+void drawSprite_127(sprite_t * s) {
+	
+	
+	
+}
+//Ground shake
+void drawSprite_128(sprite_t * s) {
+	drawSpriteText(s,"Ground\n Shake");
+}
+//Fuzzy
+void drawSprite_129(sprite_t * s) {
+	
+	
+	
+}
 //TODO
 //Caged Ghost squeezed in tunnel
 void drawSprite_193(sprite_t * s) {
@@ -2736,8 +2758,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_11C,drawSprite_11D,drawSprite_11E,drawSprite_11F,
 	//120
 	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
-	drawSprite_124,drawSprite_048,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_124,drawSprite_048,drawSprite_126,drawSprite_127,
+	drawSprite_128,drawSprite_129,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//130
 	drawSprite_unused,drawSprite_04E,drawSprite_unused,drawSprite_unused,
