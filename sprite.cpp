@@ -448,7 +448,7 @@ void drawSprite_01D(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),0x4434,-8,24);
 	addSpriteTile(s,(0x9<<2),0x4435,8,24);
 }
-//Shy-Guy
+//Shy Guy
 void drawSprite_01E(sprite_t * s) {
 	int offset = ((s->data[2]&1)|(s->data[1]&2))<<1;
 	int pal = ((romBuf[0x0209B8+offset]-1)<<1)|0x20;
@@ -2605,15 +2605,29 @@ void drawSprite_124(sprite_t * s) {
 }
 //Falling spike mace 2
 void drawSprite_126(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|1,0x010C,7,7);
+	addSpriteTile(s,(0xA<<2)|1,0x010C,7,23);
+	addSpriteTile(s,(0xA<<2)|1,0x010C,7,39);
+	addSpriteTile(s,(0xA<<2)|1,0x010C,7,55);
+	addSpriteTile(s,(0xA<<2)|1,0x010C,7,71);
+	addSpriteTile(s,(0xC<<2)|1,0x0100,-2,88);
+	addSpriteTile(s,(0xC<<2)|1,0x0102,14,88);
+	addSpriteTile(s,(0xC<<2)|1,0x0104,-2,104);
+	addSpriteTile(s,(0xC<<2)|1,0x0106,14,104);
+	addSpriteTile(s,(0xC<<2)|0xC1,0x0102,-2,120);
+	addSpriteTile(s,(0xC<<2)|0xC1,0x0100,14,120);
+	addSpriteTile(s,(0xA<<2),0x010E,10,86);
+	addSpriteTile(s,(0xC<<2),0x412E,-8,-8);
+	addSpriteTile(s,(0xC<<2),0x412F,8,-8);
+	addSpriteTile(s,(0xC<<2),0x413E,-8,8);
+	addSpriteTile(s,(0xC<<2),0x413F,8,8);
 }
 //Boo Guys controlling falling spike mace 2
 void drawSprite_127(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xC<<2),0x412E,-8,-8);
+	addSpriteTile(s,(0xC<<2),0x412F,8,-8);
+	addSpriteTile(s,(0xC<<2),0x413E,-8,8);
+	addSpriteTile(s,(0xC<<2),0x413F,8,8);
 }
 //Ground shake
 void drawSprite_128(sprite_t * s) {
@@ -2621,6 +2635,44 @@ void drawSprite_128(sprite_t * s) {
 }
 //Fuzzy
 void drawSprite_129(sprite_t * s) {
+	int base = findSpGfxFile(0x52);
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-4,-4);
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x00,4,-4);
+	addSpriteTile(s,(0xA<<2),base+0x12,-4,12);
+	addSpriteTile(s,(0xA<<2),base+0x13,4,12);
+	addSpriteTile(s,(0xA<<2)|0x40,base+0x12,12,12);
+	addSpriteTile(s,(0xA<<2)|1,base+0x04,-8,-8);
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x04,8,-8);
+	addSpriteTile(s,(0xA<<2)|1,base+0x06,-8,8);
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x06,8,8);
+}
+//Fat Guy
+void drawSprite_12B(sprite_t * s) {
+	int base = findSpGfxFile(0x50);
+	int pal = (s->data[2]&1)^1;
+	pal = (pal+0x8)<<2;
+	addSpriteTile(s,pal,base+0x09,-6,8);
+	addSpriteTile(s,pal|0x40,base+0x18,-6,-6);
+	addSpriteTile(s,pal|1,base+0x02,-10,-2);
+	addSpriteTile(s,pal|1,base+0x06,4,-2);
+	addSpriteTile(s,pal,base+0x18,15,-5);
+	addSpriteTile(s,pal|0x40,base+0x09,13,8);
+	addSpriteTile(s,pal|1,base+0x00,0,-14);
+}
+//Fly Guy
+void drawSprite_12C(sprite_t * s) {
+	
+	
+	
+}
+//Yoshi for intro
+void drawSprite_12D(sprite_t * s) {
+	
+	
+	
+}
+//Unknown
+void drawSprite_12E(sprite_t * s) {
 	
 	
 	
@@ -2759,8 +2811,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//120
 	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
 	drawSprite_124,drawSprite_048,drawSprite_126,drawSprite_127,
-	drawSprite_128,drawSprite_129,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_128,drawSprite_129,drawSprite_01E,drawSprite_12B,
+	drawSprite_12C,drawSprite_12D,drawSprite_12E,drawSprite_unused,
 	//130
 	drawSprite_unused,drawSprite_04E,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
