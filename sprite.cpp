@@ -1392,7 +1392,7 @@ void drawSprite_08D(sprite_t * s) {
 		addSpriteTile(s,(0xB<<2)|1,0x00E3,0,17);
 		addSpriteTile(s,(0x9<<2),0x0049,-2,22);
 		addSpriteTile(s,(0x9<<2),0x006E,0,22);
-		addSpriteTile(s,(0x9<<2),0x006F,8,22);	
+		addSpriteTile(s,(0x9<<2),0x006F,8,22);
 	} else if(s->data[2]&1) {
 		addSpriteTile(s,(0x9<<2)|1,0x00A0,0,16);
 	} else {
@@ -2661,18 +2661,137 @@ void drawSprite_12B(sprite_t * s) {
 }
 //Fly Guy
 void drawSprite_12C(sprite_t * s) {
-	
-	
-	
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0xB<<2),0x002C,0,-6);
+		addSpriteTile(s,(0xB<<2)|0x40,0x002C,8,-6);
+		addSpriteTile(s,(0xB<<2)|0x40,0x002F,6,14);
+		addSpriteTile(s,(0xB<<2)|0x40,0x002F,1,14);
+		addSpriteTile(s,(0xB<<2)|1,0x0088,0,0);
+	} else {
+		addSpriteTile(s,(0x9<<2)|1,0x00A0,0,16);
+		addSpriteTile(s,(0x9<<2),0x002C,0,-6);
+		addSpriteTile(s,(0x9<<2)|0x40,0x002C,8,-6);
+		addSpriteTile(s,(0x9<<2)|0x40,0x002F,6,14);
+		addSpriteTile(s,(0x9<<2)|0x40,0x002F,1,14);
+		addSpriteTile(s,(0x9<<2)|1,0x0088,0,0);
+	}
 }
 //Yoshi for intro
 void drawSprite_12D(sprite_t * s) {
+	int base = findSpGfxFile(0xAB);
+	addSpriteTile(s,(0x8<<2)|1,base+0x03,0,16);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-9,2);
+	addSpriteTile(s,(0x8<<2),base+0x02,9,2);
+	addSpriteTile(s,(0x8<<2),base+0x12,9,10);
+}
+//Unknown
+void drawSprite_12E(sprite_t * s) {
+	drawSpriteText(s,"  Unknown  \nBG  Related");
+}
+//Lava Drop, horizontal
+void drawSprite_12F(sprite_t * s) {
+	int base = findSpGfxFile(0x51);
 	
 	
 	
 }
-//Unknown
-void drawSprite_12E(sprite_t * s) {
+//Lava Drop, vertical
+void drawSprite_130(sprite_t * s) {
+	int base = findSpGfxFile(0x51);
+	
+	
+	
+}
+//Lemon Drop
+void drawSprite_132(sprite_t * s) {
+	int base = findSpGfxFile(0x45);
+	
+	
+	
+}
+//Lantern Ghost
+void drawSprite_133(sprite_t * s) {
+	
+	
+	
+}
+//Baby Bowser
+void drawSprite_134(sprite_t * s) {
+	int base = findSpGfxFile(0xAD);
+	
+	
+	
+}
+//Raven
+void drawSprite_135(sprite_t * s) {
+	
+	
+	
+}
+//Falling rock, 3x6
+void drawSprite_137(sprite_t * s) {
+	int base = findSpGfxFile(0x20);
+	
+	
+	
+}
+//Falling rock, 3x3
+void drawSprite_138(sprite_t * s) {
+	int base = findSpGfxFile(0x20);
+	
+	
+	
+}
+//Falling rock, 3x9
+void drawSprite_139(sprite_t * s) {
+	int base = findSpGfxFile(0x20);
+	
+	
+	
+}
+//Falling rock, 6x3
+void drawSprite_13A(sprite_t * s) {
+	int base = findSpGfxFile(0x20);
+	
+	
+	
+}
+//Stomach drop
+void drawSprite_13B(sprite_t * s) {
+	int base = findSpGfxFile(0x70);
+	
+	
+	
+}
+//Flipper, vertical
+void drawSprite_13C(sprite_t * s) {
+	
+	
+	
+}
+//Fang
+void drawSprite_13D(sprite_t * s) {
+	int base = findSpGfxFile(0x55);
+	
+	
+	
+}
+//Flopsy Fish
+void drawSprite_13F(sprite_t * s) {
+	int base = findSpGfxFile(0x54);
+	
+	
+	
+}
+//Spray Fish
+void drawSprite_143(sprite_t * s) {
+	int base = findSpGfxFile(0x58);
+	
+	
+	
+}
+//Flipper, horizontal
+void drawSprite_144(sprite_t * s) {
 	
 	
 	
@@ -2812,15 +2931,15 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
 	drawSprite_124,drawSprite_048,drawSprite_126,drawSprite_127,
 	drawSprite_128,drawSprite_129,drawSprite_01E,drawSprite_12B,
-	drawSprite_12C,drawSprite_12D,drawSprite_12E,drawSprite_unused,
+	drawSprite_12C,drawSprite_12D,drawSprite_12E,drawSprite_12F,
 	//130
-	drawSprite_unused,drawSprite_04E,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_130,drawSprite_04E,drawSprite_132,drawSprite_133,
+	drawSprite_134,drawSprite_135,drawSprite_135,drawSprite_137,
+	drawSprite_138,drawSprite_139,drawSprite_13A,drawSprite_13B,
+	drawSprite_13C,drawSprite_13D,drawSprite_13D,drawSprite_13F,
 	//140
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_13F,drawSprite_13F,drawSprite_13F,drawSprite_143,
+	drawSprite_144,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_06C,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	//150
