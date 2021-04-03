@@ -2691,29 +2691,31 @@ void drawSprite_12E(sprite_t * s) {
 //Lava Drop, horizontal
 void drawSprite_12F(sprite_t * s) {
 	int base = findSpGfxFile(0x51);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x07,0,0);
+	addSpriteTile(s,(0x9<<2),base+0x06,16,5);
+	addSpriteTile(s,(0x9<<2),base+0x05,1,3);
 }
 //Lava Drop, vertical
 void drawSprite_130(sprite_t * s) {
 	int base = findSpGfxFile(0x51);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,0,0);
+	addSpriteTile(s,(0x9<<2),base+0x14,4,16);
+	addSpriteTile(s,(0x9<<2),base+0x04,4,0);
 }
 //Lemon Drop
 void drawSprite_132(sprite_t * s) {
 	int base = findSpGfxFile(0x45);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x06,0,0);
 }
 //Lantern Ghost
 void drawSprite_133(sprite_t * s) {
-	
-	
-	
+	int offset = ((s->data[2]&1)|(s->data[1]&2))<<1;
+	int pal = ((romBuf[0x0209B8+offset]-1)<<1)|0x20;
+	addSpriteTile(s,pal|0x40,0x010F,-4,2);
+	addSpriteTile(s,pal|1,0x0100,0,-3);
+	addSpriteTile(s,pal,0x009E,7,8);
+	addSpriteTile(s,pal,0x009E,1,8);
+	addSpriteTile(s,(0x9<<2),0x011B,-7,7);
 }
 //Baby Bowser
 void drawSprite_134(sprite_t * s) {
@@ -2759,9 +2761,7 @@ void drawSprite_13A(sprite_t * s) {
 //Stomach drop
 void drawSprite_13B(sprite_t * s) {
 	int base = findSpGfxFile(0x70);
-	
-	
-	
+	addSpriteTile(s,(0xF<<2)|1,base+0x0E,0,0);
 }
 //Flipper, vertical
 void drawSprite_13C(sprite_t * s) {
