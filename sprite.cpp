@@ -1766,7 +1766,7 @@ void drawSprite_0CF(sprite_t * s) {
 void drawSprite_0D0(sprite_t * s) {
 	drawSpriteText(s,"Horizontal  Pipe\n   Exit Right   ");
 }
-//Hidden vertical pipe entrance
+//Hidden vertical pipe exit
 void drawSprite_0D1(sprite_t * s) {
 	drawSpriteText(s,"  Vertical  Pipe  \nExit Down (Hidden)");
 }
@@ -2720,43 +2720,83 @@ void drawSprite_133(sprite_t * s) {
 //Baby Bowser
 void drawSprite_134(sprite_t * s) {
 	int base = findSpGfxFile(0xAD);
-	
-	
-	
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x1A,0,-2);
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x0B,8,6);
+	addSpriteTile(s,(0xE<<2)|0x80,base+0x0A,0,14);
+	addSpriteTile(s,(0xE<<2),base+0x04,6,-9);
+	addSpriteTile(s,(0xE<<2)|1,base+0x14,-14,-3);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,-6,-11);
+	addSpriteTile(s,(0xE<<2),base+0x26,2,5);
+	addSpriteTile(s,(0xE<<2),base+0x36,6,13);
+	addSpriteTile(s,(0xE<<2),base+0x2C,-4,13);
+	addSpriteTile(s,(0xE<<2),base+0x2D,10,13);
 }
 //Raven
 void drawSprite_135(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0xA<<2),0x4148,-8,-8);
+	addSpriteTile(s,(0xA<<2),0x4149,8,-8);
+	addSpriteTile(s,(0xA<<2),0x4158,-8,8);
+	addSpriteTile(s,(0xA<<2),0x4159,8,8);
 }
 //Falling rock, 3x6
 void drawSprite_137(sprite_t * s) {
 	int base = findSpGfxFile(0x20);
-	
-	
-	
+	for(int j=0; j<6; j++) {
+		for(int i=0; i<3; i++) {
+			WORD tile = 0x08;
+			if(i==0) tile -= 2;
+			else if(i==2) tile += 2;
+			if(j==0) tile -= 6;
+			else if(j!=5) tile += 6;
+			if(tile==0x10) tile = 0x20;
+			addSpriteTile(s,(0xE<<2)|1,base+tile,(i<<4)-16,(j<<4)-48);
+		}
+	}
 }
 //Falling rock, 3x3
 void drawSprite_138(sprite_t * s) {
 	int base = findSpGfxFile(0x20);
-	
-	
-	
+	for(int j=0; j<3; j++) {
+		for(int i=0; i<3; i++) {
+			WORD tile = 0x08;
+			if(i==0) tile -= 2;
+			else if(i==2) tile += 2;
+			if(j==0) tile -= 6;
+			else if(j!=2) tile += 6;
+			if(tile==0x10) tile = 0x20;
+			addSpriteTile(s,(0xE<<2)|1,base+tile,(i<<4)-16,j<<4);
+		}
+	}
 }
 //Falling rock, 3x9
 void drawSprite_139(sprite_t * s) {
 	int base = findSpGfxFile(0x20);
-	
-	
-	
+	for(int j=0; j<9; j++) {
+		for(int i=0; i<3; i++) {
+			WORD tile = 0x08;
+			if(i==0) tile -= 2;
+			else if(i==2) tile += 2;
+			if(j==0) tile -= 6;
+			else if(j!=8) tile += 6;
+			if(tile==0x10) tile = 0x20;
+			addSpriteTile(s,(0xE<<2)|1,base+tile,(i<<4)-16,(j<<4)-72);
+		}
+	}
 }
 //Falling rock, 6x3
 void drawSprite_13A(sprite_t * s) {
 	int base = findSpGfxFile(0x20);
-	
-	
-	
+	for(int j=0; j<3; j++) {
+		for(int i=0; i<6; i++) {
+			WORD tile = 0x08;
+			if(i==0) tile -= 2;
+			else if(i==5) tile += 2;
+			if(j==0) tile -= 6;
+			else if(j!=2) tile += 6;
+			if(tile==0x10) tile = 0x20;
+			addSpriteTile(s,(0xE<<2)|1,base+tile,(i<<4)-32,j<<4);
+		}
+	}
 }
 //Stomach drop
 void drawSprite_13B(sprite_t * s) {
@@ -2765,36 +2805,165 @@ void drawSprite_13B(sprite_t * s) {
 }
 //Flipper, vertical
 void drawSprite_13C(sprite_t * s) {
-	
-	
-	
+	addSpriteTile(s,(0x8<<2),0x4146,-24,-8);
+	addSpriteTile(s,(0x8<<2),0x4147,-8,-8);
+	addSpriteTile(s,(0x8<<2),0x4156,-24,8);
+	addSpriteTile(s,(0x8<<2),0x4157,-8,8);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4146,24,-8);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4147,8,-8);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4156,24,8);
+	addSpriteTile(s,(0x8<<2)|0x40,0x4157,8,8);
 }
 //Fang
 void drawSprite_13D(sprite_t * s) {
 	int base = findSpGfxFile(0x55);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|0x40,base+0x1F,-3,-2);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0D,0,1);
+	addSpriteTile(s,(0x8<<2),base+0x1F,11,-2);
 }
 //Flopsy Fish
 void drawSprite_13F(sprite_t * s) {
 	int base = findSpGfxFile(0x54);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,0);
+	addSpriteTile(s,(0x9<<2),base+0x0B,4,-8);
+	addSpriteTile(s,(0x9<<2),base+0x1A,16,1);
+	addSpriteTile(s,(0x9<<2)|0x80,base+0x1A,16,8);
+	addSpriteTile(s,(0x9<<2),base+0x0C,8,5);
 }
 //Spray Fish
 void drawSprite_143(sprite_t * s) {
 	int base = findSpGfxFile(0x58);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|1,base+0x00,-8,0);
+	addSpriteTile(s,(0xA<<2)|1,base+0x02,8,0);
 }
 //Flipper, horizontal
 void drawSprite_144(sprite_t * s) {
-	
-	
-	
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0x8<<2)|0x40,0x6146,8,-24);
+		addSpriteTile(s,(0x8<<2)|0x40,0x6156,-8,-24);
+		addSpriteTile(s,(0x8<<2)|0x40,0x6147,8,-8);
+		addSpriteTile(s,(0x8<<2)|0x40,0x6157,-8,-8);
+		addSpriteTile(s,(0x8<<2)|0xC0,0x6146,8,24);
+		addSpriteTile(s,(0x8<<2)|0xC0,0x6156,-8,24);
+		addSpriteTile(s,(0x8<<2)|0xC0,0x6147,8,8);
+		addSpriteTile(s,(0x8<<2)|0xC0,0x6157,-8,8);
+	} else {
+		addSpriteTile(s,(0x8<<2),0x6146,-8,-24);
+		addSpriteTile(s,(0x8<<2),0x6156,8,-24);
+		addSpriteTile(s,(0x8<<2),0x6147,-8,-8);
+		addSpriteTile(s,(0x8<<2),0x6157,8,-8);
+		addSpriteTile(s,(0x8<<2)|0x80,0x6146,-8,24);
+		addSpriteTile(s,(0x8<<2)|0x80,0x6156,8,24);
+		addSpriteTile(s,(0x8<<2)|0x80,0x6147,-8,8);
+		addSpriteTile(s,(0x8<<2)|0x80,0x6157,8,8);
+	}
+}
+//Blue Sluggy
+void drawSprite_145(sprite_t * s) {
+	int base = findSpGfxFile(0x55);
+	addSpriteTile(s,(0x8<<2)|0x80,base+0x1A,15,0);
+	addSpriteTile(s,(0x8<<2)|0x81,base+0x02,0,0);
+}
+//Pink Sluggy
+void drawSprite_146(sprite_t * s) {
+	int base = findSpGfxFile(0x55);
+	addSpriteTile(s,(0xC<<2)|0x80,base+0x1A,15,0);
+	addSpriteTile(s,(0xC<<2)|0x81,base+0x02,0,0);
+}
+//Horizontal pipe exit left
+void drawSprite_147(sprite_t * s) {
+	drawSpriteText(s,"Horizontal Pipe\n   Exit Left   ");
+}
+//Arrow Cloud, up
+void drawSprite_149(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0A,0,0);
+}
+//Arrow Cloud, up right
+void drawSprite_14A(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0C,0,0);
+}
+//Arrow Cloud, right
+void drawSprite_14B(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0E,0,0);
+}
+//Arrow Cloud, down right
+void drawSprite_14C(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|0x81,base+0x0C,0,0);
+}
+//Arrow Cloud, down
+void drawSprite_14D(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|0x81,base+0x0A,0,0);
+}
+//Arrow Cloud, down left
+void drawSprite_14E(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|0xC1,base+0x0C,0,0);
+}
+//Arrow Cloud, left
+void drawSprite_14F(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x0E,0,0);
+}
+//Arrow Cloud, up left
+void drawSprite_150(sprite_t * s) {
+	int base = findSpGfxFile(0x57);
+	addSpriteTile(s,(0x8<<2),base+0x06,-2,13);
+	addSpriteTile(s,(0x8<<2),base+0x07,6,13);
+	addSpriteTile(s,(0x8<<2),base+0x08,14,13);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-2,-3);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,6,-3);
+	addSpriteTile(s,(0x8<<2)|0x41,base+0x0C,0,0);
+}
+//Flutter
+void drawSprite_152(sprite_t * s) {
+	int base = findSpGfxFile(0x56);
+	addSpriteTile(s,(0x9<<2)|1,base+0x08,9,-13);
+	addSpriteTile(s,(0x9<<2),base+0x0E,13,3);
+	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-11,-12);
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x0E,-4,4);
+	addSpriteTile(s,(0xA<<2)|1,base+0x06,0,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-7,-9);
+	addSpriteTile(s,(0x8<<2),base+0x1F,2,-16);
 }
 //TODO
 //Caged Ghost squeezed in tunnel
@@ -2939,11 +3108,11 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_13C,drawSprite_13D,drawSprite_13D,drawSprite_13F,
 	//140
 	drawSprite_13F,drawSprite_13F,drawSprite_13F,drawSprite_143,
-	drawSprite_144,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_06C,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_144,drawSprite_145,drawSprite_146,drawSprite_147,
+	drawSprite_06C,drawSprite_149,drawSprite_14A,drawSprite_14B,
+	drawSprite_14C,drawSprite_14D,drawSprite_14E,drawSprite_14F,
 	//150
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_150,drawSprite_150,drawSprite_152,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
