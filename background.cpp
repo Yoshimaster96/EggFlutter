@@ -38,7 +38,7 @@ DWORD *			bmpDataBg;
 
 //Main drawing code
 void updateEntireScreen_bg() {
-	memset(bmpDataBg,0,0x100000*sizeof(DWORD));
+	memset(bmpDataBg,1,0x100000*sizeof(DWORD));
 	for(int j=0; j<0x40; j++) {
 		for(int i=0; i<0x20; i++) {
 			WORD tile = i+(j<<5);

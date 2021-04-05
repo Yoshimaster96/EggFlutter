@@ -40,7 +40,7 @@ RECT invRect_map16 = {0,0,0x200,0x200};
 
 //Main drawing code
 void updateEntireScreen_map16() {
-	memset(bmpDataMap16,0,0x10000*sizeof(DWORD));
+	memset(bmpDataMap16,1,0x10000*sizeof(DWORD));
 	for(int j=0; j<0x10; j++) {
 		for(int i=0; i<0x10; i++) {
 			dispMap16Tile(bmpDataMap16,0x100,0x100,map16Base+i+(j<<4),{i<<4,j<<4});
