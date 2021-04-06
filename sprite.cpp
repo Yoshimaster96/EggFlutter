@@ -3104,80 +3104,45 @@ void drawSprite_166(sprite_t * s) {
 		addSpriteTile(s,(0xE<<2)|1,base+0x00,30,-5);
 	}
 }
-//Koopa Shell, green
+//Koopa Shell
 void drawSprite_167(sprite_t * s) {
+	int pal = ((s->data[0]-0x67)+8)<<2;
 	int base = findSpGfxFile(0x47);
-	addSpriteTile(s,(0x8<<2)|1,base+0x0C,0,0);
+	addSpriteTile(s,pal|1,base+0x0C,0,0);
 }
-//Koopa Shell, red
-void drawSprite_168(sprite_t * s) {
-	int base = findSpGfxFile(0x47);
-	addSpriteTile(s,(0x9<<2)|1,base+0x0C,0,0);
-}
-//Beach Koopa, green
+//Beach Koopa
 void drawSprite_169(sprite_t * s) {
+	int pal = ((s->data[0]-0x69)+8)<<2;
 	int base = findSpGfxFile(0x47);
 	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
-	addSpriteTile(s,(0x8<<2),base+0x09,8,6);
-	addSpriteTile(s,(0x8<<2)|1,base+0x04,2,-4);
+	addSpriteTile(s,pal,base+0x09,8,6);
+	addSpriteTile(s,pal|1,base+0x04,2,-4);
 	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
-	addSpriteTile(s,(0x8<<2),base+0x08,7,8);
+	addSpriteTile(s,pal,base+0x08,7,8);
 	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
-//Beach Koopa, red
-void drawSprite_16A(sprite_t * s) {
-	int base = findSpGfxFile(0x47);
-	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
-	addSpriteTile(s,(0x9<<2),base+0x09,8,6);
-	addSpriteTile(s,(0x9<<2)|1,base+0x04,2,-4);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
-	addSpriteTile(s,(0x9<<2),base+0x08,7,8);
-	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
-}
-//Koopa, green
+//Koopa
 void drawSprite_16B(sprite_t * s) {
+	int pal = ((s->data[0]-0x6B)+8)<<2;
 	int base = findSpGfxFile(0x47);
 	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
-	addSpriteTile(s,(0x8<<2),base+0x09,8,6);
-	addSpriteTile(s,(0x8<<2)|1,base+0x0A,2,-4);
+	addSpriteTile(s,pal,base+0x09,8,6);
+	addSpriteTile(s,pal|1,base+0x0A,2,-4);
 	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
-	addSpriteTile(s,(0x8<<2),base+0x08,7,8);
+	addSpriteTile(s,pal,base+0x08,7,8);
 	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
-//Koopa, red
-void drawSprite_16C(sprite_t * s) {
-	int base = findSpGfxFile(0x47);
-	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
-	addSpriteTile(s,(0x9<<2),base+0x09,8,6);
-	addSpriteTile(s,(0x9<<2)|1,base+0x0A,2,-4);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
-	addSpriteTile(s,(0x9<<2),base+0x08,7,8);
-	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
-}
-//Parakoopa, green
+//Parakoopa
 void drawSprite_16D(sprite_t * s) {
+	int pal = (s->data[0]==0x6D)?(0x8<<2):(0x9<<2);
 	int base = findSpGfxFile(0x2B);
 	addSpriteTile(s,(0x9<<2)|0x40,base+0x0D,-8,-21);
 	addSpriteTile(s,(0x9<<2),base+0x0D,16,-21);
 	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-11,-16);
-	addSpriteTile(s,(0x8<<2),base+0x38,-2,8);
+	addSpriteTile(s,pal,base+0x38,-2,8);
 	addSpriteTile(s,(0x9<<2),base+0x36,-3,2);
-	addSpriteTile(s,(0x8<<2)|1,base+0x2A,0,-4);
-	addSpriteTile(s,(0x8<<2),base+0x38,3,8);
-	addSpriteTile(s,(0x9<<2)|1,base+0x20,-6,-14);
-	addSpriteTile(s,(0x9<<2)|1,base+0x08,11,-16);
-	addSpriteTile(s,(0x9<<2),base+0x26,4,1);
-}
-//Parakoopa, red
-void drawSprite_16E(sprite_t * s) {
-	int base = findSpGfxFile(0x2B);
-	addSpriteTile(s,(0x9<<2)|0x40,base+0x0D,-8,-21);
-	addSpriteTile(s,(0x9<<2),base+0x0D,16,-21);
-	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-11,-16);
-	addSpriteTile(s,(0x9<<2),base+0x38,-2,8);
-	addSpriteTile(s,(0x9<<2),base+0x36,-3,2);
-	addSpriteTile(s,(0x9<<2)|1,base+0x2A,0,-4);
-	addSpriteTile(s,(0x9<<2),base+0x38,3,8);
+	addSpriteTile(s,pal|1,base+0x2A,0,-4);
+	addSpriteTile(s,pal,base+0x38,3,8);
 	addSpriteTile(s,(0x9<<2)|1,base+0x20,-6,-14);
 	addSpriteTile(s,(0x9<<2)|1,base+0x08,11,-16);
 	addSpriteTile(s,(0x9<<2),base+0x26,4,1);
@@ -3384,8 +3349,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//160
 	drawSprite_15F,drawSprite_161,drawSprite_162,drawSprite_0E5,
 	drawSprite_164,drawSprite_165,drawSprite_166,drawSprite_167,
-	drawSprite_168,drawSprite_169,drawSprite_16A,drawSprite_16B,
-	drawSprite_16C,drawSprite_16D,drawSprite_16E,drawSprite_16E,
+	drawSprite_167,drawSprite_169,drawSprite_169,drawSprite_16B,
+	drawSprite_16B,drawSprite_16D,drawSprite_16D,drawSprite_16D,
 	//170
 	drawSprite_170,drawSprite_171,drawSprite_172,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
