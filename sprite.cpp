@@ -143,6 +143,33 @@ void drawSpriteHDMAPolygon(sprite_t * s,BYTE * data,int coneBase,int numPoints,b
 		}
 	}
 }
+void drawSpriteHDMASpline(sprite_t * s,BYTE * data,int coneBase,int numPoints,bool ux,bool uy,int offsX,int offsY) {
+	BYTE * tempBuf = (BYTE*)malloc(numPoints<<4);
+	for(int n=0; n<numPoints; n++) {
+		int px0 = data[n<<1];
+		int py0 = data[1+(n<<1)];
+		int px1 = data[((n+1)%numPoints)<<1];
+		int py1 = data[1+(((n+1)%numPoints)<<1)];
+		int px2 = data[((n+2)%numPoints)<<1];
+		int py2 = data[1+(((n+2)%numPoints)<<1)];
+		if(px0&0x80) px0 -= 0x100;
+		if(py0&0x80) py0 -= 0x100;
+		if(px1&0x80) px1 -= 0x100;
+		if(py1&0x80) py1 -= 0x100;
+		if(px2&0x80) px2 -= 0x100;
+		if(py2&0x80) py2 -= 0x100;
+		for(int m=0; m<8; m++) {
+			int offset = ((n<<3)+m)<<1;
+			int c0 = (8-m)*(8-m);
+			int c2 = m*m;
+			int c1 = 128-c0-c2;
+			tempBuf[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
+			tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
+		}
+	}
+	drawSpriteHDMAPolygon(s,tempBuf,coneBase,numPoints<<3,ux,uy,offsX,offsY);
+	free(tempBuf);
+}
 
 //Helper function for finding GFX files
 inline int findSpGfxFile(BYTE file) {
@@ -213,10 +240,10 @@ void drawSprite_001(sprite_t * s) {
 //Naval Piranha stalk
 void drawSprite_002(sprite_t * s) {
 	int base = findSpGfxFile(0x5A);
-	addSpriteTile(s,(0x9<<2)|0x41,base,-8,-8);
-	addSpriteTile(s,(0x9<<2)|1,base,8,-8);
-	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-16,2);
-	addSpriteTile(s,(0x9<<2)|1,base+0x08,16,2);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,-16,2);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,16,2);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x00,-8,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,8,-8);
 }
 //Crate
 void drawSprite_003(sprite_t * s) {
@@ -258,11 +285,11 @@ void drawSprite_009(sprite_t * s) {
 //Kaboomba
 void drawSprite_00A(sprite_t * s) {
 	int base = findSpGfxFile(0x4A);
-	addSpriteTile(s,(0xA<<2),base+0x03,0,-8);
-	addSpriteTile(s,(0xA<<2),base+0x0F,0,8);
-	addSpriteTile(s,(0xA<<2)|1,base,-8,0);
-	addSpriteTile(s,(0xA<<2)|1,base+0x01,0,0);
-	addSpriteTile(s,(0xA<<2),base+0x0F,4,8);
+	addSpriteTile(s,(0xA<<2),base+0x0F,0,12);
+	addSpriteTile(s,(0x8<<2)|1,base+0x01,0,1);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,-8,1);
+	addSpriteTile(s,(0xA<<2),base+0x0F,2,12);
+	addSpriteTile(s,(0x8<<2),base+0x03,0,-7);
 }
 //Kaboomba projectile
 void drawSprite_00B(sprite_t * s) {
@@ -620,6 +647,12 @@ void drawSprite_034(sprite_t * s) {
 		addSpriteTile(s,(0x9<<2),base+0x4F,12,-8);
 		addSpriteTile(s,(0x9<<2),base+0x4E,4,-8);
 		addSpriteTile(s,(0x9<<2),base+0x4D,-4,-8);
+		addSpriteTile(s,(0x8<<2)|1,0x012C,63,-3);
+		addSpriteTile(s,(0x8<<2),0x010B,73,-8);
+		addSpriteTile(s,(0x8<<2),0x010C,72,8);
+		addSpriteTile(s,(0x8<<2)|1,0x012C,127,-3);
+		addSpriteTile(s,(0x8<<2),0x010B,137,-8);
+		addSpriteTile(s,(0x8<<2),0x010C,136,8);
 	}
 }
 //Fake falling wall
@@ -644,37 +677,29 @@ void drawSprite_039(sprite_t * s) {
 		addSpriteTile(s,0,0x84D0,-0x70,j);
 	}
 }
-//3 Mini Ravens
+//Mini Raven
 void drawSprite_03A(sprite_t * s) {
 	int base = findSpGfxFile(0x4F);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,-18,-2);
-	addSpriteTile(s,(0x9<<2),base+0x12,-13,-1);
-	addSpriteTile(s,(0x9<<2),base+0x02,-18,3);
-	addSpriteTile(s,(0x9<<2),base+0x16,-5,-5);
-	addSpriteTile(s,(0x9<<2),base+0x05,-16,13);
-	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,-8,13);
 	addSpriteTile(s,(0x9<<2)|1,base+0x00,-2,-2);
 	addSpriteTile(s,(0x9<<2),base+0x12,3,-1);
 	addSpriteTile(s,(0x9<<2),base+0x02,-2,3);
 	addSpriteTile(s,(0x9<<2),base+0x16,11,-5);
 	addSpriteTile(s,(0x9<<2),base+0x05,0,13);
-	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,8,13);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,14,-2);
-	addSpriteTile(s,(0x9<<2),base+0x12,19,-1);
-	addSpriteTile(s,(0x9<<2),base+0x02,14,3);
-	addSpriteTile(s,(0x9<<2),base+0x16,27,-5);
-	addSpriteTile(s,(0x9<<2),base+0x05,16,13);
-	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,24,13);
-}
-//Mini Raven
-void drawSprite_03B(sprite_t * s) {
-	int base = findSpGfxFile(0x4F);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,-2,-2);
-	addSpriteTile(s,(0x9<<2),base+0x12,3,-1);
-	addSpriteTile(s,(0x9<<2),base+0x02,-2,3);
-	addSpriteTile(s,(0x9<<2),base+0x16,11,-5);
-	addSpriteTile(s,(0x9<<2),base+0x05,0,13);
-	addSpriteTile(s,(0x9<<2)|0x40,base+0x05,8,13);
+	if(s->data[0]==0x3A) {
+		addSpriteTile(s,(0x9<<2)|1,base+0x00,-18,-2);
+		addSpriteTile(s,(0x9<<2),base+0x12,-13,-1);
+		addSpriteTile(s,(0x9<<2),base+0x02,-18,3);
+		addSpriteTile(s,(0x9<<2),base+0x16,-5,-5);
+		addSpriteTile(s,(0x9<<2),base+0x05,-16,13);
+		addSpriteTile(s,(0x9<<2)|0x40,base+0x05,-8,13);
+		addSpriteTile(s,(0x9<<2)|0x40,base+0x05,8,13);
+		addSpriteTile(s,(0x9<<2)|1,base+0x00,14,-2);
+		addSpriteTile(s,(0x9<<2),base+0x12,19,-1);
+		addSpriteTile(s,(0x9<<2),base+0x02,14,3);
+		addSpriteTile(s,(0x9<<2),base+0x16,27,-5);
+		addSpriteTile(s,(0x9<<2),base+0x05,16,13);
+		addSpriteTile(s,(0x9<<2)|0x40,base+0x05,24,13);
+	}
 }
 //Tap-Tap the Red Nose
 void drawSprite_03C(sprite_t * s) {
@@ -796,38 +821,15 @@ void drawSprite_045(sprite_t * s) {
 			addSpriteTile(s,(0x9<<2),base+0x06,-4,10);
 		}
 	} else {
-		BYTE tempBuf[128*2];
-		for(int n=0; n<16; n++) {
-			int px0 = romBuf[0x014774+(n<<1)];
-			int py0 = romBuf[0x014775+(n<<1)];
-			int px1 = romBuf[0x014774+(((n+1)&0xF)<<1)];
-			int py1 = romBuf[0x014775+(((n+1)&0xF)<<1)];
-			int px2 = romBuf[0x014774+(((n+2)&0xF)<<1)];
-			int py2 = romBuf[0x014775+(((n+2)&0xF)<<1)];
-			if(px0&0x80) px0 -= 0x100;
-			if(py0&0x80) py0 -= 0x100;
-			if(px1&0x80) px1 -= 0x100;
-			if(py1&0x80) py1 -= 0x100;
-			if(px2&0x80) px2 -= 0x100;
-			if(py2&0x80) py2 -= 0x100;
-			for(int m=0; m<8; m++) {
-				int offset = ((n<<3)+m)<<1;
-				int c0 = (8-m)*(8-m);
-				int c2 = m*m;
-				int c1 = 128-c0-c2;
-				tempBuf[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
-				tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
-			}
-		}
-		drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false,0,0);
+		drawSpriteHDMASpline(s,&romBuf[0x014774],0x8000,16,false,false,0,0);
 		if(offsY) {
 			int base = findSpGfxFile(0x70);
-			addSpriteTile(s,(0xF<<2),base+0x0B,-8,-80);
-			addSpriteTile(s,(0xF<<2)|0x40,base+0x0B,0,-80);
-			addSpriteTile(s,(0xF<<2),0x4664,-16,-77);
-			addSpriteTile(s,(0xF<<2),0x4665,0,-77);
-			addSpriteTile(s,(0xF<<2),0x4674,-16,-61);
-			addSpriteTile(s,(0xF<<2),0x4675,0,-61);
+			addSpriteTile(s,(0xF<<2),base+0x0B,-8,-79);
+			addSpriteTile(s,(0xF<<2)|0x40,base+0x0B,0,-79);
+			addSpriteTile(s,(0xF<<2),0x4664,-16,-75);
+			addSpriteTile(s,(0xF<<2),0x4665,0,-75);
+			addSpriteTile(s,(0xF<<2),0x4674,-16,-59);
+			addSpriteTile(s,(0xF<<2),0x4675,0,-59);
 		}
 	}
 }
@@ -986,10 +988,10 @@ void drawSprite_054(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2)|0x80,base+0x1A,0,0);
 	addSpriteTile(s,(0x9<<2)|0xC0,base+0x1A,8,0);
 	addSpriteTile(s,(0x9<<2)|0x80,base+0x0A,4,8);
-	addSpriteTile(s,(0x9<<2)|0x80,0x446C,-23,20);
-	addSpriteTile(s,(0x9<<2)|0x80,0x446D,-7,20);
-	addSpriteTile(s,(0x9<<2)|0x80,0x447C,-23,4);
-	addSpriteTile(s,(0x9<<2)|0x80,0x447D,-7,4);
+	addSpriteTile(s,(0x9<<2)|0x80,0x442A,-23,20);
+	addSpriteTile(s,(0x9<<2)|0x80,0x442B,-7,20);
+	addSpriteTile(s,(0x9<<2)|0x80,0x443A,-23,4);
+	addSpriteTile(s,(0x9<<2)|0x80,0x443B,-7,4);
 }
 //Flatbed Ferry pinwheel, green
 void drawSprite_055(sprite_t * s) {
@@ -1145,10 +1147,10 @@ void drawSprite_066(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),base+0x1A,0,8);
 	addSpriteTile(s,(0x9<<2)|0x40,base+0x1A,8,8);
 	addSpriteTile(s,(0x9<<2),base+0x0A,4,0);
-	addSpriteTile(s,(0x9<<2),0x446C,-23,-20);
-	addSpriteTile(s,(0x9<<2),0x446D,-7,-20);
-	addSpriteTile(s,(0x9<<2),0x447C,-23,-4);
-	addSpriteTile(s,(0x9<<2),0x447D,-7,-4);
+	addSpriteTile(s,(0x9<<2),0x442A,-23,-20);
+	addSpriteTile(s,(0x9<<2),0x442B,-7,-20);
+	addSpriteTile(s,(0x9<<2),0x443A,-23,-4);
+	addSpriteTile(s,(0x9<<2),0x443B,-7,-4);
 }
 //Winged cloud
 void drawSprite_067(sprite_t * s) {
@@ -1265,45 +1267,20 @@ void drawSprite_076(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),base+0x02,0,4);
 	addSpriteTile(s,(0x9<<2)|0x40,base+0x02,8,4);
 }
-//Bullet Bill blaster, red
+//Bullet Bill blaster
 void drawSprite_078(sprite_t * s) {
+	int pal = ((romBuf[0x02D1D1+((s->data[0]-0x78)<<1)]&0xE)<<1)|0x20;
 	int base = findSpGfxFile(0x31);
-	addSpriteTile(s,(0x9<<2)|1,base+0x02,0,-8);
-	addSpriteTile(s,(0x9<<2)|1,base+0x00,0,0);
+	addSpriteTile(s,pal|1,base+0x02,0,-8);
+	addSpriteTile(s,pal|1,base+0x00,0,0);
 }
-//Bullet Bill blaster, yellow
-void drawSprite_079(sprite_t * s) {
-	int base = findSpGfxFile(0x31);
-	addSpriteTile(s,(0xA<<2)|1,base+0x02,0,-8);
-	addSpriteTile(s,(0xA<<2)|1,base+0x00,0,0);
-}
-//Bullet Bill blaster, green
-void drawSprite_07A(sprite_t * s) {
-	int base = findSpGfxFile(0x31);
-	addSpriteTile(s,(0x8<<2)|1,base+0x02,0,-8);
-	addSpriteTile(s,(0x8<<2)|1,base+0x00,0,0);
-}
-//Bullet Bill, red
+//Bullet Bill
 void drawSprite_07B(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2),0x4082,-8,-8);
-	addSpriteTile(s,(0x9<<2),0x4083,8,-8);
-	addSpriteTile(s,(0x9<<2),0x4092,-8,8);
-	addSpriteTile(s,(0x9<<2),0x4093,8,8);
-}
-//Bullet Bill, yellow
-void drawSprite_07C(sprite_t * s) {
-	addSpriteTile(s,(0xA<<2),0x4082,-8,-8);
-	addSpriteTile(s,(0xA<<2),0x4083,8,-8);
-	addSpriteTile(s,(0xA<<2),0x4092,-8,8);
-	addSpriteTile(s,(0xA<<2),0x4093,8,8);
-}
-//Bullet Bill, green
-void drawSprite_07D(sprite_t * s) {
-	int base = findSpGfxFile(0x31);
-	addSpriteTile(s,(0x8<<2)|1,base+0x04,-8,-8);
-	addSpriteTile(s,(0x8<<2)|1,base+0x06,8,-8);
-	addSpriteTile(s,(0x8<<2)|1,base+0x08,-8,8);
-	addSpriteTile(s,(0x8<<2)|1,base+0x0A,8,8);
+	int pal = ((romBuf[0x02D1D1+((s->data[0]-0x7B)<<1)]&0xE)<<1)|0x20;
+	addSpriteTile(s,pal,0x4082,-8,-8);
+	addSpriteTile(s,pal,0x4083,8,-8);
+	addSpriteTile(s,pal,0x4092,-8,8);
+	addSpriteTile(s,pal,0x4093,8,8);
 }
 //Squishy block dent
 void drawSprite_07E(sprite_t * s) {
@@ -1447,30 +1424,7 @@ void drawSprite_090(sprite_t * s) {
 	tempBuf[25] += 0x30;
 	tempBuf[27] += 0x20;
 	tempBuf[29] += 0x10;
-	BYTE tempBuf2[144*2];
-	for(int n=0; n<18; n++) {
-		int px0 = tempBuf[n<<1];
-		int py0 = tempBuf[(n<<1)+1];
-		int px1 = tempBuf[((n+1)%18)<<1];
-		int py1 = tempBuf[(((n+1)%18)<<1)+1];
-		int px2 = tempBuf[((n+2)%18)<<1];
-		int py2 = tempBuf[(((n+2)%18)<<1)+1];
-		if(px0&0x80) px0 -= 0x100;
-		if(py0&0x80) py0 -= 0x100;
-		if(px1&0x80) px1 -= 0x100;
-		if(py1&0x80) py1 -= 0x100;
-		if(px2&0x80) px2 -= 0x100;
-		if(py2&0x80) py2 -= 0x100;
-		for(int m=0; m<8; m++) {
-			int offset = ((n<<3)+m)<<1;
-			int c0 = (8-m)*(8-m);
-			int c2 = m*m;
-			int c1 = 128-c0-c2;
-			tempBuf2[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
-			tempBuf2[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
-		}
-	}
-	drawSpriteHDMAPolygon(s,tempBuf2,0x8400,144,false,false,0,0);
+	drawSpriteHDMASpline(s,tempBuf,0x8400,18,false,false,0,0);
 	int base = findSpGfxFile(0x42);
 	addSpriteTile(s,(0x8<<2),base+0x0A,-18,80);
 	addSpriteTile(s,(0x8<<2),base+0x0A,-10,80);
@@ -1580,10 +1534,10 @@ void drawSprite_09F(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),base+0x1A,0,8);
 	addSpriteTile(s,(0x9<<2)|0x40,base+0x1A,8,8);
 	addSpriteTile(s,(0x9<<2),base+0x0A,4,0);
-	addSpriteTile(s,(0x8<<2),0x446C,-23,-20);
-	addSpriteTile(s,(0x8<<2),0x446D,-7,-20);
-	addSpriteTile(s,(0x8<<2),0x447C,-23,-4);
-	addSpriteTile(s,(0x8<<2),0x447D,-7,-4);
+	addSpriteTile(s,(0x8<<2),0x442A,-23,-20);
+	addSpriteTile(s,(0x8<<2),0x442B,-7,-20);
+	addSpriteTile(s,(0x8<<2),0x443A,-23,-4);
+	addSpriteTile(s,(0x8<<2),0x443B,-7,-4);
 }
 //Tulip
 void drawSprite_0A0(sprite_t * s) {
@@ -1879,33 +1833,12 @@ void drawSprite_0D6(sprite_t * s) {
 }
 //Sluggy the Unshaven
 void drawSprite_0D7(sprite_t * s) {
-	BYTE tempBuf[128*2];
-	for(int n=0; n<16; n++) {
-		int px0 = romBuf[0x015109+(n<<1)];
-		int py0 = romBuf[0x01510A+(n<<1)];
-		int px1 = romBuf[0x015109+(((n+1)&0xF)<<1)];
-		int py1 = romBuf[0x01510A+(((n+1)&0xF)<<1)];
-		int px2 = romBuf[0x015109+(((n+2)&0xF)<<1)];
-		int py2 = romBuf[0x01510A+(((n+2)&0xF)<<1)];
-		if(px0&0x80) px0 -= 0x100;
-		if(py0&0x80) py0 -= 0x100;
-		if(px1&0x80) px1 -= 0x100;
-		if(py1&0x80) py1 -= 0x100;
-		if(px2&0x80) px2 -= 0x100;
-		if(py2&0x80) py2 -= 0x100;
-		if(py0<-72) py0 = -72;
-		if(py1<-72) py1 = -72;
-		if(py2<-72) py2 = -72;
-		for(int m=0; m<8; m++) {
-			int offset = ((n<<3)+m)<<1;
-			int c0 = (8-m)*(8-m);
-			int c2 = m*m;
-			int c1 = 128-c0-c2;
-			tempBuf[offset] = ((px0*c0)+(px1*c1)+(px2*c2))>>7;
-			tempBuf[offset+1] = ((py0*c0)+(py1*c1)+(py2*c2))>>7;
-		}
+	BYTE tempBuf[16*2];
+	memcpy(tempBuf,&romBuf[0x015109],32);
+	for(int n=0; n<32; n+=2) {
+		if(tempBuf[n+1]&0x80 && tempBuf[n+1]<0xB8) tempBuf[n+1] = 0xB8;
 	}
-	drawSpriteHDMAPolygon(s,tempBuf,0x8000,128,false,false,0x08,0x48);
+	drawSpriteHDMASpline(s,tempBuf,0x8000,16,false,false,0x08,0x48);
 	addSpriteTile(s,(0x8<<2),0x4678,-61,11);
 	addSpriteTile(s,(0x8<<2)|0x80,0x4678,-61,27);
 	addSpriteTile(s,(0x8<<2),0x4678,-27,11);
@@ -2567,19 +2500,13 @@ void drawSprite_11D(sprite_t * s) {
 	int base = findSpGfxFile(0x49);
 	addSpriteTile(s,(0xA<<2)|1,base+0x0E,0,0);
 }
-//Arrow lift, brown
+//Arrow lift
 void drawSprite_11E(sprite_t * s) {
-	addSpriteTile(s,(0x8<<2),0x4426,-8,-8);
-	addSpriteTile(s,(0x8<<2),0x4427,8,-8);
-	addSpriteTile(s,(0x8<<2),0x4436,-8,8);
-	addSpriteTile(s,(0x8<<2),0x4437,8,8);
-}
-//Arrow lift, blue
-void drawSprite_11F(sprite_t * s) {
-	addSpriteTile(s,(0xA<<2),0x4426,-8,-8);
-	addSpriteTile(s,(0xA<<2),0x4427,8,-8);
-	addSpriteTile(s,(0xA<<2),0x4436,-8,8);
-	addSpriteTile(s,(0xA<<2),0x4437,8,8);
+	int pal = (((s->data[0]-0x1E)<<1)+8)<<2;
+	addSpriteTile(s,pal,0x4426,-8,-8);
+	addSpriteTile(s,pal,0x4427,8,-8);
+	addSpriteTile(s,pal,0x4436,-8,8);
+	addSpriteTile(s,pal,0x4437,8,8);
 }
 //Arrow lift, double-ended
 void drawSprite_120(sprite_t * s) {
@@ -2858,17 +2785,12 @@ void drawSprite_144(sprite_t * s) {
 		addSpriteTile(s,(0x8<<2)|0x80,0x6157,8,8);
 	}
 }
-//Blue Sluggy
+//Sluggy
 void drawSprite_145(sprite_t * s) {
+	int pal = (((s->data[0]-0x45)<<2)+8)<<2;
 	int base = findSpGfxFile(0x55);
-	addSpriteTile(s,(0x8<<2)|0x80,base+0x1A,15,0);
-	addSpriteTile(s,(0x8<<2)|0x81,base+0x02,0,0);
-}
-//Pink Sluggy
-void drawSprite_146(sprite_t * s) {
-	int base = findSpGfxFile(0x55);
-	addSpriteTile(s,(0xC<<2)|0x80,base+0x1A,15,0);
-	addSpriteTile(s,(0xC<<2)|0x81,base+0x02,0,0);
+	addSpriteTile(s,pal|0x80,base+0x1A,15,0);
+	addSpriteTile(s,pal|0x81,base+0x02,0,0);
 }
 //Horizontal pipe exit left
 void drawSprite_147(sprite_t * s) {
@@ -3058,15 +2980,11 @@ void drawSprite_15B(sprite_t * s) {
 	addSpriteTile(s,(0x9<<2),base+0x1E,12,-28);
 	addSpriteTile(s,(0x9<<2),base+0x0E,12,-32);
 }
-//Green switch
+//Green/red switch
 void drawSprite_15C(sprite_t * s) {
+	int pal = ((s->data[0]-0x5C)+8)<<2;
 	int base = findSpGfxFile(0x2A);
-	addSpriteTile(s,(0x8<<2)|1,base+0x0E,0,0);
-}
-//Red switch
-void drawSprite_15D(sprite_t * s) {
-	int base = findSpGfxFile(0x2A);
-	addSpriteTile(s,(0x9<<2)|1,base+0x0E,0,0);
+	addSpriteTile(s,pal|1,base+0x0E,0,0);
 }
 //Flatbed Ferry pinwheel, pink with Shy Guys
 void drawSprite_15E(sprite_t * s) {
@@ -3100,27 +3018,17 @@ void drawSprite_15E(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x009E,-36,-31);
 	addSpriteTile(s,(0x8<<2),0x009E,-30,-31);
 }
-//Green spiked platform
+//Green/red spiked platform
 void drawSprite_15F(sprite_t * s) {
-	addSpriteTile(s,(0x8<<2),0x414C,-21,-8);
-	addSpriteTile(s,(0x8<<2),0x414D,-5,-8);
-	addSpriteTile(s,(0x8<<2),0x415C,-21,8);
-	addSpriteTile(s,(0x8<<2),0x415D,-5,8);
-	addSpriteTile(s,(0x8<<2)|0x40,0x414C,20,-8);
-	addSpriteTile(s,(0x8<<2)|0x40,0x414D,4,-8);
-	addSpriteTile(s,(0x8<<2)|0x40,0x415C,20,8);
-	addSpriteTile(s,(0x8<<2)|0x40,0x415D,4,8);
-}
-//Red spiked platform
-void drawSprite_160(sprite_t * s) {
-	addSpriteTile(s,(0x9<<2),0x414C,-21,-8);
-	addSpriteTile(s,(0x9<<2),0x414D,-5,-8);
-	addSpriteTile(s,(0x9<<2),0x415C,-21,8);
-	addSpriteTile(s,(0x9<<2),0x415D,-5,8);
-	addSpriteTile(s,(0x9<<2)|0x40,0x414C,20,-8);
-	addSpriteTile(s,(0x9<<2)|0x40,0x414D,4,-8);
-	addSpriteTile(s,(0x9<<2)|0x40,0x415C,20,8);
-	addSpriteTile(s,(0x9<<2)|0x40,0x415D,4,8);
+	int pal = ((s->data[0]-0x5F)+8)<<2;
+	addSpriteTile(s,pal,0x414C,-21,-8);
+	addSpriteTile(s,pal,0x414D,-5,-8);
+	addSpriteTile(s,pal,0x415C,-21,8);
+	addSpriteTile(s,pal,0x415D,-5,8);
+	addSpriteTile(s,pal|0x40,0x414C,20,-8);
+	addSpriteTile(s,pal|0x40,0x414D,4,-8);
+	addSpriteTile(s,pal|0x40,0x415C,20,8);
+	addSpriteTile(s,pal|0x40,0x415D,4,8);
 }
 //Bonus item
 void drawSprite_161(sprite_t * s) {
@@ -3181,72 +3089,146 @@ void drawSprite_165(sprite_t * s) {
 //Thunder Lakitu
 void drawSprite_166(sprite_t * s) {
 	int base = findSpGfxFile(0x49);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x25,-7,-8);
+	addSpriteTile(s,(0xA<<2)|1,base+0x25,9,-8);
+	addSpriteTile(s,(0x9<<2),base+0x1D,10,1);
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x08,4,8);
+	addSpriteTile(s,(0xA<<2)|1,base+0x08,-4,8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,-2,-5);
+	if(s->data[2]&1) {
+		addSpriteTile(s,(0xA<<2)|0x41,base+0x25,25,-8);
+		addSpriteTile(s,(0xA<<2)|1,base+0x25,41,-8);
+		addSpriteTile(s,(0x9<<2),base+0x1D,42,1);
+		addSpriteTile(s,(0xA<<2)|0x41,base+0x08,36,8);
+		addSpriteTile(s,(0xA<<2)|1,base+0x08,28,8);
+		addSpriteTile(s,(0xE<<2)|1,base+0x00,30,-5);
+	}
 }
 //Koopa Shell, green
 void drawSprite_167(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x8<<2)|1,base+0x0C,0,0);
 }
 //Koopa Shell, red
 void drawSprite_168(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x0C,0,0);
 }
 //Beach Koopa, green
 void drawSprite_169(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
+	addSpriteTile(s,(0x8<<2),base+0x09,8,6);
+	addSpriteTile(s,(0x8<<2)|1,base+0x04,2,-4);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
+	addSpriteTile(s,(0x8<<2),base+0x08,7,8);
+	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
 //Beach Koopa, red
 void drawSprite_16A(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
+	addSpriteTile(s,(0x9<<2),base+0x09,8,6);
+	addSpriteTile(s,(0x9<<2)|1,base+0x04,2,-4);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
+	addSpriteTile(s,(0x9<<2),base+0x08,7,8);
+	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
 //Koopa, green
 void drawSprite_16B(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
+	addSpriteTile(s,(0x8<<2),base+0x09,8,6);
+	addSpriteTile(s,(0x8<<2)|1,base+0x0A,2,-4);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
+	addSpriteTile(s,(0x8<<2),base+0x08,7,8);
+	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
 //Koopa, red
 void drawSprite_16C(sprite_t * s) {
 	int base = findSpGfxFile(0x47);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2),base+0x16,-1,2);
+	addSpriteTile(s,(0x9<<2),base+0x09,8,6);
+	addSpriteTile(s,(0x9<<2)|1,base+0x0A,2,-4);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-4,-15);
+	addSpriteTile(s,(0x9<<2),base+0x08,7,8);
+	addSpriteTile(s,(0x9<<2),base+0x07,10,1);
 }
 //Parakoopa, green
 void drawSprite_16D(sprite_t * s) {
 	int base = findSpGfxFile(0x2B);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x0D,-8,-21);
+	addSpriteTile(s,(0x9<<2),base+0x0D,16,-21);
+	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-11,-16);
+	addSpriteTile(s,(0x8<<2),base+0x38,-2,8);
+	addSpriteTile(s,(0x9<<2),base+0x36,-3,2);
+	addSpriteTile(s,(0x8<<2)|1,base+0x2A,0,-4);
+	addSpriteTile(s,(0x8<<2),base+0x38,3,8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x20,-6,-14);
+	addSpriteTile(s,(0x9<<2)|1,base+0x08,11,-16);
+	addSpriteTile(s,(0x9<<2),base+0x26,4,1);
 }
 //Parakoopa, red
 void drawSprite_16E(sprite_t * s) {
 	int base = findSpGfxFile(0x2B);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|0x40,base+0x0D,-8,-21);
+	addSpriteTile(s,(0x9<<2),base+0x0D,16,-21);
+	addSpriteTile(s,(0x9<<2)|0x41,base+0x08,-11,-16);
+	addSpriteTile(s,(0x9<<2),base+0x38,-2,8);
+	addSpriteTile(s,(0x9<<2),base+0x36,-3,2);
+	addSpriteTile(s,(0x9<<2)|1,base+0x2A,0,-4);
+	addSpriteTile(s,(0x9<<2),base+0x38,3,8);
+	addSpriteTile(s,(0x9<<2)|1,base+0x20,-6,-14);
+	addSpriteTile(s,(0x9<<2)|1,base+0x08,11,-16);
+	addSpriteTile(s,(0x9<<2),base+0x26,4,1);
 }
 //Aqua Lakitu
 void drawSprite_170(sprite_t * s) {
 	int base = findSpGfxFile(0x4F);
-	
-	
-	
+	addSpriteTile(s,(0x9<<2)|1,base+0x0A,-2,-16);
+	addSpriteTile(s,(0x9<<2),base+0x19,-10,-8);
+	addSpriteTile(s,(0x8<<2),base+0x0C,0,0);
+	addSpriteTile(s,(0x8<<2)|0x40,base+0x0C,8,0);
+}
+//Naval Piranha
+void drawSprite_171(sprite_t * s) {
+	int base = findSpGfxFile(0x5A);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,-33,-38);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,-24,-12);
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x08,-24,4);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x26,-28,-51);
+	addSpriteTile(s,(0xE<<2)|0xC1,base+0x08,-33,-22);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,31,-38);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,40,-12);
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x08,40,4);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x26,36,-51);
+	addSpriteTile(s,(0xE<<2)|0xC1,base+0x08,31,-22);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,-48,2);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,-16,2);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x00,-40,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,-24,-8);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,16,2);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,48,2);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x00,24,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x00,40,-8);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,9,-38);
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x08,9,-22);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,0,-12);
+	addSpriteTile(s,(0xE<<2)|0xC1,base+0x08,0,4);
+	addSpriteTile(s,(0xE<<2)|1,base+0x20,-10,-4);
+	addSpriteTile(s,(0xE<<2),0x442A,-12,-60);
+	addSpriteTile(s,(0xE<<2),0x442B,4,-60);
+	addSpriteTile(s,(0xE<<2),0x443A,-12,-44);
+	addSpriteTile(s,(0xE<<2),0x443B,4,-44);
+}
+//Naval Piranha bud
+void drawSprite_172(sprite_t * s) {
+	int base = findSpGfxFile(0x5A);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,-1,-38);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,8,-12);
+	addSpriteTile(s,(0xE<<2)|0x81,base+0x08,8,4);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x26,4,-51);
+	addSpriteTile(s,(0xE<<2)|0xC1,base+0x08,-1,-22);
 }
 //TODO
 //Caged Ghost squeezed in tunnel
@@ -3307,7 +3289,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//030
 	drawSprite_030,drawSprite_031,drawSprite_030,drawSprite_030,
 	drawSprite_034,drawSprite_034,drawSprite_036,drawSprite_037,
-	drawSprite_038,drawSprite_039,drawSprite_03A,drawSprite_03B,
+	drawSprite_038,drawSprite_039,drawSprite_03A,drawSprite_03A,
 	drawSprite_03C,drawSprite_03D,drawSprite_03E,drawSprite_03F,
 	//040
 	drawSprite_040,drawSprite_041,drawSprite_042,drawSprite_043,
@@ -3327,8 +3309,8 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//070
 	drawSprite_070,drawSprite_071,drawSprite_072,drawSprite_073,
 	drawSprite_074,drawSprite_075,drawSprite_076,drawSprite_076,
-	drawSprite_078,drawSprite_079,drawSprite_07A,drawSprite_07B,
-	drawSprite_07C,drawSprite_07D,drawSprite_07E,drawSprite_07F,
+	drawSprite_078,drawSprite_078,drawSprite_078,drawSprite_07B,
+	drawSprite_07B,drawSprite_07B,drawSprite_07E,drawSprite_07F,
 	//080
 	drawSprite_080,drawSprite_080,drawSprite_082,drawSprite_083,
 	drawSprite_084,drawSprite_085,drawSprite_unused,drawSprite_087,
@@ -3378,7 +3360,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_110,drawSprite_111,drawSprite_112,drawSprite_113,
 	drawSprite_114,drawSprite_115,drawSprite_116,drawSprite_117,
 	drawSprite_118,drawSprite_119,drawSprite_11A,drawSprite_11B,
-	drawSprite_11C,drawSprite_11D,drawSprite_11E,drawSprite_11F,
+	drawSprite_11C,drawSprite_11D,drawSprite_11E,drawSprite_11E,
 	//120
 	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
 	drawSprite_124,drawSprite_048,drawSprite_126,drawSprite_127,
@@ -3391,21 +3373,21 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_13C,drawSprite_13D,drawSprite_13D,drawSprite_13F,
 	//140
 	drawSprite_13F,drawSprite_13F,drawSprite_13F,drawSprite_143,
-	drawSprite_144,drawSprite_145,drawSprite_146,drawSprite_147,
+	drawSprite_144,drawSprite_145,drawSprite_145,drawSprite_147,
 	drawSprite_06C,drawSprite_149,drawSprite_14A,drawSprite_14B,
 	drawSprite_14C,drawSprite_14D,drawSprite_14E,drawSprite_14F,
 	//150
 	drawSprite_150,drawSprite_150,drawSprite_152,drawSprite_153,
 	drawSprite_154,drawSprite_155,drawSprite_156,drawSprite_157,
 	drawSprite_158,drawSprite_159,drawSprite_159,drawSprite_15B,
-	drawSprite_15C,drawSprite_15D,drawSprite_15E,drawSprite_15F,
+	drawSprite_15C,drawSprite_15C,drawSprite_15E,drawSprite_15F,
 	//160
-	drawSprite_160,drawSprite_161,drawSprite_162,drawSprite_0E5,
+	drawSprite_15F,drawSprite_161,drawSprite_162,drawSprite_0E5,
 	drawSprite_164,drawSprite_165,drawSprite_166,drawSprite_167,
 	drawSprite_168,drawSprite_169,drawSprite_16A,drawSprite_16B,
 	drawSprite_16C,drawSprite_16D,drawSprite_16E,drawSprite_16E,
 	//170
-	drawSprite_170,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_170,drawSprite_171,drawSprite_172,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
