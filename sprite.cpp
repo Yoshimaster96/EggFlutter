@@ -3316,9 +3316,10 @@ void drawSprite_180(sprite_t * s) {
 //Crazee Dayzee
 void drawSprite_181(sprite_t * s) {
 	int base = findSpGfxFile(0x5D);
+	int pal = (s->data[2]&1)?(0xC<<2):(0x9<<2);
 	addSpriteTile(s,(0xC<<2),base+0x0A,1,8);
-	addSpriteTile(s,(0x9<<2)|1,base+0x0C,-5,-10);
-	addSpriteTile(s,(0x9<<2)|0xC1,base+0x0C,-1,-4);
+	addSpriteTile(s,pal|1,base+0x0C,-5,-10);
+	addSpriteTile(s,pal|0xC1,base+0x0C,-1,-4);
 	addSpriteTile(s,(0x8<<2)|1,base+0x0E,0,-2);
 	addSpriteTile(s,(0xC<<2),base+0x0A,4,8);
 }
