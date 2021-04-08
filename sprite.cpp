@@ -3367,7 +3367,7 @@ void drawSprite_190(sprite_t * s) {
 //Ambient bird
 void drawSprite_191(sprite_t * s) {
 	int base = findSpGfxFile(0x5E);
-	addSpriteTile(s,(0x8<<2),base+0x10,0,0);
+	addSpriteTile(s,(0x8<<2),base+0x00,4,4);
 }
 //Mufti Guy
 void drawSprite_192(sprite_t * s) {
@@ -3498,25 +3498,159 @@ void drawSprite_19C(sprite_t * s) {
 //Skeleton Goonie
 void drawSprite_19D(sprite_t * s) {
 	int base = findSpGfxFile(0x63);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x01,-7,-19);
+	addSpriteTile(s,(0xA<<2)|0x40,base+0x09,3,-4);
+	addSpriteTile(s,(0xA<<2),base+0x0E,-8,4);
+	addSpriteTile(s,(0xA<<2),base+0x1E,12,11);
+	addSpriteTile(s,(0xA<<2),base+0x0F,14,5);
+	addSpriteTile(s,(0xA<<2)|1,base+0x0C,0,0);
+	addSpriteTile(s,(0xA<<2)|1,base+0x01,11,-19);
+	addSpriteTile(s,(0xA<<2),base+0x09,9,-4);
 }
 //Flightless Skeleton Goonie
 void drawSprite_19E(sprite_t * s) {
 	int base = findSpGfxFile(0x63);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|1,base+0x0C,0,-1);
+	addSpriteTile(s,(0xA<<2),base+0x0E,-8,3);
+	addSpriteTile(s,(0xA<<2),base+0x0A,4,12);
+	addSpriteTile(s,(0xA<<2),base+0x0B,14,11);
 }
 //Skeleton Goonie with bomb
 void drawSprite_19F(sprite_t * s) {
 	int base = findSpGfxFile(0x63);
-	
-	
-	
+	addSpriteTile(s,(0xA<<2)|0x41,base+0x01,-7,-19);
+	addSpriteTile(s,(0xA<<2)|0x40,base+0x09,3,-4);
+	addSpriteTile(s,(0xA<<2),base+0x0E,-8,4);
+	addSpriteTile(s,(0xA<<2),base+0x1A,4,13);
+	addSpriteTile(s,(0xA<<2),base+0x1A,8,13);
+	addSpriteTile(s,(0xA<<2)|1,base+0x0C,0,0);
+	addSpriteTile(s,(0xA<<2)|1,base+0x01,11,-19);
+	addSpriteTile(s,(0xA<<2),base+0x09,9,-4);
+	addSpriteTile(s,(0xC<<2)|1,0x00EC,1,17);
 }
-//TODO
+//Firebar, 2 end
+void drawSprite_1A0(sprite_t * s) {
+	int base = findSpGfxFile(0x65);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-80,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-56,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-32,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-8,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,16,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,40,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,64,0);
+}
+//Firebar, 1 end
+void drawSprite_1A1(sprite_t * s) {
+	int base = findSpGfxFile(0x65);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-80,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-56,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-32,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-8,0);
+}
+//Star
+void drawSprite_1A2(sprite_t * s) {
+	addSpriteTile(s,(0xA<<2)|1,0x00AA,0,-2);
+	addSpriteTile(s,(0x8<<2),0x009E,0,8);
+	addSpriteTile(s,(0x8<<2)|0x40,0x009E,7,8);
+}
+//Little Skull Mouser
+void drawSprite_1A3(sprite_t * s) {
+	int base = findSpGfxFile(0x60);
+	addSpriteTile(s,(0xE<<2),base+0x03,1,8);
+	addSpriteTile(s,(0xE<<2),base+0x03,9,8);
+	addSpriteTile(s,(0xE<<2),base+0x14,15,4);
+	addSpriteTile(s,(0xE<<2)|1,base+0x05,0,-2);
+}
+//Cork
+void drawSprite_1A4(sprite_t * s) {
+	int base = findSpGfxFile(0x48);
+	addSpriteTile(s,(0xE<<2)|1,base+0x08,0,-32);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x08,16,-32);
+	addSpriteTile(s,(0xE<<2)|1,base+0x0A,0,-16);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x0A,16,-16);
+	addSpriteTile(s,(0xE<<2)|1,base+0x0C,0,0);
+	addSpriteTile(s,(0xE<<2)|0x41,base+0x0C,16,0);
+}
+//Grinder
+void drawSprite_1A5(sprite_t * s) {
+	int base = findSpGfxFile(0x64);
+	addSpriteTile(s,(0x8<<2),base+0x0C,0,8);
+	addSpriteTile(s,(0x8<<2),base+0x1B,9,7);
+	addSpriteTile(s,(0x8<<2)|1,base+0x00,0,-7);
+	addSpriteTile(s,(0x8<<2),base+0x1F,9,12);
+	addSpriteTile(s,(0x8<<2),base+0x0A,16,4);
+	addSpriteTile(s,(0x8<<2),base+0x0C,3,8);
+}
+//Hot Lips
+void drawSprite_1AA(sprite_t * s) {
+	int base = findSpGfxFile(0x66);
+	addSpriteTile(s,(0x9<<2)|1,base+0x00,-8,0);
+	addSpriteTile(s,(0x9<<2)|1,base+0x06,8,0);
+	addSpriteTile(s,(0x9<<2),base+0x0D,1,-4);
+	addSpriteTile(s,(0x9<<2),base+0x0D,8,-4);
+}
+//Boo Balloon
+void drawSprite_1AB(sprite_t * s) {
+	int base = findSpGfxFile(0x65);
+	addSpriteTile(s,(0x8<<2)|1,base+0x04,0,0);
+	addSpriteTile(s,(0x8<<2),base+0x0C,4,16);
+	addSpriteTile(s,(0x8<<2),base+0x1C,4,24);
+}
+//Ambient frog
+void drawSprite_1AC(sprite_t * s) {
+	int base = findSpGfxFile(0x68);
+	addSpriteTile(s,(0x8<<2)|0x40,base+0x0E,4,8);
+}
+//Kamek magic
+void drawSprite_1AE(sprite_t * s) {
+	int base = findSpGfxFile(0x67);
+	addSpriteTile(s,(0xA<<2),base+0x0E,-1,3);
+	addSpriteTile(s,(0x9<<2),base+0x0F,5,-1);
+	addSpriteTile(s,(0xB<<2),base+0x1E,6,7);
+}
+//Large balloon platform
+void drawSprite_1B0(sprite_t * s) {
+	int base = findSpGfxFile(0x65);
+	addSpriteTile(s,(9<<2)|1,base+0x0E,0,0);
+	BYTE tempBuf[44*2];
+	for(int n=0; n<88; n++) {
+		tempBuf[n] = romBuf[0x066E64+(n<<1)];
+	}
+	drawSpriteHDMAPolygon(s,tempBuf,0x8400,44,true,false,14,6);
+}
+//Minigame coin cannon
+void drawSprite_1B1(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2),0x4108,0,0);
+	addSpriteTile(s,(0x8<<2),0x4109,16,0);
+	addSpriteTile(s,(0x8<<2),0x4118,0,16);
+	addSpriteTile(s,(0x8<<2),0x4119,16,16);
+	addSpriteTile(s,(0x8<<2)|0xC1,0x0122,16,32);
+	addSpriteTile(s,(0x8<<2)|1,0x0122,0,32);
+	addSpriteTile(s,(0x8<<2)|0x40,0x0130,24,24);
+	addSpriteTile(s,(0x8<<2)|0x40,0x0131,16,24);
+	addSpriteTile(s,(0x8<<2),0x0131,8,24);
+	addSpriteTile(s,(0x8<<2),0x0130,0,24);
+	addSpriteTile(s,(0x8<<2)|0x40,0x0121,16,16);
+	addSpriteTile(s,(0x8<<2),0x0121,8,16);
+	addSpriteTile(s,(0x8<<2)|0x40,0x0120,16,8);
+	addSpriteTile(s,(0x8<<2),0x0120,8,8);
+}
+//Minigame checker platform
+void drawSprite_1B4(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|0xC1,0x0122,16,0);
+	addSpriteTile(s,(0x8<<2)|1,0x0122,0,0);
+}
+//Minigame balloon
+void drawSprite_1B6(sprite_t * s) {
+	addSpriteTile(s,(0x9<<2),0x44CE,0,0);
+	addSpriteTile(s,(0x9<<2),0x44CF,16,0);
+	addSpriteTile(s,(0x9<<2),0x44DE,0,16);
+	addSpriteTile(s,(0x9<<2),0x44DF,16,16);
+}
+//Minigame melon pot
+void drawSprite_1B8(sprite_t * s) {
+	drawSpriteText(s," Minigame \nMelon  Pot");
+}
 //Graphics/palette changer command
 void drawSprite_1BA(sprite_t * s) {
 	char spStr[256];
@@ -3539,12 +3673,137 @@ void drawSprite_1CB(sprite_t * s) {
 void drawSprite_1D4(sprite_t * s) {
 	drawSpriteText(s,"   Slow    \nAuto-Scroll");
 }
-//TODO
+//Boo Balloon end command
+void drawSprite_1D5(sprite_t * s) {
+	drawSpriteText(s,"Boo Balloon\n    End    ");
+}
 //Lock horizontal scroll
 void drawSprite_1D6(sprite_t * s) {
 	drawSpriteText(s,"Lock  Scroll\n Horizontal ");
 }
-//TODO
+//Gusty generator command
+void drawSprite_1D7(sprite_t * s) {
+	drawSpriteText(s,"  Gusty  \nGenerator");
+}
+//Gusty generator end command
+void drawSprite_1D8(sprite_t * s) {
+	drawSpriteText(s,"    Gusty    \nGenerator End");
+}
+//Lakitu end command
+void drawSprite_1D9(sprite_t * s) {
+	drawSpriteText(s,"Lakitu\n End  ");
+}
+//Fuzzy end command
+void drawSprite_1DA(sprite_t * s) {
+	drawSpriteText(s,"    Fuzzy    \nGenerator End");
+}
+//Poochy end command
+void drawSprite_1DB(sprite_t * s) {
+	drawSpriteText(s,"Poochy\n End  ");
+}
+//Fang generator command
+void drawSprite_1DC(sprite_t * s) {
+	drawSpriteText(s,"  Fang   \nGenerator");
+}
+//Fang end command
+void drawSprite_1DD(sprite_t * s) {
+	drawSpriteText(s,"     Fang     \nGenerator  End");
+}
+//Fang 2 generator command
+void drawSprite_1DE(sprite_t * s) {
+	drawSpriteText(s," Fang  2 \nGenerator");
+}
+//Fang 2 end command
+void drawSprite_1DF(sprite_t * s) {
+	drawSpriteText(s,"   Fang  2   \nGenerator End");
+}
+//Wall Lakitu generator command
+void drawSprite_1E0(sprite_t * s) {
+	drawSpriteText(s,"Wall Lakitu\n Generator ");
+}
+//Wall Lakitu end command
+void drawSprite_1E1(sprite_t * s) {
+	drawSpriteText(s," Wall Lakitu \nGenerator End");
+}
+//Dancing Spear Guy command
+void drawSprite_1E2(sprite_t * s) {
+	char spStr[256];
+	int spRef = (s->data[2]&1)|(s->data[1]&2);
+	snprintf(spStr,256,"Dancing Spear Guy\n     Dance %d     ",spRef);
+	drawSpriteText(s,spStr);
+}
+//Dancing Spear Guy end command
+void drawSprite_1E3(sprite_t * s) {
+	drawSpriteText(s,"Dancing Spear Guy\n      End Dance      ");
+}
+//Thunder Lakitu end command
+void drawSprite_1E4(sprite_t * s) {
+	drawSpriteText(s,"Thunder  Lakitu\n      End      ");
+}
+//Flutter generator command
+void drawSprite_1E5(sprite_t * s) {
+	drawSpriteText(s," Flutter \nGenerator");
+}
+//Flutter end command
+void drawSprite_1E6(sprite_t * s) {
+	drawSpriteText(s,"   Flutter   \nGenerator End");
+}
+//Nipper Spore generator command
+void drawSprite_1E7(sprite_t * s) {
+	drawSpriteText(s,"Nipper  Spore\n  Generator  ");
+}
+//Nipper Spore end command
+void drawSprite_1E8(sprite_t * s) {
+	drawSpriteText(s,"Nipper  Spore\nGenerator End");
+}
+//Baron Von Zeppelin, Needlenose generator command
+void drawSprite_1E9(sprite_t * s) {
+	drawSpriteText(s,"Baron Von Zeppelin (Needlenose)\n           Generator           ");
+}
+//Baron Von Zeppelin, Needlenose end command
+void drawSprite_1EA(sprite_t * s) {
+	drawSpriteText(s,"Baron Von Zeppelin (Needlenose)\n         Generator End         ");
+}
+//Baron Von Zeppelin, bomb generator command
+void drawSprite_1EB(sprite_t * s) {
+	drawSpriteText(s,"Baron Von Zeppelin (Bomb)\n        Generator        ");
+}
+//Baron Von Zeppelin, bomb end command
+void drawSprite_1EC(sprite_t * s) {
+	drawSpriteText(s,"Baron Von Zeppelin (Bomb)\n      Generator End      ");
+}
+//Balloon platform generator command
+void drawSprite_1ED(sprite_t * s) {
+	drawSpriteText(s,"Balloon  Platform\n    Generator    ");
+}
+//Balloon platform end command
+void drawSprite_1EE(sprite_t * s) {
+	drawSpriteText(s,"Balloon  Platform\n  Generator End  ");
+}
+//Flatbed Ferry, yellow generator command
+void drawSprite_1EF(sprite_t * s) {
+	drawSpriteText(s,"Flatbed Ferry  (4 Yellow)\n        Generator        ");
+}
+//Lemon Drop generator command
+void drawSprite_1F0(sprite_t * s) {
+	drawSpriteText(s,"Lemon  Drop\n Generator ");
+}
+//Lemon Drop end command
+void drawSprite_1F1(sprite_t * s) {
+	drawSpriteText(s," Lemon  Drop \nGenerator End");
+}
+//Fuzzy effect end
+void drawSprite_1F2(sprite_t * s) {
+	drawSpriteText(s,"Fuzzy  Effect\n     End     ");
+}
+//Goonie end command
+void drawSprite_1F3(sprite_t * s) {
+	drawSpriteText(s,"Goonie\n End  ");
+}
+//Fuzzy generator command
+void drawSprite_1F4(sprite_t * s) {
+	drawSpriteText(s,"  Fuzzy  \nGenerator");
+}
 
 //Sprite function pointer table and updater
 void drawSprite_unused(sprite_t * s) {}
@@ -3680,14 +3939,14 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_198,drawSprite_199,drawSprite_19A,drawSprite_184,
 	drawSprite_19C,drawSprite_19D,drawSprite_19E,drawSprite_19F,
 	//1A0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_08E,drawSprite_unused,drawSprite_115,
+	drawSprite_1A0,drawSprite_1A1,drawSprite_1A2,drawSprite_1A3,
+	drawSprite_1A4,drawSprite_1A5,drawSprite_1A5,drawSprite_1A5,
+	drawSprite_1A5,drawSprite_1A5,drawSprite_1AA,drawSprite_1AB,
+	drawSprite_1AC,drawSprite_08E,drawSprite_unused,drawSprite_115,
 	//1B0
-	drawSprite_unused,drawSprite_unused,drawSprite_115,drawSprite_020,
-	drawSprite_unused,drawSprite_020,drawSprite_unused,drawSprite_020,
-	drawSprite_unused,drawSprite_020,drawSprite_1BA,drawSprite_1BA,
+	drawSprite_1B0,drawSprite_1B1,drawSprite_115,drawSprite_020,
+	drawSprite_1B4,drawSprite_020,drawSprite_1B6,drawSprite_020,
+	drawSprite_1B8,drawSprite_020,drawSprite_1BA,drawSprite_1BA,
 	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
 	//1C0
 	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
@@ -3696,17 +3955,17 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
 	//1D0
 	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
-	drawSprite_1D4,drawSprite_unused,drawSprite_1D6,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1D4,drawSprite_1D5,drawSprite_1D6,drawSprite_1D7,
+	drawSprite_1D8,drawSprite_1D9,drawSprite_1DA,drawSprite_1DB,
+	drawSprite_1DC,drawSprite_1DD,drawSprite_1DE,drawSprite_1DF,
 	//1E0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1E0,drawSprite_1E1,drawSprite_1E2,drawSprite_1E3,
+	drawSprite_1E4,drawSprite_1E5,drawSprite_1E6,drawSprite_1E7,
+	drawSprite_1E8,drawSprite_1E9,drawSprite_1EA,drawSprite_1EB,
+	drawSprite_1EC,drawSprite_1ED,drawSprite_1EE,drawSprite_1EF,
 	//1F0
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
-	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
+	drawSprite_1F0,drawSprite_1F1,drawSprite_1F2,drawSprite_1F3,
+	drawSprite_1F4,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused,
 	drawSprite_unused,drawSprite_unused,drawSprite_unused,drawSprite_unused};
 int setSpriteContext(int ctx) {
