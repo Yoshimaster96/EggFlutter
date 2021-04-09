@@ -3,7 +3,6 @@
 HWND hwndPalette;
 bool wvisPalette = false;
 DWORD paletteBuffer[0x100];
-DWORD paletteAnimBuffer[0x1000];
 DWORD gradientBuffer[0x18];
 int paletteAnim = 0;
 bool vW6_palette = false;
@@ -99,19 +98,313 @@ void loadPalette() {
 			gradientBuffer[i] = convColor_SNEStoRGB(col);
 		}
 	}
-	//Load palette animation
-	memset(paletteAnimBuffer,0xFF,0x1000*sizeof(DWORD));
-	//TODO
+	//Init animation frame
+	paletteAnim = 0;
 	updatePalette();
 }
-void updatePalette() {
-	int frameOffset = (paletteAnim&0xF)<<8;
-	for(int i=0; i<0x100; i++) {
-		DWORD color = paletteAnimBuffer[frameOffset|i];
-		if(color!=0xFFFFFFFF) {
-			paletteBuffer[i] = color;
+const int animPalUnusedCmp[8] = {0,20,24,26,28,30,32,34};
+void updatePalette_01() {
+	for(int i=0; i<8; i++) {
+		if((paletteAnim%36)==animPalUnusedCmp[i]) {
+			int offset = 0x1FEB4A+(0x1A*i);
+			for(int j=0; j<13; j++) {
+				WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+				paletteBuffer[0x43+j] = convColor_SNEStoRGB(col);
+			}
+			break;
 		}
 	}
+}
+void updatePalette_02() {
+	if((paletteAnim&3)==0) {
+		int offset = ((paletteAnim&0xC)>>2)*6;
+		offset += 0x1FA190;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x05+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_03() {
+	if((paletteAnim&3)==0) {
+		int offset = (paletteAnim&0xC)<<3;
+		offset += 0x1FCCEA;
+		for(int j=0; j<16; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x70+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_04() {
+	if((paletteAnim&1)==0) {
+		int offset = (paletteAnim&0xE)*15;
+		offset += 0x1FEA5A;
+		for(int j=0; j<15; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x71+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_05() {
+	if((paletteAnim&3)==0) {
+		int offset = (paletteAnim&0x1C)<<2;
+		offset += 0x1FDA00;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x71+j] = convColor_SNEStoRGB(col);
+		}
+		int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+		if(bg1Ts==0 || bg1Ts==8) {
+			offset = ((paletteAnim&0x1C)>>2)*0x26;
+			offset += 0x1FF5E8;
+			for(int j=0; j<6; j++) {
+				WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+				paletteBuffer[0x02+j] = convColor_SNEStoRGB(col);
+			}
+			if(offset==0x1FF6F2) offset -= 0x26;
+			for(int j=0; j<13; j++) {
+				WORD col = romBuf[offset+12+(j<<1)]|(romBuf[offset+13+(j<<1)]<<8);
+				paletteBuffer[0x43+j] = convColor_SNEStoRGB(col);
+			}
+		}
+	}
+}
+void updatePalette_06() {
+	if((paletteAnim&3)==0) {
+		int offset = (paletteAnim&0x1C)<<2;
+		offset += 0x1FDA00;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x71+j] = convColor_SNEStoRGB(col);
+		}
+		offset = ((paletteAnim&0x1C)>>2)*0x26;
+		offset += 0x1FF5F4;
+		if(offset==0x1FF6FE) offset -= 0x26;
+		for(int j=0; j<13; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x43+j] = convColor_SNEStoRGB(col);
+		}
+		offset = (paletteAnim&0xC)<<1;
+		offset += 0x1FA150;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_07() {
+	if((paletteAnim&1)==0) {
+		int offset = (paletteAnim&7)<<3;
+		offset += 0x1FDA00;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x71+j] = convColor_SNEStoRGB(col);
+		}
+	}
+	if((paletteAnim&3)==0) {
+		int offset = ((paletteAnim&0x1C)>>2)*0x26;
+		offset += 0x1FF5F4;
+		if(offset==0x1FF6FE) offset -= 0x26;
+		for(int j=0; j<13; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x43+j] = convColor_SNEStoRGB(col);
+		}
+		offset = (paletteAnim&0xC)<<1;
+		offset += 0x1FA150;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_08() {
+	if((paletteAnim&1)==0) {
+		int offset = (paletteAnim&6)<<2;
+		offset += 0x1FA150;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_09() {
+	if((paletteAnim%3)==0) {
+		int offset = ((paletteAnim/3)&7)<<1;
+		if(offset>8) offset = 16-offset;
+		offset += 0x1FC932;
+		WORD col = romBuf[offset]|(romBuf[offset+1]<<8);
+		paletteBuffer[0x01] = paletteBuffer[0x09] = convColor_SNEStoRGB(col);
+	}
+}
+void updatePalette_0A() {
+	if((paletteAnim&3)==0) {
+		int offset = (paletteAnim&0xC)<<1;
+		offset += 0x1FE2EC;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_0B() {
+	if((paletteAnim&0x3F)==0) {
+		int offset = (((paletteAnim&0x1C0)>>6)^7)*6;
+		offset += 0x1FE30C;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x01+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_0C() {
+	if((paletteAnim&0x1F)==0) {
+		int offset = ((paletteAnim&0xE0)>>5)*6;
+		offset += 0x1FE30C;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x01+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_0D() {
+	if((paletteAnim%6)==0) {
+		int offset = (paletteAnim/6)&7;
+		if(offset&4) offset = (offset&3)^3;
+		offset *= 6;
+		offset += 0x1FEC32;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x01+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_0E() {
+	if((paletteAnim&3)==0) {
+		int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+		int offset = (paletteAnim&0xC)<<1;
+		if(bg1Ts==8) offset += 0x1FE2EC;
+		else offset += 0x1FA150;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+		offset = (paletteAnim&0x1C)<<3;
+		offset += 0x1FF77E;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x64+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_0F() {
+	if((paletteAnim&1)==0) {
+		int offset = ((paletteAnim&6)>>1)*6;
+		offset += 0x1FF46A;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x05+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_10() {
+	if((paletteAnim&3)==0) {
+		int offset = ((paletteAnim&0x1C)>>4)*14;
+		offset += 0x1FF6FE;
+		for(int j=0; j<7; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x49+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_11() {
+	if((paletteAnim&3)==0) {
+		int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+		int offset = (paletteAnim&0xC)<<1;
+		if(bg1Ts==8) offset += 0x1FE2EC;
+		else offset += 0x1FA150;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+		offset = (paletteAnim&0x1C)<<3;
+		offset += 0x1FF77E;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x64+j] = convColor_SNEStoRGB(col);
+		}
+	}
+	if((paletteAnim%10)==0) {
+		int offset = ((paletteAnim/10)&0xF)<<3;
+		offset += 0x1FF95E;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x00+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_12() {
+	if((paletteAnim&3)==0) {
+		int offset = (paletteAnim&0xC)<<1;
+		offset += 0x1FE2EC;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x53+j] = convColor_SNEStoRGB(col);
+		}
+		offset = ((paletteAnim&0x1C)>>4)*14;
+		offset += 0x1FF6FE;
+		for(int j=0; j<7; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x49+j] = convColor_SNEStoRGB(col);
+		}
+	}
+	if((paletteAnim%10)==0) {
+		int offset = ((paletteAnim/10)&0xF)<<3;
+		offset += 0x1FF9DE;
+		for(int j=0; j<4; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x00+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_13() {
+	if((paletteAnim&3)==0) {
+		int offset = ((paletteAnim&0xC)>>2)*6;
+		offset += 0x1FA190;
+		for(int j=0; j<3; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x05+j] = convColor_SNEStoRGB(col);
+		}
+		offset = ((paletteAnim&0x1C)>>2)*0x26;
+		offset += 0x1FF5F4;
+		if(offset==0x1FF6FE) offset -= 0x26;
+		for(int j=0; j<13; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x43+j] = convColor_SNEStoRGB(col);
+		}
+		offset = (paletteAnim&0x1C)<<3;
+		offset += 0x1FF77E;
+		for(int j=0; j<8; j++) {
+			WORD col = romBuf[offset+(j<<1)]|(romBuf[offset+1+(j<<1)]<<8);
+			paletteBuffer[0x64+j] = convColor_SNEStoRGB(col);
+		}
+	}
+}
+void updatePalette_unused() {}
+void (*paletteUpdateFunc[0x20])() = {
+	//00
+	updatePalette_unused,updatePalette_01,updatePalette_02,updatePalette_03,
+	updatePalette_04,updatePalette_05,updatePalette_06,updatePalette_07,
+	updatePalette_08,updatePalette_09,updatePalette_0A,updatePalette_0B,
+	updatePalette_0C,updatePalette_0D,updatePalette_0E,updatePalette_0F,
+	//10
+	updatePalette_10,updatePalette_11,updatePalette_12,updatePalette_13,
+	updatePalette_13,updatePalette_unused,updatePalette_unused,updatePalette_unused,
+	updatePalette_unused,updatePalette_unused,updatePalette_unused,updatePalette_unused,
+	updatePalette_unused,updatePalette_unused,updatePalette_unused,updatePalette_unused};
+void updatePalette() {
+	int animPal = levelHeader[7]&0x1F;
+	paletteUpdateFunc[animPal]();
+	paletteAnim++;
 }
 void updatePaletteW6(bool dark) {
 	vW6_palette = dark;
