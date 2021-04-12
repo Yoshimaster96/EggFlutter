@@ -13,17 +13,16 @@ BYTE screenExits[0x200];
 ///////////////////////////////
 //ROM PATCHING AND ALLOCATION//
 ///////////////////////////////
-void patchRom() {
-	//Expand ROM to 8MB and SRAM to 128KB
-	romBuf[0x7FBD] = 0x07;
-	romBuf[0x7FD7] = 0x0D;
-	//Add more midpoint indices
-	//TODO
+bool patchRom() {
+	//Apply patch
+	//TODO, return true for now
+	return true;
 }
 bool checkRom() {
 	if(romBuf[0x7FD7]==11) {
-		patchRom();
-		return true;
+		//Init ASAR
+		//TODO
+		return patchRom();
 	} else if(romBuf[0x7FD7]==12) {
 		return true;
 	}

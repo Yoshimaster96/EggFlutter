@@ -17,46 +17,97 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 	entry.offsX		 = offsX;
 	entry.offsY		 = offsY;
 	//Calculate occupied tile data
-	int spX = s->data[2]<<4;
-	int spY = (s->data[1]&0xFE)<<3;
+	int spX = s->data[2];
+	int spY = s->data[1]&0xFE;
+	int spTileIdx = spX|(spY<<8);
 	entry.numOccupiedTiles = 0;
 	switch(tile&0xC000) {
 		case 0x0000: {
 			if(props&1) {
 				//16x16
 				entry.numOccupiedTiles = 1;
-				if(offsX&0xF) entry.numOccupiedTiles <<= 1;
-				if(offsY&0xF) entry.numOccupiedTiles <<= 1;
-				//TODO
+				entry.occupiedTiles[0] = spTileIdx;
+				if(offsX&0xF) {
+					entry.numOccupiedTiles <<= 1;
+					entry.occupiedTiles[1] = spTileIdx+1;
+				}
+				if(offsY&0xF) {
+					entry.numOccupiedTiles <<= 1;
+					if(offsX&0xF) {
+						entry.occupiedTiles[2] = spTileIdx+0x100;
+						entry.occupiedTiles[3] = spTileIdx+0x101;
+					} else {
+						entry.occupiedTiles[1] = spTileIdx+0x100;
+					}
+				}
 			} else {
 				//8x8
 				entry.numOccupiedTiles = 1;
-				if((offsX&0xF)>8) entry.numOccupiedTiles <<= 1;
-				if((offsY&0xF)>8) entry.numOccupiedTiles <<= 1;
-				//TODO
+				entry.occupiedTiles[0] = spTileIdx;
+				if((offsX&0xF)>8) {
+					entry.numOccupiedTiles <<= 1;
+					entry.occupiedTiles[1] = spTileIdx+1;
+				}
+				if((offsY&0xF)>8) {
+					entry.numOccupiedTiles <<= 1;
+					if((offsX&0xF)>8) {
+						entry.occupiedTiles[2] = spTileIdx+0x100;
+						entry.occupiedTiles[3] = spTileIdx+0x101;
+					} else {
+						entry.occupiedTiles[1] = spTileIdx+0x100;
+					}
+				}
 			}
 			break;
 		}
 		case 0x4000: {
 			//16x16
 			entry.numOccupiedTiles = 1;
-			if(offsX&0xF) entry.numOccupiedTiles <<= 1;
-			if(offsY&0xF) entry.numOccupiedTiles <<= 1;
-			//TODO
+			entry.occupiedTiles[0] = spTileIdx;
+			if(offsX&0xF) {
+				entry.numOccupiedTiles <<= 1;
+				entry.occupiedTiles[1] = spTileIdx+1;
+			}
+			if(offsY&0xF) {
+				entry.numOccupiedTiles <<= 1;
+				if(offsX&0xF) {
+					entry.occupiedTiles[2] = spTileIdx+0x100;
+					entry.occupiedTiles[3] = spTileIdx+0x101;
+				} else {
+					entry.occupiedTiles[1] = spTileIdx+0x100;
+				}
+			}
 			break;
 		}
 		case 0x8000: {
 			//256x1
 			entry.numOccupiedTiles = 16;
-			if(offsX&0xF) entry.numOccupiedTiles++;
-			//TODO
+			for(int i=0; i<16; i++) {
+				entry.occupiedTiles[i] = spTileIdx+i;
+			}
+			if(offsX&0xF) {
+				entry.numOccupiedTiles++;
+				entry.occupiedTiles[16] = spTileIdx+16;
+			}
 			break;
 		}
 		case 0xC000: {
+			//8x8
 			entry.numOccupiedTiles = 1;
-			if((offsX&0xF)>8) entry.numOccupiedTiles <<= 1;
-			if((offsY&0xF)>8) entry.numOccupiedTiles <<= 1;
-			//TODO
+			entry.occupiedTiles[0] = spTileIdx;
+			if((offsX&0xF)>8) {
+				entry.numOccupiedTiles <<= 1;
+				entry.occupiedTiles[1] = spTileIdx+1;
+			}
+			if((offsY&0xF)>8) {
+				entry.numOccupiedTiles <<= 1;
+				if((offsX&0xF)>8) {
+					entry.occupiedTiles[2] = spTileIdx+0x100;
+					entry.occupiedTiles[3] = spTileIdx+0x101;
+				} else {
+					entry.occupiedTiles[1] = spTileIdx+0x100;
+				}
+			}
 			break;
 		}
 	}
@@ -180,7 +231,7 @@ inline int findSpGfxFile(BYTE file) {
 }
 
 //SuperFX texture displayer function
-void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {
+void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	bool flipV = props&0x80;
@@ -206,12 +257,13 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 			idx = (idx>>pixShift)&0xF;
 			if(idx) {
 				putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+				if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
 			}
 		}
 	}
 }
 //HDMA displayer function
-void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs) {
+void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
@@ -219,6 +271,7 @@ void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs)
 		DWORD color = bmpDataBg[base+i];
 		if(color!=0x01010101) {
 			putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
+			if(inv) invertPixel(pixelBuf,width,height,{offsX+i,offsY});
 		}
 	}
 }
@@ -3993,6 +4046,7 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		int spX = thisSprite->data[2]<<4;
 		int spY = (thisSprite->data[1]&0xFE)<<3;
+		bool renderedSprite = false;
 		for(int i=0; i<thisSprite->tiles.size(); i++) {
 			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
 			BYTE props = thisSpriteTile->props;
@@ -4001,23 +4055,28 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 			int sptY = spY+thisSpriteTile->offsY;
 			switch(tile&0xC000) {
 				case 0x0000: {
-					if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY});
-					else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY});
+					if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY},thisSprite->selected);
+					else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY},thisSprite->selected);
 					break;
 				}
 				case 0x4000: {
-					dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY});
+					dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY},thisSprite->selected);
 					break;
 				}
 				case 0x8000: {
-					dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY});
+					dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY},thisSprite->selected);
 					break;
 				}
 				case 0xC000: {
-					dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,{sptX,sptY});
+					dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,{sptX,sptY},thisSprite->selected);
 					break;
 				}
 			}
+			renderedSprite = true;
+		}
+		//Draw text for sprites which have no tiles
+		if(!renderedSprite) {
+			//TODO
 		}
 	}
 }

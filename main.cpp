@@ -905,7 +905,7 @@ void dispExits(RECT rect) {
 				snprintf(strBuf,256,"%02X",screen);
 			}
 			for(int n=0; n<strlen(strBuf); n++) {
-				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{i+(n<<3)+2,j+2});
+				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{i+(n<<3)+2,j+2},false);
 			}
 		}
 	}

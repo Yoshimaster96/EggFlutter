@@ -9002,13 +9002,38 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
 			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
-			dispMap16Tile(pixelBuf,width,height,tile,{i,j});
+			dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
 			//Check object selection to highlight/invert
-			//TODO
+			int hiliteInvertFlag = 0;
+			for(int n=0; n<objectContexts[curObjCtx].assocObjects[tileIdx].size(); n++) {
+				if(objectContexts[curObjCtx].assocObjects[tileIdx][n]->selected) {
+					hiliteInvertFlag = 1;
+				} else if(hiliteInvertFlag==1) {
+					hiliteInvertFlag = 2;
+				}
+				if(hiliteInvertFlag==1) {
+					for(int l=0; l<16; l++) {
+						for(int k=0; k<16; k++) {
+							invertPixel(pixelBuf,width,height,{i+k,j+l});
+						}
+					}
+				} else if(hiliteInvertFlag==2) {
+					for(int l=0; l<16; l++) {
+						for(int k=0; k<16; k++) {
+							hilitePixel(pixelBuf,width,height,0xFF0000,{i+k,j+l});
+						}
+					}
+				}
+			}
 		}
 	}
 	//Draw text for objects which have no tiles
-	//TODO
+	for(int n = 0; n < objectContexts[curObjCtx].objects.size(); n++) {
+		object_t thisObject = objectContexts[curObjCtx].objects[n];
+		if(thisObject.occupiedTiles.size()==0) {
+			//TODO
+		}
+	}
 }
 void initOtherObjectBuffers() {
 	//Setup noise tilemap

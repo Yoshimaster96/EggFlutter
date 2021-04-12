@@ -359,7 +359,7 @@ void updateMap8W6(bool dark) {
 	loadMap8();
 }
 
-void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs) {
+void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	bool flipV = props&0x80;
@@ -383,11 +383,13 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POI
 					int idx = getIndexFromTile(commonBuffer,(tile+toff)&0x1FFF,{sx,sy});
 					if(idx) {
 						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+						if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
 					}
 				} else {
 					int idx = getIndexFromTile(map8Buffer,tile+toff,{sx,sy});
 					if(idx) {
 						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+						if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
 					}
 				}
 			}
@@ -403,18 +405,24 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POI
 					int idx = getIndexFromTile(commonBuffer,tile&0x1FFF,{sx,sy});
 					if(idx) {
 						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+						if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
 					}
 				} else {
 					int idx = getIndexFromTile(map8Buffer,tile,{sx,sy});
 					if(idx) {
 						putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+						if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
 					}
 				}
 			}
 		}
 	}
 }
-void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,POINT offs) {
+void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,POINT offs,bool inv) {
+	if(inv) {
+		fgCol ^= 0xFFFFFF;
+		bgCol ^= 0xFFFFFF;
+	}
 	int offsX = offs.x;
 	int offsY = offs.y;
 	for(int j=0; j<8; j++) {
@@ -447,7 +455,7 @@ void updateEntireScreen_map8() {
 		if(row>=0x480) props |= 0x20;
 		else if(row>=0x380) props |= 2;
 		for(int i=0; i<0x10; i++) {
-			dispMap8Tile(bmpDataMap8,0x80,0x80,props,row|i,{i<<3,j<<3});
+			dispMap8Tile(bmpDataMap8,0x80,0x80,props,row|i,{i<<3,j<<3},false);
 		}
 	}
 }
