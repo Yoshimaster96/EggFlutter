@@ -60,10 +60,32 @@ void saveLevel() {
 	int spriteSize = saveSprites(tempBufSp);
 	tempBufSp[spriteSize++] = 0xFF;
 	tempBufSp[spriteSize++] = 0xFF;
-	//Find an area to write level data to
-	//TODO
-	//Save level data
-	//TODO
+	//Clear previously existing level data
+	DWORD oldObjectAddr = romBuf[0x0BF7C3+(curLevel*6)]|(romBuf[0x0BF7C4+(curLevel*6)]<<8)|(romBuf[0x0BF7C5+(curLevel*6)]<<16);
+	DWORD oldSpriteAddr = romBuf[0x0BF7C6+(curLevel*6)]|(romBuf[0x0BF7C7+(curLevel*6)]<<8)|(romBuf[0x0BF7C8+(curLevel*6)]<<16);
+	if(oldObjectAddr&0x800000) {
+		oldObjectAddr = convAddr_SNEStoPC_YI(oldObjectAddr);
+		int oldObjectSize = romBuf[oldObjectAddr-4]|(romBuf[oldObjectAddr-3]<<8);
+		memset(&romBuf[oldObjectAddr-8],0,oldObjectSize+9);
+	}
+	if(oldSpriteAddr&0x800000) {
+		oldSpriteAddr = convAddr_SNEStoPC_YI(oldSpriteAddr);
+		int oldSpriteSize = romBuf[oldSpriteAddr-4]|(romBuf[oldSpriteAddr-3]<<8);
+		memset(&romBuf[oldSpriteAddr-8],0,oldSpriteSize+9);
+	}
+	//Find an area to write level data to and save data
+	DWORD saveOffsObj = findFreespace(objectSize);
+	DWORD saveOffsSp = findFreespace(spriteSize);
+	memcpy(&romBuf[saveOffsObj],tempBufObj,objectSize);
+	memcpy(&romBuf[saveOffsSp],tempBufSp,spriteSize);
+	saveOffsObj = convAddr_PCtoSNES_YI(saveOffsObj);
+	saveOffsSp = convAddr_PCtoSNES_YI(saveOffsSp);
+	romBuf[0x0BF7C3+(curLevel*6)] = saveOffsObj&0xFF;
+	romBuf[0x0BF7C4+(curLevel*6)] = (saveOffsObj>>8)&0xFF;
+	romBuf[0x0BF7C5+(curLevel*6)] = (saveOffsObj>>16)&0xFF;
+	romBuf[0x0BF7C6+(curLevel*6)] = saveOffsSp&0xFF;
+	romBuf[0x0BF7C7+(curLevel*6)] = (saveOffsSp>>8)&0xFF;
+	romBuf[0x0BF7C8+(curLevel*6)] = (saveOffsSp>>16)&0xFF;
 }
 
 ///////////
@@ -92,7 +114,8 @@ void updateDialog_editEntrances(HWND hwnd) {
 	setHexVal_dlg(hwnd,24,romBuf[0x0BF473+(tlevIdx<<2)]);
 }
 void updateDialog_editEntrances2(HWND hwnd) {
-	//TODO
+	setHexVal_dlg(hwnd,23,romBuf[0x0BF551+(curLevel<<1)]);
+	setHexVal_dlg(hwnd,24,romBuf[0x0BF552+(curLevel<<1)]);
 }
 void updateDialog_editExits(HWND hwnd) {
 	//TODO
@@ -249,7 +272,16 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 					break;
 				}
 				case IDOK: {
-					//TODO
+					BYTE xpos = getHexVal_dlg(hwnd,23);
+					BYTE ypos = getHexVal_dlg(hwnd,24);
+					if(ypos<=0x7F) {
+						//Set level midpoint info and exit with code 1 (entrances changed)
+						romBuf[0x0BF551+(curLevel<<1)] = xpos;
+						romBuf[0x0BF552+(curLevel<<1)] = ypos;
+					} else {
+						//Have WM_CLOSE handle this
+						SendMessage(hwnd,WM_CLOSE,0,0);
+					}
 					break;
 				}
 			}

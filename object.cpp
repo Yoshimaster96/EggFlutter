@@ -9011,17 +9011,17 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 				} else if(hiliteInvertFlag==1) {
 					hiliteInvertFlag = 2;
 				}
-				if(hiliteInvertFlag==1) {
-					for(int l=0; l<16; l++) {
-						for(int k=0; k<16; k++) {
-							invertPixel(pixelBuf,width,height,{i+k,j+l});
-						}
+			}
+			if(hiliteInvertFlag==1) {
+				for(int l=0; l<16; l++) {
+					for(int k=0; k<16; k++) {
+						invertPixel(pixelBuf,width,height,{i+k,j+l});
 					}
-				} else if(hiliteInvertFlag==2) {
-					for(int l=0; l<16; l++) {
-						for(int k=0; k<16; k++) {
-							hilitePixel(pixelBuf,width,height,0xFF0000,{i+k,j+l});
-						}
+				}
+			} else if(hiliteInvertFlag==2) {
+				for(int l=0; l<16; l++) {
+					for(int k=0; k<16; k++) {
+						hilitePixel(pixelBuf,width,height,0xFF0000,{i+k,j+l});
 					}
 				}
 			}

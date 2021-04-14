@@ -8,12 +8,12 @@
 .include "vars.asm"
 
 ;Expand ROM to 8MB and SRAM to 128KB
-.org $7FBD
+.org $FFBD
 	.db $07
-.org $7FD7
+.org $FFD7
 	.db $0D
 
-;Move GE levels from bank $23 to extended region
+;Allow sprite data to be located in extended region
 .include "movegelevs.asm"
 ;Apply midpoints patch
 .include "moremidpoints.asm"
