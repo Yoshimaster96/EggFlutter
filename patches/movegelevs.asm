@@ -14,7 +14,8 @@ SetSpriteDataPointer:
 	and.w #$00FF
 	sta.l $702600
 	sta.b $04
-	bpl SetSpriteDataPointer_Return
+	and.w #$0080
+	beq SetSpriteDataPointer_Return
 	ldx.w #$0000
 	ldy.w #$0000
 SetSpriteDataPointer_CopyData:
