@@ -15,7 +15,6 @@ typedef struct {
 	std::vector<object_t> objects;
 	std::vector<object_t*> assocObjects[0x8000];
 	WORD tilemap[0x8000];
-	bool invalidObjects[0x8000];
 } level_object_data_ctx_t;
 
 //Variables
@@ -31,8 +30,8 @@ void initOtherObjectBuffers();
 //Object management
 int loadObjects(BYTE * data);
 int saveObjects(BYTE * data);
+int selectObjects(RECT rect);
 void clearObjectSelection();
-int selectObjects(RECT rect,bool ctrl);
 void insertObjects(int x,int y);
 void deleteObjects();
 void moveObjects(int dx,int dy);

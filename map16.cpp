@@ -6,7 +6,10 @@ BYTE map16Buffer[0x80000];
 
 void loadMap16() {
 	//Load Map16 tiles
-	memset(map16Buffer,0,0x80000);
+	for(int i=0; i<0x80000; i+=2) {
+		map16Buffer[i] = 0xFF;
+		map16Buffer[i+1] = 0x18;
+	}
 	for(int i=0; i<0xA7; i++) {
 		WORD curPageOff = romBuf[0x0C32A4+(i<<1)]|(romBuf[0x0C32A5+(i<<1)]<<8);
 		WORD nextPageOff = romBuf[0x0C32A6+(i<<1)]|(romBuf[0x0C32A7+(i<<1)]<<8);

@@ -9,8 +9,6 @@ typedef struct {
 	BYTE props;
 	DWORD tile;
 	int offsX,offsY;
-	int numOccupiedTiles;
-	int occupiedTiles[17];
 } sprite_tile_t;
 typedef struct {
 	BYTE data[8];
@@ -21,7 +19,6 @@ typedef struct {
 typedef struct {
 	std::vector<sprite_t> sprites;
 	std::vector<sprite_t*> assocSprites[0x8000];
-	bool invalidSprites[0x8000];
 } level_sprite_data_ctx_t;
 
 //Variables
@@ -37,8 +34,8 @@ void initOtherSpriteBuffers();
 //Sprite management
 void loadSprites(BYTE * data);
 int saveSprites(BYTE * data);
+int selectSprites(RECT rect);
 void clearSpriteSelection();
-int selectSprites(RECT rect,bool ctrl);
 void insertSprites(int x,int y);
 void deleteSprites();
 void moveSprites(int dx,int dy);

@@ -9072,9 +9072,8 @@ int loadObjects(BYTE * data) {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		objectContexts[curObjCtx].assocObjects[i].clear();
-		objectContexts[curObjCtx].tilemap[i] = 0;
-		objectContexts[curObjCtx].invalidObjects[i] = false;
 	}
+	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	objectContexts[curObjCtx].objects.clear();
 	//Init stuff
 	int curSz = 0;
@@ -9118,55 +9117,22 @@ int saveObjects(BYTE * data) {
 	}
 }
 
-//Manipulation (internal)
-void addToObjectSelection(int index) {
-	//Select object
-	object_t thisObject = objectContexts[0].objects[index];
-	thisObject.selected = true;
-	//Mark occupied tiles as invalid
-	for(int i = 0; i < thisObject.occupiedTiles.size(); i++) {
-		objectContexts[0].invalidObjects[thisObject.occupiedTiles[i]] = true;
-	}
-}
-void removeFromObjectSelection(int index) {
-	//Deselect object
-	object_t thisObject = objectContexts[0].objects[index];
-	thisObject.selected = false;
-	//Mark occupied tiles as invalid
-	for(int i = 0; i < thisObject.occupiedTiles.size(); i++) {
-		objectContexts[0].invalidObjects[thisObject.occupiedTiles[i]] = true;
-	}
+//Manipulation
+int selectObjects(RECT rect) {
+	clearObjectSelection();
+	//TODO
 }
 void clearObjectSelection() {
 	//Deselect all objects
 	for(int n = 0; n < objectContexts[0].objects.size(); n++) {
 		object_t thisObject = objectContexts[0].objects[n];
 		thisObject.selected = false;
-		//Mark occupied tiles as invalid
-		for(int i = 0; i < thisObject.occupiedTiles.size(); i++) {
-			objectContexts[0].invalidObjects[thisObject.occupiedTiles[i]] = true;
-		}
 	}
-}
-
-//Manipulation
-int selectObjects(RECT rect,bool ctrl) {
-	//TODO
 }
 void insertObjects(int x,int y) {
 	//TODO
 }
 void deleteObjects() {
-	//Invalidate occupied tiles
-	for(int n = 0; n < objectContexts[0].objects.size(); n++) {
-		object_t thisObject = objectContexts[0].objects[n];
-		if(thisObject.selected) {
-			//Mark occupied tiles as invalid
-			for(int i = 0; i < thisObject.occupiedTiles.size(); i++) {
-				objectContexts[0].invalidObjects[thisObject.occupiedTiles[i]] = true;
-			}
-		}
-	}
 	//Delete selected objects
 	remove_if(objectContexts[0].objects.begin(),objectContexts[0].objects.end(),object_delPred);
 }

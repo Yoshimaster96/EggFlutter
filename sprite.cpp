@@ -16,101 +16,6 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 	entry.tile		 = tile;
 	entry.offsX		 = offsX;
 	entry.offsY		 = offsY;
-	//Calculate occupied tile data
-	int spX = s->data[2];
-	int spY = s->data[1]&0xFE;
-	int spTileIdx = spX|(spY<<8);
-	entry.numOccupiedTiles = 0;
-	switch(tile&0xC000) {
-		case 0x0000: {
-			if(props&1) {
-				//16x16
-				entry.numOccupiedTiles = 1;
-				entry.occupiedTiles[0] = spTileIdx;
-				if(offsX&0xF) {
-					entry.numOccupiedTiles <<= 1;
-					entry.occupiedTiles[1] = spTileIdx+1;
-				}
-				if(offsY&0xF) {
-					entry.numOccupiedTiles <<= 1;
-					if(offsX&0xF) {
-						entry.occupiedTiles[2] = spTileIdx+0x100;
-						entry.occupiedTiles[3] = spTileIdx+0x101;
-					} else {
-						entry.occupiedTiles[1] = spTileIdx+0x100;
-					}
-				}
-			} else {
-				//8x8
-				entry.numOccupiedTiles = 1;
-				entry.occupiedTiles[0] = spTileIdx;
-				if((offsX&0xF)>8) {
-					entry.numOccupiedTiles <<= 1;
-					entry.occupiedTiles[1] = spTileIdx+1;
-				}
-				if((offsY&0xF)>8) {
-					entry.numOccupiedTiles <<= 1;
-					if((offsX&0xF)>8) {
-						entry.occupiedTiles[2] = spTileIdx+0x100;
-						entry.occupiedTiles[3] = spTileIdx+0x101;
-					} else {
-						entry.occupiedTiles[1] = spTileIdx+0x100;
-					}
-				}
-			}
-			break;
-		}
-		case 0x4000: {
-			//16x16
-			entry.numOccupiedTiles = 1;
-			entry.occupiedTiles[0] = spTileIdx;
-			if(offsX&0xF) {
-				entry.numOccupiedTiles <<= 1;
-				entry.occupiedTiles[1] = spTileIdx+1;
-			}
-			if(offsY&0xF) {
-				entry.numOccupiedTiles <<= 1;
-				if(offsX&0xF) {
-					entry.occupiedTiles[2] = spTileIdx+0x100;
-					entry.occupiedTiles[3] = spTileIdx+0x101;
-				} else {
-					entry.occupiedTiles[1] = spTileIdx+0x100;
-				}
-			}
-			break;
-		}
-		case 0x8000: {
-			//256x1
-			entry.numOccupiedTiles = 16;
-			for(int i=0; i<16; i++) {
-				entry.occupiedTiles[i] = spTileIdx+i;
-			}
-			if(offsX&0xF) {
-				entry.numOccupiedTiles++;
-				entry.occupiedTiles[16] = spTileIdx+16;
-			}
-			break;
-		}
-		case 0xC000: {
-			//8x8
-			entry.numOccupiedTiles = 1;
-			entry.occupiedTiles[0] = spTileIdx;
-			if((offsX&0xF)>8) {
-				entry.numOccupiedTiles <<= 1;
-				entry.occupiedTiles[1] = spTileIdx+1;
-			}
-			if((offsY&0xF)>8) {
-				entry.numOccupiedTiles <<= 1;
-				if((offsX&0xF)>8) {
-					entry.occupiedTiles[2] = spTileIdx+0x100;
-					entry.occupiedTiles[3] = spTileIdx+0x101;
-				} else {
-					entry.occupiedTiles[1] = spTileIdx+0x100;
-				}
-			}
-			break;
-		}
-	}
 	//Store in sprite
 	s->tiles.push_back(entry);
 }
@@ -4100,7 +4005,6 @@ void loadSprites(BYTE * data) {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		spriteContexts[curSpCtx].assocSprites[i].clear();
-		spriteContexts[curSpCtx].invalidSprites[i] = false;
 	}
 	spriteContexts[curSpCtx].sprites.clear();
 	//Reload buffer with sprite data
@@ -4135,28 +4039,45 @@ int saveSprites(BYTE * data) {
 	}
 }
 
-//Manipulation (internal)
-void addToSpriteSelection(int index) {
-	//Select sprite
-	sprite_t thisSprite = spriteContexts[0].sprites[index];
-	thisSprite.selected = true;
-	//Mark occupied tiles as invalid
-	for(int i=0; i<thisSprite.tiles.size(); i++) {
-		sprite_tile_t thisTile = thisSprite.tiles[i];
-		for(int j=0; j<thisTile.numOccupiedTiles; j++) {
-			spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
-		}
-	}
-}
-void removeFromSpriteSelection(int index) {
-	//Deselect sprite
-	sprite_t thisSprite = spriteContexts[0].sprites[index];
-	thisSprite.selected = false;
-	//Mark occupied tiles as invalid
-	for(int i=0; i<thisSprite.tiles.size(); i++) {
-		sprite_tile_t thisTile = thisSprite.tiles[i];
-		for(int j=0; j<thisTile.numOccupiedTiles; j++) {
-			spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
+//Manipulation
+int selectSprites(RECT rect) {
+	//Required by IntersectRect (we only care about the bool result)
+	RECT dummyIntersect;
+	//Check each sprite
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t thisSprite = spriteContexts[0].sprites[n];
+		thisSprite.selected = false;
+		int xpos = thisSprite.data[2];
+		int ypos = thisSprite.data[1]>>1;
+		//Check each sprite tile for intersection
+		for(int i=0; i<thisSprite.tiles.size(); i++) {
+			sprite_tile_t thisSpriteTile = thisSprite.tiles[i];
+			xpos += thisSpriteTile.offsX;
+			ypos += thisSpriteTile.offsY;
+			switch(thisSpriteTile.tile&0xC000) {
+				case 0x0000: {
+					int tileSize = (thisSpriteTile.tile&1)?16:8;
+					RECT tileRect = {xpos,ypos,xpos+tileSize,ypos+tileSize};
+					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					break;
+				}
+				case 0x4000: {
+					RECT tileRect = {xpos,ypos,xpos+16,ypos+16};
+					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					break;
+				}
+				case 0x8000: {
+					RECT tileRect = {xpos,ypos,xpos+256,ypos+1};
+					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					break;
+				}
+				case 0xC000: {
+					RECT tileRect = {xpos,ypos,xpos+8,ypos+8};
+					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					break;
+				}
+			}
+			if(thisSprite.selected) break;
 		}
 	}
 }
@@ -4165,30 +4086,6 @@ void clearSpriteSelection() {
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t thisSprite = spriteContexts[0].sprites[n];
 		thisSprite.selected = false;
-		//Mark occupied tiles as invalid
-		for(int i=0; i<thisSprite.tiles.size(); i++) {
-			sprite_tile_t thisTile = thisSprite.tiles[i];
-			for(int j=0; j<thisTile.numOccupiedTiles; j++) {
-				spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
-			}
-		}
-	}
-}
-
-//Manipulation
-int selectSprites(RECT rect,bool ctrl) {
-	if(ctrl) {
-		//TODO
-		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-			//TODO
-		}
-		//TODO
-	} else {
-		//TODO
-		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-			//TODO
-		}
-		//TODO
 	}
 }
 void insertSprites(int x,int y) {
@@ -4223,19 +4120,6 @@ void insertSprites(int x,int y) {
 	}
 }
 void deleteSprites() {
-	//Invalidate occupied tiles
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t thisSprite = spriteContexts[0].sprites[n];
-		if(thisSprite.selected) {
-			//Mark occupied tiles as invalid
-			for(int i=0; i<thisSprite.tiles.size(); i++) {
-				sprite_tile_t thisTile = thisSprite.tiles[i];
-				for(int j=0; j<thisTile.numOccupiedTiles; j++) {
-					spriteContexts[0].invalidSprites[thisTile.occupiedTiles[j]] = true;
-				}
-			}
-		}
-	}
 	//Delete selected sprites
 	remove_if(spriteContexts[0].sprites.begin(),spriteContexts[0].sprites.end(),sprite_delPred);
 }
@@ -4259,9 +4143,15 @@ void moveSprites(int dx,int dy) {
 	if(numSelectedSprites) {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
-		//TODO
+		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>0x80)) return;
 		//Move selected sprites
-		//TODO
+		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+			sprite_t thisSprite = spriteContexts[0].sprites[n];
+			if(thisSprite.selected) {
+				thisSprite.data[2] += dx;
+				thisSprite.data[1] += (dy<<1);
+			}
+		}
 	}
 }
 

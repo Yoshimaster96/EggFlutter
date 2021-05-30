@@ -170,11 +170,11 @@ DWORD convAddr_PCtoSNES_YI(DWORD addr) {
 	if(addr>0x400000) {
 		return addr|0x800000;
 	} else if(addr>0x200000) {
-		//TODO
+		return (addr&0x7FFF)|((addr&0x1F8000)<<1)|0x808000;
 	} else if(addr>0xC0000) {
 		return addr|0x400000;
 	} else {
-		return (addr&0x7FFF)|((addr&0x3F8000)<<1)|0x8000;
+		return (addr&0x7FFF)|((addr&0x1F8000)<<1)|0x8000;
 	}
 }
 
