@@ -9,7 +9,7 @@ typedef struct {
 	BYTE data[8];
 	int dataSize;
 	bool selected;
-	std::vector<int> occupiedTiles;
+	int numOccupiedTiles;
 } object_t;
 typedef struct {
 	std::vector<object_t> objects;
@@ -38,6 +38,7 @@ void moveObjects(int dx,int dy);
 void resizeObjects(int dx,int dy);
 void increaseObjectZ();
 void decreaseObjectZ();
+int focusObject(int x,int y,WORD * cursor);
 //Window
 LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

@@ -18,7 +18,6 @@ typedef struct {
 } sprite_t;
 typedef struct {
 	std::vector<sprite_t> sprites;
-	std::vector<sprite_t*> assocSprites[0x8000];
 } level_sprite_data_ctx_t;
 
 //Variables
@@ -39,6 +38,7 @@ void clearSpriteSelection();
 void insertSprites(int x,int y);
 void deleteSprites();
 void moveSprites(int dx,int dy);
+int focusSprite(int x,int y,WORD * cursor);
 //Window
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

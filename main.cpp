@@ -733,11 +733,13 @@ void onEditSp() {
 }
 void onIncZ() {
 	increaseObjectZ();
-	//TODO
+	drawObjects();
+	updateEntireScreen();
 }
 void onDecZ() {
 	decreaseObjectZ();
-	//TODO
+	drawObjects();
+	updateEntireScreen();
 }
 //View
 void onViewObj() {
@@ -895,6 +897,7 @@ HBITMAP			hbmpMain;
 DWORD *			bmpDataMain;
 int xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
 int yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
+bool dragFlag = false;
 int selOp = 0;
 RECT selRect = {0,0,0,0};
 
@@ -906,10 +909,14 @@ void dispEntrances(RECT rect) {
 	//TODO
 }
 void dispExits(RECT rect) {
-	int minx = rect.left&0xFF00;
+	int minx = rect.left&0x7F00;
 	int miny = rect.top&0x7F00;
-	int maxx = (rect.right&0xFF00)+0x100;
+	int maxx = (rect.right&0x7F00)+0x100;
 	int maxy = (rect.bottom&0x7F00)+0x100;
+	if(minx<0) minx = 0;
+	if(miny<0) miny = 0;
+	if(maxx>0x1000) maxx = 0x1000;
+	if(maxy>0x800) maxy = 0x800;
 	for(int j=miny; j<maxy; j+=0x100) {
 		for(int i=minx; i<maxx; i+=0x100) {
 			//Draw screen borders
@@ -943,10 +950,14 @@ void dispExits(RECT rect) {
 	}
 }
 void dispGrid(RECT rect) {
-	int minx = rect.left&0xFFF0;
+	int minx = rect.left&0x7FF0;
 	int miny = rect.top&0x7FF0;
-	int maxx = (rect.right&0xFFF0)+0x10;
+	int maxx = (rect.right&0x7FF0)+0x10;
 	int maxy = (rect.bottom&0x7FF0)+0x10;
+	if(minx<0) minx = 0;
+	if(miny<0) miny = 0;
+	if(maxx>0x1000) maxx = 0x1000;
+	if(maxy>0x800) maxy = 0x800;
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			for(int n=0; n<0x10; n++) {
@@ -1210,20 +1221,47 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		//Mouse input
 		case WM_MOUSEMOVE: {
-			//TODO
+			if(dragFlag) {
+				if(selOp==4) {
+					//TODO
+				} else if(selOp==5) {
+					//TODO
+				} else {
+					if(selOp&1) {
+						//TODO
+					}
+					if(selOp&2) {
+						//TODO
+					}
+				}
+			} else {
+				WORD cursor = 0x7F00; //IDC_ARROW
+				if(eObj) {
+					selOp = focusObject(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll,&cursor);
+				} else if(eSp) {
+					selOp = focusSprite(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll,&cursor);
+				}
+				SetCursor(LoadCursor(NULL,(LPCTSTR)cursor));
+			}
 			break;
 		}
 		case WM_LBUTTONDOWN: {
 			//TODO
+			dragFlag = true;
 			break;
 		}
 		case WM_RBUTTONDOWN: {
 			//TODO
+			dragFlag = true;
+			selOp = 5;
 			break;
 		}
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP: {
-			//TODO
+			if(dragFlag && selOp==4) {
+				//TODO
+			}
+			dragFlag = false;
 			break;
 		}
 		default:

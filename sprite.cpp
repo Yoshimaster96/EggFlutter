@@ -3935,16 +3935,11 @@ int setSpriteContext(int ctx) {
 void drawSprites() {
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
+		thisSprite->tiles.clear();
 		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
 		id &= 0x1FF;
 		spriteDrawFunc[id](thisSprite);
 	}
-}
-void drawSingleSprite(int n) {
-	sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
-	int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
-	id &= 0x1FF;
-	spriteDrawFunc[id](thisSprite);
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
@@ -4003,9 +3998,6 @@ bool sprite_delPred(sprite_t & un) {
 //Load/save
 void loadSprites(BYTE * data) {
 	//Clear buffers
-	for(int i=0; i<0x8000; i++) {
-		spriteContexts[curSpCtx].assocSprites[i].clear();
-	}
 	spriteContexts[curSpCtx].sprites.clear();
 	//Reload buffer with sprite data
 	while(true) {
@@ -4045,47 +4037,47 @@ int selectSprites(RECT rect) {
 	RECT dummyIntersect;
 	//Check each sprite
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t thisSprite = spriteContexts[0].sprites[n];
-		thisSprite.selected = false;
-		int xpos = thisSprite.data[2];
-		int ypos = thisSprite.data[1]>>1;
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		thisSprite->selected = false;
+		int xpos = (thisSprite->data[2])<<4;
+		int ypos = (thisSprite->data[1]>>1)<<4;
 		//Check each sprite tile for intersection
-		for(int i=0; i<thisSprite.tiles.size(); i++) {
-			sprite_tile_t thisSpriteTile = thisSprite.tiles[i];
-			xpos += thisSpriteTile.offsX;
-			ypos += thisSpriteTile.offsY;
-			switch(thisSpriteTile.tile&0xC000) {
+		for(int i=0; i<thisSprite->tiles.size(); i++) {
+			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
+			int xpos2 = xpos+thisSpriteTile->offsX;
+			int ypos2 = ypos+thisSpriteTile->offsY;
+			switch(thisSpriteTile->tile&0xC000) {
 				case 0x0000: {
-					int tileSize = (thisSpriteTile.tile&1)?16:8;
-					RECT tileRect = {xpos,ypos,xpos+tileSize,ypos+tileSize};
-					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					int tileSize = (thisSpriteTile->props&1)?16:8;
+					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
 					break;
 				}
 				case 0x4000: {
-					RECT tileRect = {xpos,ypos,xpos+16,ypos+16};
-					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
 					break;
 				}
 				case 0x8000: {
-					RECT tileRect = {xpos,ypos,xpos+256,ypos+1};
-					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
 					break;
 				}
 				case 0xC000: {
-					RECT tileRect = {xpos,ypos,xpos+8,ypos+8};
-					thisSprite.selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
 					break;
 				}
 			}
-			if(thisSprite.selected) break;
+			if(thisSprite->selected) break;
 		}
 	}
 }
 void clearSpriteSelection() {
 	//Deselect all sprites
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t thisSprite = spriteContexts[0].sprites[n];
-		thisSprite.selected = false;
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		thisSprite->selected = false;
 	}
 }
 void insertSprites(int x,int y) {
@@ -4094,10 +4086,10 @@ void insertSprites(int x,int y) {
 	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be pasted
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t thisSprite = spriteContexts[0].sprites[n];
-		if(thisSprite.selected) {
-			int xpos = thisSprite.data[2];
-			int ypos = thisSprite.data[1]>>1;
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		if(thisSprite->selected) {
+			int xpos = thisSprite->data[2];
+			int ypos = thisSprite->data[1]>>1;
 			if(xpos<minX) minX = xpos;
 			if(ypos<minY) minY = ypos;
 			if(xpos>maxX) maxX = xpos;
@@ -4129,10 +4121,10 @@ void moveSprites(int dx,int dy) {
 	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be pasted
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t thisSprite = spriteContexts[0].sprites[n];
-		if(thisSprite.selected) {
-			int xpos = thisSprite.data[2];
-			int ypos = thisSprite.data[1]>>1;
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		if(thisSprite->selected) {
+			int xpos = thisSprite->data[2];
+			int ypos = thisSprite->data[1]>>1;
 			if(xpos<minX) minX = xpos;
 			if(ypos<minY) minY = ypos;
 			if(xpos>maxX) maxX = xpos;
@@ -4146,13 +4138,65 @@ void moveSprites(int dx,int dy) {
 		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>0x80)) return;
 		//Move selected sprites
 		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-			sprite_t thisSprite = spriteContexts[0].sprites[n];
-			if(thisSprite.selected) {
-				thisSprite.data[2] += dx;
-				thisSprite.data[1] += (dy<<1);
+			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+			if(thisSprite->selected) {
+				thisSprite->data[2] += dx;
+				thisSprite->data[1] += (dy<<1);
 			}
 		}
 	}
+}
+int focusSprite(int x,int y,WORD * cursor) {
+	//Check each sprite
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		int xpos = (thisSprite->data[2])<<4;
+		int ypos = (thisSprite->data[1]>>1)<<4;
+		//Check each sprite tile for intersection
+		for(int i=0; i<thisSprite->tiles.size(); i++) {
+			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
+			int xpos2 = xpos+thisSpriteTile->offsX;
+			int ypos2 = ypos+thisSpriteTile->offsY;
+			switch(thisSpriteTile->tile&0xC000) {
+				case 0x0000: {
+					int tileSize = (thisSpriteTile->props&1)?16:8;
+					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+					if(PtInRect(&tileRect,{x,y})) {
+						*cursor = 0x7F86; //IDC_SIZEALL
+						return 5;
+					}
+					break;
+				}
+				case 0x4000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+					if(PtInRect(&tileRect,{x,y})) {
+						*cursor = 0x7F86; //IDC_SIZEALL
+						return 5;
+					}
+					break;
+				}
+				case 0x8000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+					if(PtInRect(&tileRect,{x,y})) {
+						*cursor = 0x7F86; //IDC_SIZEALL
+						return 5;
+					}
+					break;
+				}
+				case 0xC000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+					if(PtInRect(&tileRect,{x,y})) {
+						*cursor = 0x7F86; //IDC_SIZEALL
+						return 5;
+					}
+					break;
+				}
+			}
+		}
+	}
+	//Return default
+	*cursor = 0x7F00; //IDC_ARROW
+	return 0;
 }
 
 ///////////////////

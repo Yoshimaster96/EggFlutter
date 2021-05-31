@@ -11,7 +11,7 @@ int curObjCtx = 0;
 void addObjectTile(object_t * o,WORD tile,int offset) {
 	if(offset>=0 && offset<0x8000) {
 		//Store in object
-		o->occupiedTiles.push_back(offset);
+		o->numOccupiedTiles++;
 		//Set tile in tilemap for current context
 		objectContexts[curObjCtx].tilemap[offset] = tile;
 		objectContexts[curObjCtx].assocObjects[offset].push_back(o);
@@ -8970,23 +8970,21 @@ int setObjectContext(int ctx) {
 	return prevCtx;
 }
 void drawObjects() {
-	for(int n = 0; n < objectContexts[curObjCtx].objects.size(); n++) {
-		object_t thisObject = objectContexts[curObjCtx].objects[n];
-		int id = thisObject.data[0];
-		if(id) objectDrawFunc[id](&thisObject);
-		else {
-			id = thisObject.data[3];
-			objectDrawFunc_extended[id](&thisObject);
-		}
+	//Clear buffers
+	for(int i=0; i<0x8000; i++) {
+		objectContexts[curObjCtx].assocObjects[i].clear();
 	}
-}
-void drawSingleObject(int n) {
-	object_t thisObject = objectContexts[curObjCtx].objects[n];
-	int id = thisObject.data[0];
-	if(id) objectDrawFunc[id](&thisObject);
-	else {
-		id = thisObject.data[3];
-		objectDrawFunc_extended[id](&thisObject);
+	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
+	//Draw objects
+	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
+		thisObject->numOccupiedTiles = 0;
+		int id = thisObject->data[0];
+		if(id) objectDrawFunc[id](thisObject);
+		else {
+			id = thisObject->data[3];
+			objectDrawFunc_extended[id](thisObject);
+		}
 	}
 }
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
@@ -9028,9 +9026,9 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 		}
 	}
 	//Draw text for objects which have no tiles
-	for(int n = 0; n < objectContexts[curObjCtx].objects.size(); n++) {
-		object_t thisObject = objectContexts[curObjCtx].objects[n];
-		if(thisObject.occupiedTiles.size()==0) {
+	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
+		if(thisObject->numOccupiedTiles==0) {
 			//TODO
 		}
 	}
@@ -9070,10 +9068,6 @@ bool object_delPred(object_t & un) {
 //Load/save
 int loadObjects(BYTE * data) {
 	//Clear buffers
-	for(int i=0; i<0x8000; i++) {
-		objectContexts[curObjCtx].assocObjects[i].clear();
-	}
-	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	objectContexts[curObjCtx].objects.clear();
 	//Init stuff
 	int curSz = 0;
@@ -9096,7 +9090,7 @@ int loadObjects(BYTE * data) {
 		}
 		//Init other elements to sane values
 		entry.selected = false;
-		entry.occupiedTiles.clear();
+		entry.numOccupiedTiles = 0;
 		//Push back
 		objectContexts[curObjCtx].objects.push_back(entry);
 	}
@@ -9119,14 +9113,33 @@ int saveObjects(BYTE * data) {
 
 //Manipulation
 int selectObjects(RECT rect) {
+	//Select nothing by default
 	clearObjectSelection();
-	//TODO
+	//Get tile region
+	int minx = rect.left&0x7FF0;
+	int miny = rect.top&0x7FF0;
+	int maxx = (rect.right&0x7FF0)+0x10;
+	int maxy = (rect.bottom&0x7FF0)+0x10;
+	if(minx<0) minx = 0;
+	if(miny<0) miny = 0;
+	if(maxx>0x1000) maxx = 0x1000;
+	if(maxy>0x800) maxy = 0x800;
+	//For each tile, mark all occupied objects as selected
+	for(int j=miny; j<maxy; j+=0x10) {
+		for(int i=minx; i<maxx; i+=0x10) {
+			int tileIdx = (i>>4)|(j<<4);
+			for(int n=0; n<objectContexts[0].assocObjects[tileIdx].size(); n++) {
+				object_t * thisObject = objectContexts[0].assocObjects[tileIdx][n];
+				thisObject->selected = true;
+			}
+		}
+	}
 }
 void clearObjectSelection() {
 	//Deselect all objects
-	for(int n = 0; n < objectContexts[0].objects.size(); n++) {
-		object_t thisObject = objectContexts[0].objects[n];
-		thisObject.selected = false;
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		thisObject->selected = false;
 	}
 }
 void insertObjects(int x,int y) {
@@ -9147,6 +9160,11 @@ void increaseObjectZ() {
 }
 void decreaseObjectZ() {
 	//TODO
+}
+int focusObject(int x,int y,WORD * cursor) {
+	//Return default
+	*cursor = 0x7F00; //IDC_ARROW
+	return 0;
 }
 
 ///////////////////
