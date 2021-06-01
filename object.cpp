@@ -11,7 +11,7 @@ int curObjCtx = 0;
 void addObjectTile(object_t * o,WORD tile,int offset) {
 	if(offset>=0 && offset<0x8000) {
 		//Store in object
-		o->numOccupiedTiles++;
+		o->occupiedTiles.push_back(offset);
 		//Set tile in tilemap for current context
 		objectContexts[curObjCtx].tilemap[offset] = tile;
 		objectContexts[curObjCtx].assocObjects[offset].push_back(o);
@@ -8973,17 +8973,22 @@ void drawObjects() {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		objectContexts[curObjCtx].assocObjects[i].clear();
+		objectContexts[curObjCtx].invalidObjects[i] = false;
 	}
 	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	//Draw objects
 	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
-		thisObject->numOccupiedTiles = 0;
+		thisObject->occupiedTiles.clear();
 		int id = thisObject->data[0];
 		if(id) objectDrawFunc[id](thisObject);
 		else {
 			id = thisObject->data[3];
 			objectDrawFunc_extended[id](thisObject);
+		}
+		//Draw text for objects which have no tiles
+		if(thisObject->occupiedTiles.size()==0) {
+			//TODO
 		}
 	}
 }
@@ -9000,7 +9005,15 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
 			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
-			dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
+			if((tile&0xFF00)==0xBC00) {
+				//TODO
+			} else if((tile&0xFF00)==0xBE00) {
+				//TODO
+			} else if((tile&0xFF00)==0xBF00) {
+				//TODO
+			} else {
+				dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
+			}
 			//Check object selection to highlight/invert
 			int hiliteInvertFlag = 0;
 			for(int n=0; n<objectContexts[curObjCtx].assocObjects[tileIdx].size(); n++) {
@@ -9023,13 +9036,6 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 					}
 				}
 			}
-		}
-	}
-	//Draw text for objects which have no tiles
-	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
-		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
-		if(thisObject->numOccupiedTiles==0) {
-			//TODO
 		}
 	}
 }
@@ -9090,7 +9096,7 @@ int loadObjects(BYTE * data) {
 		}
 		//Init other elements to sane values
 		entry.selected = false;
-		entry.numOccupiedTiles = 0;
+		entry.occupiedTiles.clear();
 		//Push back
 		objectContexts[curObjCtx].objects.push_back(entry);
 	}
@@ -9161,7 +9167,8 @@ void increaseObjectZ() {
 void decreaseObjectZ() {
 	//TODO
 }
-int focusObject(int x,int y,WORD * cursor) {
+int focusObject(int x,int y,DWORD * cursor) {
+	//TODO
 	//Return default
 	*cursor = 0x7F00; //IDC_ARROW
 	return 0;

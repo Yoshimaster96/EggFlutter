@@ -899,7 +899,7 @@ int xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
 int yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
 bool dragFlag = false;
 int selOp = 0;
-RECT selRect = {0,0,0,0};
+POINT selpCur,selpPrev = {0,0};
 
 //Extra UI drawing stuff
 void dispEntrances(RECT rect) {
@@ -1224,8 +1224,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			if(dragFlag) {
 				if(selOp==4) {
 					//TODO
+					SetCursor(LoadCursor(NULL,IDC_ARROW));
 				} else if(selOp==5) {
 					//TODO
+					SetCursor(LoadCursor(NULL,IDC_SIZEALL));
 				} else {
 					if(selOp&1) {
 						//TODO
@@ -1235,7 +1237,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					}
 				}
 			} else {
-				WORD cursor = 0x7F00; //IDC_ARROW
+				DWORD cursor = 0x7F00; //IDC_ARROW
 				if(eObj) {
 					selOp = focusObject(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll,&cursor);
 				} else if(eSp) {
@@ -1251,9 +1253,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		case WM_RBUTTONDOWN: {
-			//TODO
+			if(eObj) {
+				insertObjects(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll);
+			} else if(eSp) {
+				insertSprites(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll);
+			}
 			dragFlag = true;
 			selOp = 5;
+			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
 			break;
 		}
 		case WM_LBUTTONUP:

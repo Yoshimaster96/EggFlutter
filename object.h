@@ -9,12 +9,13 @@ typedef struct {
 	BYTE data[8];
 	int dataSize;
 	bool selected;
-	int numOccupiedTiles;
+	std::vector<int> occupiedTiles;
 } object_t;
 typedef struct {
 	std::vector<object_t> objects;
 	std::vector<object_t*> assocObjects[0x8000];
 	WORD tilemap[0x8000];
+	bool invalidObjects[0x8000];
 } level_object_data_ctx_t;
 
 //Variables
@@ -38,7 +39,7 @@ void moveObjects(int dx,int dy);
 void resizeObjects(int dx,int dy);
 void increaseObjectZ();
 void decreaseObjectZ();
-int focusObject(int x,int y,WORD * cursor);
+int focusObject(int x,int y,DWORD * cursor);
 //Window
 LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

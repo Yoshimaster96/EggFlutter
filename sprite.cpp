@@ -9,6 +9,14 @@ int curSpCtx = 0;
 //SPRITE OCCUPY REGISTRATION &//
 // 8x8/16x16 SECTION HANDLING //
 ////////////////////////////////
+void occupySpriteTile(sprite_t * s,int offset) {
+	if(offset>=0 && offset<0x8000) {
+		//Store in sprite
+		occupySpriteTile(s,offset);
+		//Set tile in tilemap for current context
+		spriteContexts[curSpCtx].assocSprites[offset].push_back(s);
+	}
+}
 void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 	//Simple setup
 	sprite_tile_t entry;
@@ -16,6 +24,78 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 	entry.tile		 = tile;
 	entry.offsX		 = offsX;
 	entry.offsY		 = offsY;
+	//Determine occupied tiles
+	int spX = s->data[2];
+	int spY = s->data[1]&0xFE;
+	int spTileIdx = spX|(spY<<8);
+	switch(tile&0xC000) {
+		case 0x0000: {
+			if(props&1) {
+				//16x16
+				occupySpriteTile(s,spTileIdx);
+				if(offsX&0xF) {
+					occupySpriteTile(s,spTileIdx+1);
+				}
+				if(offsY&0xF) {
+					occupySpriteTile(s,spTileIdx+0x100);
+					if(offsX&0xF) {
+						occupySpriteTile(s,spTileIdx+0x101);
+					}
+				}
+			} else {
+				//8x8
+				occupySpriteTile(s,spTileIdx);
+				if((offsX&0xF)>7) {
+					occupySpriteTile(s,spTileIdx+1);
+				}
+				if((offsY&0xF)>7) {
+					occupySpriteTile(s,spTileIdx+0x100);
+					if((offsX&0xF)>7) {
+						occupySpriteTile(s,spTileIdx+0x101);
+					}
+				}
+			}
+			break;
+		}
+		case 0x4000: {
+			//16x16
+			occupySpriteTile(s,spTileIdx);
+			if(offsX&0xF) {
+				occupySpriteTile(s,spTileIdx+1);
+			}
+			if(offsY&0xF) {
+				occupySpriteTile(s,spTileIdx+0x100);
+				if(offsX&0xF) {
+					occupySpriteTile(s,spTileIdx+0x101);
+				}
+			}
+			break;
+		}
+		case 0x8000: {
+			//256x1
+			for(int i=0; i<16; i++) {
+				occupySpriteTile(s,spTileIdx+i);
+			}
+			if(offsX&0xF) {
+				occupySpriteTile(s,spTileIdx+16);
+			}
+			break;
+		}
+		case 0xC000: {
+			//8x8
+			occupySpriteTile(s,spTileIdx);
+			if((offsX&0xF)>7) {
+				occupySpriteTile(s,spTileIdx+1);
+			}
+			if((offsY&0xF)>7) {
+				occupySpriteTile(s,spTileIdx+0x100);
+				if((offsX&0xF)>7) {
+					occupySpriteTile(s,spTileIdx+0x101);
+				}
+			}
+			break;
+		}
+	}
 	//Store in sprite
 	s->tiles.push_back(entry);
 }
@@ -3933,12 +4013,23 @@ int setSpriteContext(int ctx) {
 	return prevCtx;
 }
 void drawSprites() {
+	//Clear buffers
+	for(int i=0; i<0x8000; i++) {
+		spriteContexts[curSpCtx].assocSprites[i].clear();
+		spriteContexts[curSpCtx].invalidSprites[i] = false;
+	}
+	//Draw sprites
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		thisSprite->tiles.clear();
+		thisSprite->occupiedTiles.clear();
 		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
 		id &= 0x1FF;
 		spriteDrawFunc[id](thisSprite);
+		//Draw text for sprites which have no tiles
+		if(thisSprite->occupiedTiles.size()==0) {
+			//TODO
+		}
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
@@ -3946,7 +4037,6 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		int spX = thisSprite->data[2]<<4;
 		int spY = (thisSprite->data[1]&0xFE)<<3;
-		bool renderedSprite = false;
 		for(int i=0; i<thisSprite->tiles.size(); i++) {
 			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
 			BYTE props = thisSpriteTile->props;
@@ -3972,11 +4062,6 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
 					break;
 				}
 			}
-			renderedSprite = true;
-		}
-		//Draw text for sprites which have no tiles
-		if(!renderedSprite) {
-			//TODO
 		}
 	}
 }
@@ -4012,6 +4097,7 @@ void loadSprites(BYTE * data) {
 		//Init other elements to sane values
 		entry.selected = false;
 		entry.tiles.clear();
+		entry.occupiedTiles.clear();
 		//Push back
 		spriteContexts[curSpCtx].sprites.push_back(entry);
 	}
@@ -4146,7 +4232,7 @@ void moveSprites(int dx,int dy) {
 		}
 	}
 }
-int focusSprite(int x,int y,WORD * cursor) {
+int focusSprite(int x,int y,DWORD * cursor) {
 	//Check each sprite
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
