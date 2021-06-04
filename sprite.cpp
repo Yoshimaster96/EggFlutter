@@ -12,7 +12,7 @@ int curSpCtx = 0;
 void occupySpriteTile(sprite_t * s,int offset) {
 	if(offset>=0 && offset<0x8000) {
 		//Store in sprite
-		occupySpriteTile(s,offset);
+		s->occupiedTiles.push_back(offset);
 		//Set tile in tilemap for current context
 		spriteContexts[curSpCtx].assocSprites[offset].push_back(s);
 	}
@@ -27,7 +27,7 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 	//Determine occupied tiles
 	int spX = s->data[2];
 	int spY = s->data[1]&0xFE;
-	int spTileIdx = spX|(spY<<8);
+	int spTileIdx = spX|(spY<<7);
 	switch(tile&0xC000) {
 		case 0x0000: {
 			if(props&1) {
@@ -4028,7 +4028,9 @@ void drawSprites() {
 		spriteDrawFunc[id](thisSprite);
 		//Draw text for sprites which have no tiles
 		if(thisSprite->occupiedTiles.size()==0) {
-			//TODO
+			char spStr[256];
+			snprintf(spStr,256,"S%01X\n%02X",id>>16,id&0xFF);
+			drawSpriteText(thisSprite,spStr);
 		}
 	}
 }

@@ -1783,6 +1783,58 @@ void drawObject_extendedE0(object_t * o) {
 	mtOff = offsetMap16Right(mtOff);
 	addObjectTile(o,0x0119,mtOff);
 }
+//Special screen copy
+void drawObject_extendedFB(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xBCB0,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCB1,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCB2,mtOff);
+}
+//Special screen scroll enable
+void drawObject_extendedFD(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xBCD0,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD1,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD2,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD3,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD4,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD5,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCD6,mtOff);
+}
+//Special screen scroll disable
+void drawObject_extendedFE(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xBCE0,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE1,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE2,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE3,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE4,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE5,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCE6,mtOff);
+}
+//Special screen clear
+void drawObject_extendedFF(object_t * o) {
+	int mtOff = getBaseMap16Offset(o);
+	addObjectTile(o,0xBCF0,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCF1,mtOff);
+	mtOff = offsetMap16Right(mtOff);
+	addObjectTile(o,0xBCF2,mtOff);
+}
 //Standard objects
 //Ledge
 void drawObject_01(object_t * o) {
@@ -8799,7 +8851,6 @@ void drawObject_F6(object_t * o) {
 	}
 }
 
-
 //Object function pointer table and updater
 void drawObject_unused(object_t * o) {}
 void (*objectDrawFunc_extended[0x100])(object_t * o) = {
@@ -8881,8 +8932,8 @@ void (*objectDrawFunc_extended[0x100])(object_t * o) = {
 	//F0
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
 	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused,
-	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_unused};
+	drawObject_unused,drawObject_unused,drawObject_unused,drawObject_extendedFB,
+	drawObject_unused,drawObject_extendedFD,drawObject_extendedFE,drawObject_extendedFF};
 void (*objectDrawFunc[0x100])(object_t * o) = {
 	//00
 	drawObject_unused,drawObject_01,drawObject_02,drawObject_03,
@@ -8981,14 +9032,22 @@ void drawObjects() {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
 		thisObject->occupiedTiles.clear();
 		int id = thisObject->data[0];
-		if(id) objectDrawFunc[id](thisObject);
+		if(id) {
+			objectDrawFunc[id](thisObject);
+			//Draw text for objects which have no tiles
+			if(thisObject->occupiedTiles.size()==0) {
+				int mtOff = getBaseMap16Offset(thisObject);
+				addObjectTile(thisObject,0xBF00+id,mtOff);
+			}
+		}
 		else {
 			id = thisObject->data[3];
 			objectDrawFunc_extended[id](thisObject);
-		}
-		//Draw text for objects which have no tiles
-		if(thisObject->occupiedTiles.size()==0) {
-			//TODO
+			//Draw text for objects which have no tiles
+			if(thisObject->occupiedTiles.size()==0) {
+				int mtOff = getBaseMap16Offset(thisObject);
+				addObjectTile(thisObject,0xBE00+id,mtOff);
+			}
 		}
 	}
 }
@@ -9001,16 +9060,144 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 	if(miny<0) miny = 0;
 	if(maxx>0x1000) maxx = 0x1000;
 	if(maxy>0x800) maxy = 0x800;
+	char obStr[256];
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
 			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
 			if((tile&0xFF00)==0xBC00) {
-				//TODO
+				switch(tile&0xFF) {
+					//Screen copy
+					case 0xB0: {
+						obStr[0] = 'S';
+						obStr[1] = 'c';
+						obStr[2] = ' ';
+						obStr[3] = 'C';
+						break;
+					}
+					case 0xB1: {
+						obStr[0] = 'r';
+						obStr[1] = 'e';
+						obStr[2] = 'o';
+						obStr[3] = 'p';
+						break;
+					}
+					case 0xB2: {
+						obStr[0] = 'e';
+						obStr[1] = 'n';
+						obStr[2] = 'y';
+						obStr[3] = ' ';
+						break;
+					}
+					//Screen scroll enable
+					case 0xD0: 
+					case 0xE0: {
+						obStr[0] = 'S';
+						obStr[1] = 'c';
+						obStr[2] = ' ';
+						obStr[3] = ' ';
+						break;
+					}
+					case 0xD1: {
+						obStr[0] = 'r';
+						obStr[1] = 'e';
+						obStr[2] = ' ';
+						obStr[3] = ' ';
+						break;
+					}
+					case 0xD2: {
+						obStr[0] = 'e';
+						obStr[1] = 'n';
+						obStr[2] = 'E';
+						obStr[3] = 'n';
+						break;
+					}
+					case 0xD3: 
+					case 0xE3: {
+						obStr[0] = ' ';
+						obStr[1] = ' ';
+						obStr[2] = 'a';
+						obStr[3] = 'b';
+						break;
+					}
+					case 0xD4: 
+					case 0xE4: {
+						obStr[0] = 'S';
+						obStr[1] = 'c';
+						obStr[2] = 'l';
+						obStr[3] = 'e';
+						break;
+					}
+					case 0xD5: 
+					case 0xE5 :{
+						obStr[0] = 'r';
+						obStr[1] = 'o';
+						obStr[2] = ' ';
+						obStr[3] = ' ';
+						break;
+					}
+					case 0xD6: 
+					case 0xE6: {
+						obStr[0] = 'l';
+						obStr[1] = 'l';
+						obStr[2] = ' ';
+						obStr[3] = ' ';
+						break;
+					}
+					//Screen scroll disable
+					case 0xE1: {
+						obStr[0] = 'r';
+						obStr[1] = 'e';
+						obStr[2] = ' ';
+						obStr[3] = 'D';
+						break;
+					}
+					case 0xE2: {
+						obStr[0] = 'e';
+						obStr[1] = 'n';
+						obStr[2] = 'i';
+						obStr[3] = 's';
+						break;
+					}
+					//Screen erase
+					case 0xF0: {
+						obStr[0] = 'S';
+						obStr[1] = 'c';
+						obStr[2] = 'E';
+						obStr[3] = 'r';
+						break;
+					}
+					case 0xF1: {
+						obStr[0] = 'r';
+						obStr[1] = 'e';
+						obStr[2] = 'a';
+						obStr[3] = 's';
+						break;
+					}
+					case 0xF2: {
+						obStr[0] = 'e';
+						obStr[1] = 'n';
+						obStr[2] = 'e';
+						obStr[3] = ' ';
+						break;
+					}
+				}
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
 			} else if((tile&0xFF00)==0xBE00) {
-				//TODO
+				snprintf(obStr,256,"OX%02X",tile&0xFF);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
 			} else if((tile&0xFF00)==0xBF00) {
-				//TODO
+				snprintf(obStr,256,"O %02X",tile&0xFF);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
 			} else {
 				dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
 			}
@@ -9168,6 +9355,10 @@ void decreaseObjectZ() {
 	//TODO
 }
 int focusObject(int x,int y,DWORD * cursor) {
+	//Get top object
+	int tileIdx = (i>>4)|(j<<4);
+	int topIdx = objectContexts[0].assocObjects[tileIdx].size()-1;
+	object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];
 	//TODO
 	//Return default
 	*cursor = 0x7F00; //IDC_ARROW
