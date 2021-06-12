@@ -39,7 +39,7 @@ void moveObjects(int dx,int dy);
 void resizeObjects(int dx,int dy);
 void increaseObjectZ();
 void decreaseObjectZ();
-int focusObject(int x,int y,DWORD * cursor);
+int focusObject(int x,int y,UINT * cursor);
 //Window
 LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

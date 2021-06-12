@@ -9052,14 +9052,10 @@ void drawObjects() {
 	}
 }
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
-	int minx = rect.left&0xFFF0;
-	int miny = rect.top&0xFFF0;
-	int maxx = (rect.right&0xFFF0)+0x10;
-	int maxy = (rect.bottom&0xFFF0)+0x10;
-	if(minx<0) minx = 0;
-	if(miny<0) miny = 0;
-	if(maxx>0x1000) maxx = 0x1000;
-	if(maxy>0x800) maxy = 0x800;
+	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int miny = std::max((int)(rect.top&0x7FF0),0);
+	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
+	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	char obStr[256];
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
@@ -9309,14 +9305,10 @@ int selectObjects(RECT rect) {
 	//Select nothing by default
 	clearObjectSelection();
 	//Get tile region
-	int minx = rect.left&0x7FF0;
-	int miny = rect.top&0x7FF0;
-	int maxx = (rect.right&0x7FF0)+0x10;
-	int maxy = (rect.bottom&0x7FF0)+0x10;
-	if(minx<0) minx = 0;
-	if(miny<0) miny = 0;
-	if(maxx>0x1000) maxx = 0x1000;
-	if(maxy>0x800) maxy = 0x800;
+	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int miny = std::max((int)(rect.top&0x7FF0),0);
+	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
+	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	//For each tile, mark all occupied objects as selected
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
@@ -9336,17 +9328,103 @@ void clearObjectSelection() {
 	}
 }
 void insertObjects(int x,int y) {
-	//TODO
+	x >>= 4;
+	y >>= 4;
+	int numSelectedObjects = 0;
+	int minX = 0x8000,minY = 0x8000;
+	int maxX = 0,maxY = 0;
+	//Check if any objects are to be pasted
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			BYTE hi = thisObject->data[1];
+			BYTE lo = thisObject->data[2];
+			int xpos = (lo&0xF)|((hi&0xF)<<4);
+			int ypos = ((lo&0xF0)>>4)|(hi&0xF0);
+			minX = std::min(xpos,minX);
+			minY = std::min(ypos,minY);
+			maxX = std::max(xpos,maxX);
+			maxY = std::max(ypos,maxY);
+			numSelectedObjects++;
+		}
+	}
+	if(numSelectedObjects) {
+		//Determine if any objects will be out of bounds after this operation,
+		//and if so, terminate
+		//TODO
+		//Paste selected objects
+		//TODO
+	} else {
+		//Determine if any objects will be out of bounds after this operation,
+		//and if so, terminate
+		//TODO
+		//Insert current objects in selection dialog
+		//TODO
+	}
 }
 void deleteObjects() {
 	//Delete selected objects
 	remove_if(objectContexts[0].objects.begin(),objectContexts[0].objects.end(),object_delPred);
 }
 void moveObjects(int dx,int dy) {
-	//TODO
+	dx >>= 4;
+	dy >>= 4;
+	int numSelectedObjects = 0;
+	int minX = 0x8000,minY = 0x8000;
+	int maxX = 0,maxY = 0;
+	//Check if any objects are to be moved
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			BYTE hi = thisObject->data[1];
+			BYTE lo = thisObject->data[2];
+			int xpos = (lo&0xF)|((hi&0xF)<<4);
+			int ypos = ((lo&0xF0)>>4)|(hi&0xF0);
+			minX = std::min(xpos,minX);
+			minY = std::min(ypos,minY);
+			maxX = std::max(xpos,maxX);
+			maxY = std::max(ypos,maxY);
+			numSelectedObjects++;
+		}
+	}
+	if(numSelectedObjects) {
+		//Determine if any objects will be out of bounds after this operation,
+		//and if so, terminate
+		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>=0x80)) return;
+		//Move selected objects
+		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+			object_t * thisObject = &objectContexts[0].objects[n];
+			if(thisObject->selected) {
+				//TODO
+			}
+		}
+	}
 }
 void resizeObjects(int dx,int dy) {
-	//TODO
+	dx >>= 4;
+	dy >>= 4;
+	int numSelectedObjects = 0;
+	int minX = 0x8000,minY = 0x8000;
+	int maxX = 0,maxY = 0;
+	//Check if any objects are to be resized
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			//TODO
+		}
+	}
+	if(numSelectedObjects) {
+		//Determine if any objects will be oversized after this operation,
+		//and if so, terminate
+		//TODO
+		//Resize selected objects
+		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+			object_t * thisObject = &objectContexts[0].objects[n];
+			if(thisObject->selected) {
+				//TODO
+			}
+		}
+	}
 }
 void increaseObjectZ() {
 	//TODO
@@ -9354,15 +9432,101 @@ void increaseObjectZ() {
 void decreaseObjectZ() {
 	//TODO
 }
-int focusObject(int x,int y,DWORD * cursor) {
+int focusObject(int x,int y,UINT * cursor) {
 	//Get top object
-	int tileIdx = (i>>4)|(j<<4);
+	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
 	int topIdx = objectContexts[0].assocObjects[tileIdx].size()-1;
-	object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];
-	//TODO
-	//Return default
-	*cursor = 0x7F00; //IDC_ARROW
-	return 0;
+	if(topIdx<0) {
+		//Return default
+		*cursor = 0x7F00; //IDC_ARROW
+		return 4;
+	} else {
+		object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];
+		int id = thisObject->data[0];
+		*cursor = 0x7F86; //IDC_SIZEALL
+		int retval = 5;
+		if(thisObject->selected) {
+			int resizeCaps = romBuf[0x0904EC+id]+1;
+			//Check for horizontal resize
+			bool horizNeg = false;
+			if(resizeCaps&1) {
+				int width = thisObject->data[3];
+				if((resizeCaps&0x80) && (width&0x80) && ((x&0xF)<4)) {
+					bool edgeFlag = true;
+					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+						if(thisObject->occupiedTiles[n]==(tileIdx-1)) {
+							edgeFlag = false;
+							break;
+						}
+					}
+					if(edgeFlag) {
+						*cursor = 0x7F84; //IDC_SIZEWE
+						retval = 1;
+						horizNeg = true;
+					}
+				} else if((x&0xF)>=0xC) {
+					bool edgeFlag = true;
+					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+						if(thisObject->occupiedTiles[n]==(tileIdx+1)) {
+							edgeFlag = false;
+							break;
+						}
+					}
+					if(edgeFlag) {
+						*cursor = 0x7F84; //IDC_SIZEWE
+						retval = 1;
+					}
+				}
+			}
+			//Check for vertical resize
+			if(resizeCaps&2) {
+				int height = thisObject->data[3];
+				if((resizeCaps&3)==3) height = thisObject->data[4];
+				if((resizeCaps&0x40) && (height&0x80) && ((y&0xF)<4)) {
+					bool edgeFlag = true;
+					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+						if(thisObject->occupiedTiles[n]==(tileIdx-0x100)) {
+							edgeFlag = false;
+							break;
+						}
+					}
+					if(edgeFlag) {
+						retval |= 2;
+						if(retval==3) {
+							if(horizNeg) {
+								*cursor = 0x7F82; //IDC_SIZENWSE
+							} else {
+								*cursor = 0x7F83; //IDC_SIZENESW
+							}
+						} else {
+							*cursor = 0x7F85; //IDC_SIZENS
+						}
+					}
+				} else if((y&0xF)>=0xC) {
+					bool edgeFlag = true;
+					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+						if(thisObject->occupiedTiles[n]==(tileIdx+0x100)) {
+							edgeFlag = false;
+							break;
+						}
+					}
+					if(edgeFlag) {
+						retval |= 2;
+						if(retval==3) {
+							if(horizNeg) {
+								*cursor = 0x7F83; //IDC_SIZENESW
+							} else {
+								*cursor = 0x7F82; //IDC_SIZENWSE
+							}
+						} else {
+							*cursor = 0x7F85; //IDC_SIZENS
+						}
+					}
+				}
+			}
+		}
+		return retval;
+	}
 }
 
 ///////////////////

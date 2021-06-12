@@ -9,9 +9,9 @@ CAPTION "Edit Screen Exits"
 	LTEXT "Screen exit to edit", 10, 120, 12, 100, 9
 	GROUPBOX "Screen Exit Settings", 30, 10, 26, 250, 50
 	EDITTEXT 21, 20, 38, 50, 14, ES_UPPERCASE|WS_TABSTOP
-	LTEXT "Level/Minigame ID", 11, 80, 40, 50, 9
+	LTEXT "Level ID", 11, 80, 40, 50, 9
 	EDITTEXT 22, 140, 38, 50, 14, ES_UPPERCASE|WS_TABSTOP
-	LTEXT "Action/Return Level ID", 12, 200, 40, 50, 9
+	LTEXT "Action/Minigame ID", 12, 200, 40, 50, 9
 	EDITTEXT 23, 20, 54, 50, 14, ES_UPPERCASE|WS_TABSTOP
 	LTEXT "X Position", 13, 80, 56, 50, 9
 	EDITTEXT 24, 140, 54, 50, 14, ES_UPPERCASE|WS_TABSTOP

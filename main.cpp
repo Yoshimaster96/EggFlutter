@@ -898,7 +898,7 @@ DWORD *			bmpDataMain;
 int xCurScroll = 0,xMaxScroll = 0,xCurSize = 640;
 int yCurScroll = 0,yMaxScroll = 0,yCurSize = 480;
 bool dragFlag = false;
-int selOp = 0;
+int selOp = 4;
 POINT selpCur,selpPrev = {0,0};
 
 //Extra UI drawing stuff
@@ -909,14 +909,10 @@ void dispEntrances(RECT rect) {
 	//TODO
 }
 void dispExits(RECT rect) {
-	int minx = rect.left&0x7F00;
-	int miny = rect.top&0x7F00;
-	int maxx = (rect.right&0x7F00)+0x100;
-	int maxy = (rect.bottom&0x7F00)+0x100;
-	if(minx<0) minx = 0;
-	if(miny<0) miny = 0;
-	if(maxx>0x1000) maxx = 0x1000;
-	if(maxy>0x800) maxy = 0x800;
+	int minx = std::max((int)(rect.left&0x7F00),0);
+	int miny = std::max((int)(rect.top&0x7F00),0);
+	int maxx = std::min((int)((rect.right&0x7F00)+0x100),0x1000);
+	int maxy = std::min((int)((rect.bottom&0x7F00)+0x100),0x800);
 	for(int j=miny; j<maxy; j+=0x100) {
 		for(int i=minx; i<maxx; i+=0x100) {
 			//Draw screen borders
@@ -950,14 +946,10 @@ void dispExits(RECT rect) {
 	}
 }
 void dispGrid(RECT rect) {
-	int minx = rect.left&0x7FF0;
-	int miny = rect.top&0x7FF0;
-	int maxx = (rect.right&0x7FF0)+0x10;
-	int maxy = (rect.bottom&0x7FF0)+0x10;
-	if(minx<0) minx = 0;
-	if(miny<0) miny = 0;
-	if(maxx>0x1000) maxx = 0x1000;
-	if(maxy>0x800) maxy = 0x800;
+	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int miny = std::max((int)(rect.top&0x7FF0),0);
+	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
+	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			for(int n=0; n<0x10; n++) {
@@ -993,6 +985,8 @@ void updateRect(RECT rect) {
 				g &= 0xFF00;
 				DWORD b = ((fac0*b0)+(fac1*b1))>>6;
 				rowColor = r|g|b;
+				//rowColor &= 0xF8F8F8;
+				//rowColor |= (rowColor>>5)&0x070707;
 			}
 			for(int i=rect.left; i<rect.right; i++) {
 				putPixel(bmpDataMain,0x1000,0x800,rowColor,{i,j});
@@ -1237,38 +1231,54 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					}
 				}
 			} else {
-				DWORD cursor = 0x7F00; //IDC_ARROW
+				UINT cursor = 0x7F00; //IDC_ARROW
 				if(eObj) {
-					selOp = focusObject(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll,&cursor);
+					selOp = focusObject(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll,&cursor);
 				} else if(eSp) {
-					selOp = focusSprite(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll,&cursor);
+					selOp = focusSprite(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll,&cursor);
 				}
 				SetCursor(LoadCursor(NULL,(LPCTSTR)cursor));
 			}
+			
+			updateEntireScreen();
 			break;
 		}
 		case WM_LBUTTONDOWN: {
 			//TODO
 			dragFlag = true;
+			RECT clipRect;
+			GetClientRect(hwnd,&clipRect);
+			ClientToScreen(hwnd,(LPPOINT)&clipRect.left);
+			ClientToScreen(hwnd,(LPPOINT)&clipRect.right);
+			ClipCursor(&clipRect);
+			
+			updateEntireScreen();
 			break;
 		}
 		case WM_RBUTTONDOWN: {
 			if(eObj) {
-				insertObjects(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll);
+				insertObjects(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll);
 			} else if(eSp) {
-				insertSprites(LOWORD(lParam)+xCurScroll,HIWORD(lParam)+yCurScroll);
+				insertSprites(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll);
 			}
 			dragFlag = true;
 			selOp = 5;
 			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
+			RECT clipRect;
+			GetClientRect(hwnd,&clipRect);
+			ClientToScreen(hwnd,(LPPOINT)&clipRect.left);
+			ClientToScreen(hwnd,(LPPOINT)&clipRect.right);
+			ClipCursor(&clipRect);
+			
+			updateEntireScreen();
 			break;
 		}
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP: {
-			if(dragFlag && selOp==4) {
-				//TODO
-			}
 			dragFlag = false;
+			ClipCursor(NULL);
+			
+			updateEntireScreen();
 			break;
 		}
 		default:

@@ -4169,6 +4169,8 @@ void clearSpriteSelection() {
 	}
 }
 void insertSprites(int x,int y) {
+	x >>= 4;
+	y >>= 4;
 	int numSelectedSprites = 0;
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
@@ -4178,10 +4180,10 @@ void insertSprites(int x,int y) {
 		if(thisSprite->selected) {
 			int xpos = thisSprite->data[2];
 			int ypos = thisSprite->data[1]>>1;
-			if(xpos<minX) minX = xpos;
-			if(ypos<minY) minY = ypos;
-			if(xpos>maxX) maxX = xpos;
-			if(ypos>maxY) maxY = ypos;
+			minX = std::min(xpos,minX);
+			minY = std::min(ypos,minY);
+			maxX = std::max(xpos,maxX);
+			maxY = std::max(ypos,maxY);
 			numSelectedSprites++;
 		}
 	}
@@ -4204,26 +4206,28 @@ void deleteSprites() {
 	remove_if(spriteContexts[0].sprites.begin(),spriteContexts[0].sprites.end(),sprite_delPred);
 }
 void moveSprites(int dx,int dy) {
+	dx >>= 4;
+	dy >>= 4;
 	int numSelectedSprites = 0;
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
-	//Check if any sprites are to be pasted
+	//Check if any sprites are to be moved
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 		if(thisSprite->selected) {
 			int xpos = thisSprite->data[2];
 			int ypos = thisSprite->data[1]>>1;
-			if(xpos<minX) minX = xpos;
-			if(ypos<minY) minY = ypos;
-			if(xpos>maxX) maxX = xpos;
-			if(ypos>maxY) maxY = ypos;
+			minX = std::min(xpos,minX);
+			minY = std::min(ypos,minY);
+			maxX = std::max(xpos,maxX);
+			maxY = std::max(ypos,maxY);
 			numSelectedSprites++;
 		}
 	}
 	if(numSelectedSprites) {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
-		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>0x80)) return;
+		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>=0x80)) return;
 		//Move selected sprites
 		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
@@ -4234,7 +4238,7 @@ void moveSprites(int dx,int dy) {
 		}
 	}
 }
-int focusSprite(int x,int y,DWORD * cursor) {
+int focusSprite(int x,int y,UINT * cursor) {
 	//Check each sprite
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
@@ -4284,7 +4288,7 @@ int focusSprite(int x,int y,DWORD * cursor) {
 	}
 	//Return default
 	*cursor = 0x7F00; //IDC_ARROW
-	return 0;
+	return 4;
 }
 
 ///////////////////
