@@ -1,7 +1,7 @@
 [Editor_0]
 CursorCol=10
-CursorRow=1247
-TopLine=1210
+CursorRow=1150
+TopLine=1116
 LeftChar=1
 [Editor_19]
 CursorCol=11
@@ -24,7 +24,7 @@ CursorRow=18
 TopLine=1
 LeftChar=1
 [Editors]
-Order=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,24,25,27,26
+Order=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,25,27,26
 Focused=0
 [Editor_1]
 CursorCol=12
@@ -34,7 +34,7 @@ LeftChar=1
 [Editor_2]
 CursorCol=31
 CursorRow=9338
-TopLine=9327
+TopLine=9270
 LeftChar=1
 [Editor_3]
 CursorCol=33
@@ -44,7 +44,7 @@ LeftChar=1
 [Editor_4]
 CursorCol=9
 CursorRow=4193
-TopLine=4176
+TopLine=4144
 LeftChar=1
 [Editor_5]
 CursorCol=33
@@ -97,8 +97,8 @@ CursorRow=3
 TopLine=1
 LeftChar=1
 [Editor_15]
-CursorCol=20
-CursorRow=7
+CursorCol=22
+CursorRow=12
 TopLine=1
 LeftChar=1
 [Editor_16]
@@ -127,13 +127,13 @@ CursorRow=10
 TopLine=1
 LeftChar=1
 [Editor_24]
-CursorCol=48
-CursorRow=14
+CursorCol=24
+CursorRow=13
 TopLine=1
 LeftChar=1
 [Editor_23]
-CursorCol=1
-CursorRow=21
+CursorCol=16
+CursorRow=9
 TopLine=1
 LeftChar=1
 [Editor_22]

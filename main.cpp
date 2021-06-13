@@ -91,24 +91,27 @@ void saveLevel() {
 ///////////
 //DIALOGS//
 ///////////
-TCHAR strBuf_dlg[256];
-
 //Helper functions for reading/writing hex values
 DWORD getHexVal_dlg(HWND hwnd,int control) {
-	GetDlgItemText(hwnd,control,strBuf_dlg,256);
+	TCHAR dlgStr[256];
+	GetDlgItemText(hwnd,control,dlgStr,256);
 	DWORD ret;
-	_sntscanf(strBuf_dlg,sizeof(strBuf_dlg),"%X",&ret);
+	_sntscanf(dlgStr,sizeof(dlgStr),"%X",&ret);
 	return ret;
 }
 void setHexVal_dlg(HWND hwnd,int control,DWORD val) {
-	_sntprintf(strBuf_dlg,sizeof(strBuf_dlg),"%X",val);
-	SetDlgItemText(hwnd,control,strBuf_dlg);
+	TCHAR dlgStr[256];
+	_sntprintf(dlgStr,sizeof(dlgStr),"%X",val);
+	SetDlgItemText(hwnd,control,dlgStr);
+}
+void enableItem_dlg(HWND hwnd,int control,BOOL enable) {
+	HWND hwndDlgItem = GetDlgItem(hwnd,control);
+	EnableWindow(hwndDlgItem,enable);
 }
 
 //Dialog updaters
 void updateDialog_editEntrances(HWND hwnd) {
-	HWND hwndEditEntCb = GetDlgItem(hwnd,20);
-	int tlevIdx = SendMessage(hwndEditEntCb,CB_GETCURSEL,0,0);
+	int tlevIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
 	setHexVal_dlg(hwnd,21,romBuf[0x0BF471+(tlevIdx<<2)]);
 	setHexVal_dlg(hwnd,23,romBuf[0x0BF472+(tlevIdx<<2)]);
 	setHexVal_dlg(hwnd,24,romBuf[0x0BF473+(tlevIdx<<2)]);
@@ -118,7 +121,34 @@ void updateDialog_editEntrances2(HWND hwnd) {
 	setHexVal_dlg(hwnd,24,romBuf[0x0BF552+(curLevel<<1)]);
 }
 void updateDialog_editExits(HWND hwnd) {
-	//TODO
+	int tscrIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+	tscrIdx <<= 2;
+	if(screenExits[tscrIdx]<=0xE9) {
+		SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)BST_CHECKED,0);
+		if(screenExits[tscrIdx]<=0xDD) {
+			setHexVal_dlg(hwnd,21,screenExits[tscrIdx]);
+			SendDlgItemMessage(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx+3],0);
+		} else {
+			setHexVal_dlg(hwnd,21,screenExits[tscrIdx+3]);
+			SendDlgItemMessage(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx]-0xD3,0);
+		}
+		setHexVal_dlg(hwnd,23,screenExits[tscrIdx+1]);
+		setHexVal_dlg(hwnd,24,screenExits[tscrIdx+2]);
+		enableItem_dlg(hwnd,21,TRUE);
+		enableItem_dlg(hwnd,22,TRUE);
+		enableItem_dlg(hwnd,23,TRUE);
+		enableItem_dlg(hwnd,24,TRUE);
+	} else {
+		SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)BST_UNCHECKED,0);
+		SetDlgItemText(hwnd,21,"");
+		SendDlgItemMessage(hwnd,22,CB_SETCURSEL,0,0);
+		SetDlgItemText(hwnd,23,"");
+		SetDlgItemText(hwnd,24,"");
+		enableItem_dlg(hwnd,21,FALSE);
+		enableItem_dlg(hwnd,22,FALSE);
+		enableItem_dlg(hwnd,23,FALSE);
+		enableItem_dlg(hwnd,24,FALSE);
+	}
 }
 void updateDialog_editHeader(HWND hwnd) {
 	//TODO
@@ -131,14 +161,46 @@ void updateDialog_editLevMessages(HWND hwnd) {
 }
 
 //Dialog functions
+const TCHAR * worldLevelStrings[56] = {
+"1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E",
+"2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E",
+"3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E",
+"4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-E",
+"5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E",
+"6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E",
+"Intro","Tutorial"};
+const TCHAR * actionMinigameStrings[23] = {
+"Action 00: Do Nothing",
+"Action 01: Skiing",
+"Action 02: Horizontal Pipe Exit Right",
+"Action 03: Horizontal Pipe Exit Left",
+"Action 04: Vertical Pipe Exit Down",
+"Action 05: Vertical Pipe Exit Up",
+"Action 06: Walk Right",
+"Action 07: Walk Left",
+"Action 08: Fall Down",
+"Action 09: Jump Up",
+"Action 0A: Raphael Raven Intro",
+"Mini 00: Throw Balloons (4 Buttons)",
+"Mini 01: Throw Balloons (5 Buttons)",
+"Mini 02: Throw Balloons (6 Buttons)",
+"Mini 03: Unused (Gather Coins Variant?)",
+"Mini 04: Gather Coins",
+"Mini 05: Pop Balloons (Static Platforms)",
+"Mini 06: Pop Balloons (Moving Platforms)",
+"Mini 07: Unused (Bomb Minigame)",
+"Mini 08: Unused (Train Minigame)",
+"Mini 09: Seed Spitting",
+"Mini 0A: Seed Spitting 2P",
+"Mini 0B: Throw Balloons 2P (4 Buttons)"};
+
 LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Limit to 2 characters
-			HWND hwndOpenByIdEt = GetDlgItem(hwnd,20);
-			SendMessage(hwndOpenByIdEt,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,20,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			setHexVal_dlg(hwnd,20,curLevel);
 			return TRUE;
@@ -173,32 +235,20 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 	}
 	return 0;
 }
-const TCHAR * worldStrings[56] = {
-"1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E",
-"2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E",
-"3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E",
-"4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-E",
-"5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E",
-"6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E",
-"Intro","Tutorial"};
 LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
-			HWND hwndEditEntCb = GetDlgItem(hwnd,20);
 			for(int i=0; i<56; i++) {
-				SendMessage(hwndEditEntCb,CB_ADDSTRING,0,(LPARAM)worldStrings[i]);
+				SendDlgItemMessage(hwnd,20,CB_ADDSTRING,0,(LPARAM)worldLevelStrings[i]);
 			}
-			SendMessage(hwndEditEntCb,CB_SETCURSEL,0,0);
+			SendDlgItemMessage(hwnd,20,CB_SETCURSEL,0,0);
 			//Limit to 2 characters
-			HWND hwndEditEntEt = GetDlgItem(hwnd,21);
-			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
-			hwndEditEntEt = GetDlgItem(hwnd,23);
-			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
-			hwndEditEntEt = GetDlgItem(hwnd,24);
-			SendMessage(hwndEditEntEt,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,21,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			updateDialog_editEntrances(hwnd);
 			return TRUE;
@@ -222,8 +272,7 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 					break;
 				}
 				case IDOK: {
-					HWND hwndEditEntCb = GetDlgItem(hwnd,20);
-					int tlevIdx = SendMessage(hwndEditEntCb,CB_GETCURSEL,0,0);
+					int tlevIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
 					BYTE lev = getHexVal_dlg(hwnd,21);
 					BYTE xpos = getHexVal_dlg(hwnd,23);
 					BYTE ypos = getHexVal_dlg(hwnd,24);
@@ -251,10 +300,8 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Limit to 2 characters
-			HWND hwndEditEntEt2 = GetDlgItem(hwnd,23);
-			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
-			hwndEditEntEt2 = GetDlgItem(hwnd,24);
-			SendMessage(hwndEditEntEt2,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			updateDialog_editEntrances2(hwnd);
 			return TRUE;
@@ -278,6 +325,7 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 						//Set level midpoint info and exit with code 1 (entrances changed)
 						romBuf[0x0BF551+(curLevel<<1)] = xpos;
 						romBuf[0x0BF552+(curLevel<<1)] = ypos;
+						EndDialog(hwnd,1);
 					} else {
 						//Have WM_CLOSE handle this
 						SendMessage(hwnd,WM_CLOSE,0,0);
@@ -295,7 +343,22 @@ LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
-			//TODO
+			//Init combo boxes
+			TCHAR dlgStr[256];
+			for(int i=0; i<128; i++) {
+				_sntprintf(dlgStr,sizeof(dlgStr),"%02X",i);
+				SendDlgItemMessage(hwnd,20,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			SendDlgItemMessage(hwnd,20,CB_SETCURSEL,0,0);
+			for(int i=0; i<23; i++) {
+				SendDlgItemMessage(hwnd,22,CB_ADDSTRING,0,(LPARAM)actionMinigameStrings[i]);
+			}
+			//Limit to 2 characters
+			SendDlgItemMessage(hwnd,21,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
+			//Init control values
+			updateDialog_editExits(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -305,13 +368,61 @@ LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 		}
 		case WM_COMMAND: {
 			switch(LOWORD(wParam)) {
+				case 20: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateDialog_editExits(hwnd);
+					}
+					break;
+				}
+				case 25: {
+					if(HIWORD(wParam)==BN_CLICKED) {
+						bool enabled = SendDlgItemMessage(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
+						enabled = !enabled;
+						SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)(enabled?BST_CHECKED:BST_UNCHECKED),0);
+						BOOL enabledState = enabled?TRUE:FALSE;
+						enableItem_dlg(hwnd,21,enabled);
+						enableItem_dlg(hwnd,22,enabled);
+						enableItem_dlg(hwnd,23,enabled);
+						enableItem_dlg(hwnd,24,enabled);
+					}
+					break;
+				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
 					SendMessage(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
-					//TODO
+					int tscrIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+					tscrIdx <<= 2;
+					bool enabled = SendDlgItemMessage(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
+					BYTE lev = getHexVal_dlg(hwnd,21);
+					int amIdx = SendDlgItemMessage(hwnd,22,CB_GETCURSEL,0,0);
+					BYTE xpos = getHexVal_dlg(hwnd,23);
+					BYTE ypos = getHexVal_dlg(hwnd,24);
+					if(lev<=0xDD && ypos<=0x7F) {
+						//Set screen exit entrance info and exit with code 1 (entrances changed)
+						if(enabled) {
+							if(amIdx<=10) {
+								screenExits[tscrIdx] = lev;
+								screenExits[tscrIdx+3] = amIdx;
+							} else {
+								screenExits[tscrIdx] = amIdx+0xD3;
+								screenExits[tscrIdx+3] = lev;
+							}
+							screenExits[tscrIdx+1] = xpos;
+							screenExits[tscrIdx+2] = ypos;
+						} else {
+							screenExits[tscrIdx] = 0xFF;
+							screenExits[tscrIdx+1] = 0xFF;
+							screenExits[tscrIdx+2] = 0xFF;
+							screenExits[tscrIdx+3] = 0xFF;
+						}
+						EndDialog(hwnd,1);
+					} else {
+						//Have WM_CLOSE handle this
+						SendMessage(hwnd,WM_CLOSE,0,0);
+					}
 					break;
 				}
 			}
@@ -325,7 +436,10 @@ LRESULT CALLBACK DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPa
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//Init combo boxes
 			//TODO
+			//Init control values
+			updateDialog_editHeader(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -355,7 +469,10 @@ LRESULT CALLBACK DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM l
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//Init combo boxes
 			//TODO
+			//Init control values
+			updateDialog_editLevNames(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -385,7 +502,10 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 		case WM_INITDIALOG: {
 			//Add icon
 			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			//Init combo boxes
 			//TODO
+			//Init control values
+			updateDialog_editLevMessages(hwnd);
 			return TRUE;
 		}
 		case WM_CLOSE: {
@@ -415,7 +535,7 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 //MENU STUFF//
 //////////////
 bool hasSmcHeader;
-TCHAR strBuf_main[256],strBuf2_main[256];
+TCHAR romFilename[256];
 HWND hwndMain;
 HMENU hmenuMain;
 
@@ -536,19 +656,19 @@ void onOpen() {
 	}
 	OPENFILENAME ofn;
 	memset(&ofn,0,sizeof(OPENFILENAME));
-	memset(strBuf_main,0,sizeof(strBuf_main));
+	memset(romFilename,0,sizeof(romFilename));
 	ofn.lStructSize	 = sizeof(OPENFILENAME);
 	ofn.hwndOwner	 = hwndMain;
-	ofn.lpstrFile	 = strBuf_main;
-	ofn.nMaxFile	 = sizeof(strBuf_main);
+	ofn.lpstrFile	 = romFilename;
+	ofn.nMaxFile	 = sizeof(romFilename);
 	ofn.lpstrTitle	 = "Open ROM";
 	ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
 	ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
 	if(GetOpenFileName(&ofn)) {
-		hasSmcHeader = (strBuf_main[ofn.nFileExtension+1] == 'm');
+		hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 		//Load ROM
 		memset(romBuf,0,0x800000);
-		FILE * fp = _tfopen(strBuf_main,"rb");
+		FILE * fp = _tfopen(romFilename,"rb");
 		fseek(fp,0,SEEK_END);
 		long fileSize = ftell(fp);
 		fseek(fp,(fileSize&0x200)?0x200:0,SEEK_SET);
@@ -595,7 +715,7 @@ void onSave() {
 		//Save level
 		saveLevel();
 		//Save ROM
-		FILE * fp = _tfopen(strBuf_main,"wb");
+		FILE * fp = _tfopen(romFilename,"wb");
 		if(hasSmcHeader) {
 			for(int i=0; i<0x200; i++) {
 				putc(0,fp);
@@ -610,19 +730,19 @@ void onSaveAs() {
 	if(isRomOpen) {
 		OPENFILENAME ofn;
 		memset(&ofn,0,sizeof(OPENFILENAME));
-		memset(strBuf_main,0,sizeof(strBuf_main));
+		memset(romFilename,0,sizeof(romFilename));
 		ofn.lStructSize	 = sizeof(OPENFILENAME);
 		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = strBuf_main;
-		ofn.nMaxFile	 = sizeof(strBuf_main);
+		ofn.lpstrFile	 = romFilename;
+		ofn.nMaxFile	 = sizeof(romFilename);
 		ofn.lpstrTitle	 = "Save ROM";
 		ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
 		if(GetSaveFileName(&ofn)) {
-			hasSmcHeader = (strBuf_main[ofn.nFileExtension+1] == 'm');
+			hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 			//Save level
 			saveLevel();
 			//Save ROM
-			FILE * fp = _tfopen(strBuf_main,"wb");
+			FILE * fp = _tfopen(romFilename,"wb");
 			if(hasSmcHeader) {
 				for(int i=0; i<0x200; i++) {
 					putc(0,fp);
@@ -645,12 +765,13 @@ void onImportLevel() {
 			if(!promptSave()) return;
 		}
 		OPENFILENAME ofn;
+		TCHAR lfStr[256];
 		memset(&ofn,0,sizeof(OPENFILENAME));
-		memset(strBuf2_main,0,sizeof(strBuf2_main));
+		memset(lfStr,0,sizeof(lfStr));
 		ofn.lStructSize	 = sizeof(OPENFILENAME);
 		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = strBuf2_main;
-		ofn.nMaxFile	 = sizeof(strBuf2_main);
+		ofn.lpstrFile	 = lfStr;
+		ofn.nMaxFile	 = sizeof(lfStr);
 		ofn.lpstrTitle	 = "Open Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
@@ -662,12 +783,13 @@ void onImportLevel() {
 void onExportLevel() {
 	if(isRomOpen) {
 		OPENFILENAME ofn;
+		TCHAR lfStr[256];
 		memset(&ofn,0,sizeof(OPENFILENAME));
-		memset(strBuf2_main,0,sizeof(strBuf2_main));
+		memset(lfStr,0,sizeof(lfStr));
 		ofn.lStructSize	 = sizeof(OPENFILENAME);
 		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = strBuf2_main;
-		ofn.nMaxFile	 = sizeof(strBuf2_main);
+		ofn.lpstrFile	 = lfStr;
+		ofn.nMaxFile	 = sizeof(lfStr);
 		ofn.lpstrTitle	 = "Save Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		if(GetSaveFileName(&ofn)) {
@@ -733,11 +855,13 @@ void onEditSp() {
 }
 void onIncZ() {
 	increaseObjectZ();
+	isRomSaved = false;
 	drawObjects();
 	updateEntireScreen();
 }
 void onDecZ() {
 	decreaseObjectZ();
+	isRomSaved = false;
 	drawObjects();
 	updateEntireScreen();
 }
@@ -799,21 +923,25 @@ void onViewSwB() {
 //Tools
 void onChgEnt() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances) && vEnt) {
+		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgEnt2() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2) && vEnt) {
+		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgExit() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits) && vExit) {
+		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgHead() {
 	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader)) {
+		isRomSaved = false;
 		updateDialogs();
 		updateEntireScreen();
 	}
@@ -929,13 +1057,18 @@ void dispExits(RECT rect) {
 			//Highlight screens which have exits, and draw screen exit info text
 			int screen = (i>>8)|(j>>4);
 			CHAR strBuf[256];
-			if(screenExits[screen<<2]!=0xFF) {
+			int screenDest = screenExits[screen<<2];
+			if(screenDest<0xE9) {
 				for(int l=0x02; l<0xFE; l++) {
 					for(int k=0x02; k<0xFE; k++) {
 						hilitePixel(bmpDataMain,0x1000,0x800,0x80,{i+k,j+l});
 					}
 				}
-				snprintf(strBuf,256,"%02X: Exit to level %02X",screen,screenExits[screen<<2]);
+				if(screenDest<=0xDD) {
+					snprintf(strBuf,256,"%02X: Exit to Level %02X",screen,screenDest);
+				} else {
+					snprintf(strBuf,256,"%02X: Exit to Mini %02X",screen,screenDest-0xDE);
+				}
 			} else {
 				snprintf(strBuf,256,"%02X",screen);
 			}
@@ -1011,6 +1144,10 @@ void updateRect(RECT rect) {
 		//Draw exits
 		if(vExit) {
 			dispExits(rect);
+		}
+		//Draw selection rectangle
+		if(dragFlag && selOp==4) {
+			//TODO
 		}
 	} else {
 		//Fill with black
@@ -1261,6 +1398,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			} else if(eSp) {
 				insertSprites(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll);
 			}
+			isRomSaved = false;
 			dragFlag = true;
 			selOp = 5;
 			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
