@@ -9194,7 +9194,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
 				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
 				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
-			} else {
+			} else if(tile!=0x0000) {
 				dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
 			}
 			//Check object selection to highlight/invert
@@ -9395,7 +9395,14 @@ void moveObjects(int dx,int dy) {
 		for(int n=0; n<objectContexts[0].objects.size(); n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
 			if(thisObject->selected) {
-				//TODO
+				BYTE hi = thisObject->data[1];
+				BYTE lo = thisObject->data[2];
+				int xpos = (lo&0xF)|((hi&0xF)<<4);
+				int ypos = ((lo&0xF0)>>4)|(hi&0xF0);
+				xpos += dx;
+				ypos += dy;
+				thisObject->data[1] = ((xpos&0xF0)>>4)|(ypos&0xF0);
+				thisObject->data[2] = (xpos&0xF)|((ypos&0xF)<<4);
 			}
 		}
 	}

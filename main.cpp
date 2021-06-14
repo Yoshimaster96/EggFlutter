@@ -1147,7 +1147,18 @@ void updateRect(RECT rect) {
 		}
 		//Draw selection rectangle
 		if(dragFlag && selOp==4) {
-			//TODO
+			int minx = std::min(selpCur.x,selpPrev.x);
+			int miny = std::min(selpCur.y,selpPrev.y);
+			int maxx = std::max(selpCur.x,selpPrev.x);
+			int maxy = std::max(selpCur.y,selpPrev.y);
+			for(int i=minx; i<maxx; i++) {
+				invertPixel(bmpDataMain,0x1000,0x800,{i,miny});
+				invertPixel(bmpDataMain,0x1000,0x800,{i+1,maxy});
+			}
+			for(int j=miny; j<maxy; j++) {
+				invertPixel(bmpDataMain,0x1000,0x800,{minx,j+1});
+				invertPixel(bmpDataMain,0x1000,0x800,{maxx,j});
+			}
 		}
 	} else {
 		//Fill with black
@@ -1352,27 +1363,67 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		//Mouse input
 		case WM_MOUSEMOVE: {
+			int mouseX = GET_X_LPARAM(lParam);
+			int mouseY = GET_Y_LPARAM(lParam);
+			int levX = mouseX+xCurScroll;
+			int levY = mouseY+yCurScroll;
 			if(dragFlag) {
-				if(selOp==4) {
+				//Do fast edge scroll
+				if(selOp!=4) selpPrev = selpCur;
+				selpCur = {levX,levY};
+				RECT clRect;
+				GetClientRect(hwnd,&clRect);
+				if(mouseX==0) {
 					//TODO
+				} else if(mouseX==(clRect.right-1)) {
+					//TODO
+				}
+				if(mouseY==0) {
+					//TODO
+				} else if(mouseY==(clRect.bottom-1)) {
+					//TODO
+				}
+				//Handle selection modes
+				if(selOp==4) {
+					RECT selRect = {
+					std::min(selpCur.x,selpPrev.x),
+					std::min(selpCur.y,selpPrev.y),
+					std::max(selpCur.x,selpPrev.x),
+					std::max(selpCur.y,selpPrev.y)};
+					if(eObj) {
+						selectObjects(selRect);
+					} else if(eSp) {
+						selectSprites(selRect);
+					}
 					SetCursor(LoadCursor(NULL,IDC_ARROW));
 				} else if(selOp==5) {
-					//TODO
+					int dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
+					int dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
+					if(eObj) {
+						moveObjects(dx,dy);
+						drawObjects();
+					} else if(eSp) {
+						moveSprites(dx,dy);
+						drawSprites();
+					}
 					SetCursor(LoadCursor(NULL,IDC_SIZEALL));
 				} else {
-					if(selOp&1) {
-						//TODO
-					}
-					if(selOp&2) {
-						//TODO
+					int dx = 0;
+					int dy = 0;
+					if(selOp&1) dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
+					if(selOp&2) dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
+					if(eObj) {
+						resizeObjects(dx,dy);
+						drawObjects();
 					}
 				}
 			} else {
+				//Determine what the mode would be if we were dragging and set cursor accordingly
 				UINT cursor = 0x7F00; //IDC_ARROW
 				if(eObj) {
-					selOp = focusObject(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll,&cursor);
+					selOp = focusObject(levX,levY,&cursor);
 				} else if(eSp) {
-					selOp = focusSprite(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll,&cursor);
+					selOp = focusSprite(levX,levY,&cursor);
 				}
 				SetCursor(LoadCursor(NULL,(LPCTSTR)cursor));
 			}
@@ -1381,8 +1432,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		case WM_LBUTTONDOWN: {
-			//TODO
+			//Init drag
+			int mouseX = GET_X_LPARAM(lParam);
+			int mouseY = GET_Y_LPARAM(lParam);
+			int levX = mouseX+xCurScroll;
+			int levY = mouseY+yCurScroll;
+			selpCur = selpPrev = {levX,levY};
 			dragFlag = true;
+			//Clip cursor
 			RECT clipRect;
 			GetClientRect(hwnd,&clipRect);
 			ClientToScreen(hwnd,(LPPOINT)&clipRect.left);
@@ -1393,15 +1450,23 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		case WM_RBUTTONDOWN: {
+			//Insert stuff and init drag (move mode)
+			int mouseX = GET_X_LPARAM(lParam);
+			int mouseY = GET_Y_LPARAM(lParam);
+			int levX = mouseX+xCurScroll;
+			int levY = mouseY+yCurScroll;
 			if(eObj) {
-				insertObjects(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll);
+				insertObjects(levX,levY);
+				drawObjects();
 			} else if(eSp) {
-				insertSprites(GET_X_LPARAM(lParam)+xCurScroll,GET_Y_LPARAM(lParam)+yCurScroll);
+				insertSprites(levX,levY);
+				drawSprites();
 			}
 			isRomSaved = false;
 			dragFlag = true;
 			selOp = 5;
 			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
+			//Clip cursor
 			RECT clipRect;
 			GetClientRect(hwnd,&clipRect);
 			ClientToScreen(hwnd,(LPPOINT)&clipRect.left);
@@ -1413,6 +1478,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP: {
+			//Unclip cursor
 			dragFlag = false;
 			ClipCursor(NULL);
 			
