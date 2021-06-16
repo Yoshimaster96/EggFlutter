@@ -618,7 +618,7 @@ inline void updateEntireScreen() {
 	InvalidateRect(hwndMain,&rect,false);
 }
 inline void updateDialogs() {
-	RECT rect = {0,0,256,256};
+	RECT rect = {0,0,256,384};
 	if(wvisObject) {
 		InvalidateRect(hwndObject,&rect,false);
 		UpdateWindow(hwndObject);
@@ -627,6 +627,7 @@ inline void updateDialogs() {
 		InvalidateRect(hwndSprite,&rect,false);
 		UpdateWindow(hwndSprite);
 	}
+	rect = {0,0,512,512};
 	if(wvisMap8) {
 		InvalidateRect(hwndMap8,&rect,false);
 		UpdateWindow(hwndMap8);
@@ -1495,6 +1496,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
 	//Load resources
 	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
+	hinstMain = hInstance;
 	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA)));
 	unpackGfx2BPP(fontBuffer,fontData,0x80);
 	
@@ -1587,7 +1589,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	}
 	SetTimer(hwndMain,800,33,NULL);
 	//Create children windows
-	RECT refSize = {0,0,256,256};
+	RECT refSize = {0,0,256,384};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	int refWidth = refSize.right-refSize.left;
 	int refHeight = refSize.bottom-refSize.top;
@@ -1603,6 +1605,10 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		refWidth,
 		refHeight,
 		hwndMain,NULL,hInstance,NULL);
+	refSize = {0,0,256,256};
+	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
+	refWidth = refSize.right-refSize.left;
+	refHeight = refSize.bottom-refSize.top;
 	hwndMap8 = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,

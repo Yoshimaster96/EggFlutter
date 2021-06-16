@@ -6,6 +6,7 @@
 
 //General variables
 extern HICON hiconMain;
+extern HINSTANCE hinstMain;
 extern bool isRomOpen,isRomSaved;
 extern BYTE romBuf[0x800000];
 //Variables for levels

@@ -1,6 +1,7 @@
 #include "sprite.h"
 
 HWND hwndSprite;
+HWND hwndSpriteLb,hwndSpriteCb;
 bool wvisSprite = false;
 level_sprite_data_ctx_t spriteContexts[2];
 int curSpCtx = 0;
@@ -4238,6 +4239,14 @@ void moveSprites(int dx,int dy) {
 		}
 	}
 }
+
+///////////////////
+//WINDOW FUNCTION//
+///////////////////
+HDC				hdcSp;
+HBITMAP			hbmpSp;
+DWORD *			bmpDataSp;
+
 int focusSprite(int x,int y,UINT * cursor) {
 	//Check each sprite
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
@@ -4290,27 +4299,48 @@ int focusSprite(int x,int y,UINT * cursor) {
 	*cursor = 0x7F00; //IDC_ARROW
 	return 4;
 }
-
-///////////////////
-//WINDOW FUNCTION//
-///////////////////
-HDC				hdcSp;
-HBITMAP			hbmpSp;
-DWORD *			bmpDataSp;
+//Main drawing code
+void updateEntireScreen_sp() {
+	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
+	int prevCtx = setSpriteContext(1);
+	drawSprites();
+	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
+	setSpriteContext(prevCtx);
+}
 
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			//TODO
+			CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX",NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				0,256,256,100,
+				hwnd,NULL,hinstMain,NULL);
+			CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX",NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				0,282,256,102,
+				hwnd,NULL,hinstMain,NULL);
 			//Create objects
+			hdcSp = GetDC(hwnd);
+			BITMAPINFO bmi;
+			memset(&bmi.bmiHeader,0,sizeof(BITMAPINFOHEADER));
+			bmi.bmiHeader.biSize			= sizeof(BITMAPINFOHEADER);
+			bmi.bmiHeader.biPlanes			= 1;
+			bmi.bmiHeader.biBitCount		= 32;
+			bmi.bmiHeader.biCompression		= BI_RGB;
+			bmi.bmiHeader.biWidth			= 0x100;
+			bmi.bmiHeader.biHeight			= -0x100;
+			hbmpSp = CreateDIBSection(hdcSp,&bmi,DIB_RGB_COLORS,(void**)&bmpDataSp,NULL,0);
+			memset(bmpDataSp,0,0x10000*sizeof(DWORD));
+			//Init combo boxes
+			//TODO
+			//Init control values
 			//TODO
 			break;
 		}
 		case WM_DESTROY: {
 			//Free objects
-			//TODO
+			DeleteDC(hdcSp);
+			DeleteObject(hbmpSp);
 			break;
 		}
 		case WM_CLOSE: {
@@ -4321,7 +4351,17 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		}
 		//Updating
 		case WM_PAINT: {
-			//TODO
+			//Update
+			updateEntireScreen_sp();
+			//Blit screen
+			PAINTSTRUCT ps;
+			BeginPaint(hwnd,&ps);
+			HDC hdcMem = CreateCompatibleDC(hdcSp);
+			HBITMAP hbmpOld = (HBITMAP)SelectObject(hdcMem,hbmpSp);
+			BitBlt(hdcSp,0,0,0x100,0x100,hdcMem,0,0,SRCCOPY);
+			SelectObject(hdcMem,hbmpOld);
+			DeleteDC(hdcMem);
+			EndPaint(hwnd,&ps);
 			break;
 		}
 		//Input

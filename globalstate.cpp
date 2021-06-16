@@ -2,6 +2,7 @@
 
 //General variables
 HICON hiconMain;
+HINSTANCE hinstMain;
 bool isRomOpen = false,isRomSaved = false;
 BYTE romBuf[0x800000];
 //Variables for levels

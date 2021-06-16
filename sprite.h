@@ -41,8 +41,8 @@ void clearSpriteSelection();
 void insertSprites(int x,int y);
 void deleteSprites();
 void moveSprites(int dx,int dy);
-int focusSprite(int x,int y,UINT * cursor);
 //Window
+int focusSprite(int x,int y,UINT * cursor);
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif

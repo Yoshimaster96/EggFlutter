@@ -1,6 +1,7 @@
 #include "object.h"
 
 HWND hwndObject;
+HWND hwndObjectLb,hwndObjectCb;
 bool wvisObject = false;
 level_object_data_ctx_t objectContexts[2];
 int curObjCtx = 0;
@@ -9439,6 +9440,14 @@ void increaseObjectZ() {
 void decreaseObjectZ() {
 	//TODO
 }
+
+///////////////////
+//WINDOW FUNCTION//
+///////////////////
+HDC				hdcObj;
+HBITMAP			hbmpObj;
+DWORD *			bmpDataObj;
+
 int focusObject(int x,int y,UINT * cursor) {
 	//Get top object
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
@@ -9535,27 +9544,48 @@ int focusObject(int x,int y,UINT * cursor) {
 		return retval;
 	}
 }
-
-///////////////////
-//WINDOW FUNCTION//
-///////////////////
-HDC				hdcObj;
-HBITMAP			hbmpObj;
-DWORD *			bmpDataObj;
+//Main drawing code
+void updateEntireScreen_obj() {
+	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
+	int prevCtx = setObjectContext(1);
+	drawObjects();
+	dispObjects(bmpDataObj,0x100,0x100,{0,0,0x100,0x100});
+	setObjectContext(prevCtx);
+}
 
 LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			//TODO
+			CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX",NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				0,256,256,100,
+				hwnd,NULL,hinstMain,NULL);
+			CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX",NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				0,282,256,102,
+				hwnd,NULL,hinstMain,NULL);
 			//Create objects
+			hdcObj = GetDC(hwnd);
+			BITMAPINFO bmi;
+			memset(&bmi.bmiHeader,0,sizeof(BITMAPINFOHEADER));
+			bmi.bmiHeader.biSize			= sizeof(BITMAPINFOHEADER);
+			bmi.bmiHeader.biPlanes			= 1;
+			bmi.bmiHeader.biBitCount		= 32;
+			bmi.bmiHeader.biCompression		= BI_RGB;
+			bmi.bmiHeader.biWidth			= 0x100;
+			bmi.bmiHeader.biHeight			= -0x100;
+			hbmpObj = CreateDIBSection(hdcObj,&bmi,DIB_RGB_COLORS,(void**)&bmpDataObj,NULL,0);
+			memset(bmpDataObj,0,0x10000*sizeof(DWORD));
+			//Init combo boxes
+			//TODO
+			//Init control values
 			//TODO
 			break;
 		}
 		case WM_DESTROY: {
 			//Free objects
-			//TODO
+			DeleteDC(hdcObj);
+			DeleteObject(hbmpObj);
 			break;
 		}
 		case WM_CLOSE: {
@@ -9566,7 +9596,17 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		}
 		//Updating
 		case WM_PAINT: {
-			//TODO
+			//Update
+			updateEntireScreen_obj();
+			//Blit screen
+			PAINTSTRUCT ps;
+			BeginPaint(hwnd,&ps);
+			HDC hdcMem = CreateCompatibleDC(hdcObj);
+			HBITMAP hbmpOld = (HBITMAP)SelectObject(hdcMem,hbmpObj);
+			BitBlt(hdcObj,0,0,0x100,0x100,hdcMem,0,0,SRCCOPY);
+			SelectObject(hdcMem,hbmpOld);
+			DeleteDC(hdcMem);
+			EndPaint(hwnd,&ps);
 			break;
 		}
 		//Input
