@@ -9448,13 +9448,12 @@ HDC				hdcObj;
 HBITMAP			hbmpObj;
 DWORD *			bmpDataObj;
 
-int focusObject(int x,int y,UINT * cursor) {
+int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	//Get top object
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
 	int topIdx = objectContexts[0].assocObjects[tileIdx].size()-1;
 	if(topIdx<0) {
 		//Return default
-		*cursor = 0x7F00; //IDC_ARROW
 		return 4;
 	} else {
 		object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];

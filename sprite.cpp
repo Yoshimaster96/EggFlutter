@@ -4247,10 +4247,119 @@ HDC				hdcSp;
 HBITMAP			hbmpSp;
 DWORD *			bmpDataSp;
 
-int focusSprite(int x,int y,UINT * cursor) {
+BYTE spriteDlgData_t0[] = {
+	//000
+	0x00,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x01,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x03,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x05,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x07,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x09,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0A,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0D,0x0E,0x07,0xFF,0xFF,0xFF,
+	//010
+
+
+};
+LPCTSTR spriteDlgNames_t0[] = {
+	//000
+	"Floating Log",
+	"Closed Door",
+	"Crate (Key)",
+	"Icy Watermelon",
+	"Watermelon",
+	"Fire Watermelon",
+	"Kaboomba",
+	"Raphael Raven",
+	"Goal Ring",
+	//010
+
+
+};
+BYTE spriteDlgData_t1[] = {
+	//000
+	0x02,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x04,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x06,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x08,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0B,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0E,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0F,0x0E,0x07,0xFF,0xFF,0xFF,
+
+
+
+};
+LPCTSTR spriteDlgNames_t1[] = {
+
+
+
+};
+BYTE spriteDlgData_t2[] = {
+
+
+
+};
+LPCTSTR spriteDlgNames_t2[] = {
+
+
+
+};
+LPCTSTR whatsThisSprite[0x200] = {
+	//000
+	"A log which floats on water or lava.\nSprite ID: 000",
+	"A closed door which cannot be entered.\nSprite ID: 001",
+	"Part of the Naval Piranha boss.\nSprite ID: 002",
+	"A crate with a key inside.\nSprite ID: 003",
+	"Item from a Star Mario block.\nSprite ID: 004",
+	"An icy watermelon which when eaten allows Yoshi to breathe ice which can freeze enemies.\nSprite ID: 005",
+	"Projectile from an icy watermelon.\nSprite ID: 006",
+	"A watermelon which when eaten allows Yoshi to spit seeds at enemies.\nSprite ID: 007",
+	"Rubble from the final Bowser boss.\nSprite ID: 008",
+	"A fire watermelon which when eaten allows Yoshi to breathe fire which can melt ice and burn enemies.\nSprite ID: 009",
+	"A Kaboomba, walks and shoots cannonballs.\nSprite ID: 00A",
+	"Projectile from a Kaboomba.\nSprite ID: 00B",
+	"A Raphael Raven.\nSprite ID: 00C",
+	"A goal ring which when passed through ends the level.\nSprite ID: 00D",
+	"\"GOAL!\" text for goal ring.\nSprite ID: 00E",
+	"\"BONUS CHALLENGE!\" text for goal ring.\nSprite ID: 00F",
+	//010
+	"A Caged Ghost in the shape of a round mound.\nSprite ID: 010",
+	"Item card from a minigame.\nSprite ID: 011",
+	"A boss door which can be entered. Make sure to set a screen exit!\nSprite ID: 012",
+	"Boss explosion effect.\nSprite ID: 013",
+	"Key from defeated boss.\nSprite ID: 014",
+	"Projectile from Submarine Yoshi.\nSprite ID: 015",
+	"A Bigger Boo.\nSprite ID: 016",
+	"A Frog Pirate which jumps and tries to grab Baby Mario with his tongue.\nSprite ID: 017",
+	"Projectil from a fire watermelon.\nSprite ID: 018",
+	"Bubble.\nSprite ID: 019",
+	"A ski lift which when moves when jumped on.\nSprite ID: 01A",
+	"A vertical log which floats on water or lava.\nSprite ID: 01B",
+	"A Dr. Freezegood whose contents depends on its X/Y coordinates.\nSprite ID: 01C",
+	"A Dr. Freezegood on a ski lift.\nSprite ID: 01D",
+	"A Shy Guy whose color depends on its X/Y coordinates.\nSprite ID: 01E",
+	"A set of rotating doors. Destinations are hardcoded.\nSprite ID: 01F",
+	//020
+	"A Bandit who will try to steal Baby Mario.\nSprite ID: 020"
+	"A ? Bucket which can be knocked over and ridden in.\nSprite ID: 021",
+	"A flashing egg which produces a red Coin upon hitting an enemy.\nSprite ID: 022",
+	"A red egg which produces 2 stars upon hitting an enemy.\nSprite ID: 023",
+	"A yellow egg which produces a coin upon hitting an enemy.\nSprite ID: 024",
+	"A green egg which can be shot at enemies.\nSprite ID: 025",
+	"Giant egg for final Bowser boss.\nSprite ID: 026",
+	"A key which can unlock doors.\nSprite ID: 027"
+
+
+
+};
+
+int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 	//Check each sprite
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+	for(int n=(spriteContexts[0].sprites.size()-1); n>=0; n--) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
+		id &= 0x1FF;
 		int xpos = (thisSprite->data[2])<<4;
 		int ypos = (thisSprite->data[1]>>1)<<4;
 		//Check each sprite tile for intersection
@@ -4264,6 +4373,7 @@ int focusSprite(int x,int y,UINT * cursor) {
 					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
+						_tcscpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -4272,6 +4382,7 @@ int focusSprite(int x,int y,UINT * cursor) {
 					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
+						_tcscpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -4280,6 +4391,7 @@ int focusSprite(int x,int y,UINT * cursor) {
 					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
+						_tcscpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -4288,6 +4400,7 @@ int focusSprite(int x,int y,UINT * cursor) {
 					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
+						_tcscpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -4296,7 +4409,6 @@ int focusSprite(int x,int y,UINT * cursor) {
 		}
 	}
 	//Return default
-	*cursor = 0x7F00; //IDC_ARROW
 	return 4;
 }
 //Main drawing code

@@ -161,7 +161,7 @@ void updateDialog_editLevMessages(HWND hwnd) {
 }
 
 //Dialog functions
-const TCHAR * worldLevelStrings[56] = {
+LPCTSTR worldLevelStrings[56] = {
 "1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E",
 "2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E",
 "3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E",
@@ -169,7 +169,7 @@ const TCHAR * worldLevelStrings[56] = {
 "5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E",
 "6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E",
 "Intro","Tutorial"};
-const TCHAR * actionMinigameStrings[23] = {
+LPCTSTR actionMinigameStrings[23] = {
 "Action 00: Do Nothing",
 "Action 01: Skiing",
 "Action 02: Horizontal Pipe Exit Right",
@@ -379,7 +379,6 @@ LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 						bool enabled = SendDlgItemMessage(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
 						enabled = !enabled;
 						SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)(enabled?BST_CHECKED:BST_UNCHECKED),0);
-						BOOL enabledState = enabled?TRUE:FALSE;
 						enableItem_dlg(hwnd,21,enabled);
 						enableItem_dlg(hwnd,22,enabled);
 						enableItem_dlg(hwnd,23,enabled);
@@ -536,8 +535,9 @@ LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARA
 //////////////
 bool hasSmcHeader;
 TCHAR romFilename[256];
-HWND hwndMain;
+HWND hwndMain,hwndTooltip;
 HMENU hmenuMain;
+TOOLINFO tiTooltip;
 
 //View states
 bool eObj = true,eSp = false;
@@ -1247,6 +1247,9 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			si.nPos			= yCurScroll;
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
 			
+			GetClientRect(hwndMain,&tiTooltip.rect);
+			SendMessage(hwndTooltip,TTM_NEWTOOLRECT,(WPARAM)&tiTooltip,0);
+			
 			updateEntireScreen();
 			break;
 		}
@@ -1396,7 +1399,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					} else if(eSp) {
 						selectSprites(selRect);
 					}
-					SetCursor(LoadCursor(NULL,IDC_ARROW));
 				} else if(selOp==5) {
 					int dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
 					int dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
@@ -1407,7 +1409,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						moveSprites(dx,dy);
 						drawSprites();
 					}
-					SetCursor(LoadCursor(NULL,IDC_SIZEALL));
 				} else {
 					int dx = 0;
 					int dy = 0;
@@ -1421,11 +1422,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
 				UINT cursor = 0x7F00; //IDC_ARROW
+				TCHAR tipText[256] = "";
 				if(eObj) {
-					selOp = focusObject(levX,levY,&cursor);
+					selOp = focusObject(levX,levY,&cursor,tipText);
 				} else if(eSp) {
-					selOp = focusSprite(levX,levY,&cursor);
+					selOp = focusSprite(levX,levY,&cursor,tipText);
 				}
+				tiTooltip.lpszText = tipText;
+				SendMessage(hwndTooltip,TTM_ACTIVATE,tipText[0]!='\0',0);
 				SetCursor(LoadCursor(NULL,(LPCTSTR)cursor));
 			}
 			
@@ -1438,6 +1442,13 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			int mouseY = GET_Y_LPARAM(lParam);
 			int levX = mouseX+xCurScroll;
 			int levY = mouseY+yCurScroll;
+			if(selOp==5) {
+				if(eObj) {
+					//selectTopObject(levX,levY);
+				} else if(eSp) {
+					//selectTopSprite(levX,levY);
+				}
+			}
 			selpCur = selpPrev = {levX,levY};
 			dragFlag = true;
 			//Clip cursor
@@ -1646,6 +1657,27 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 0;
 	}
 	
+	//Setup tooltip
+	hwndTooltip = CreateWindowEx(WS_EX_TOPMOST,TOOLTIPS_CLASS,NULL,WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		hwndMain,NULL,hInstance,NULL);
+	if(hwndTooltip==NULL) {
+		MessageBox(NULL,"Tooltip window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		return 0;
+	}
+	SetWindowPos(hwndTooltip,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+	memset(&tiTooltip,0,sizeof(TOOLINFO));
+	tiTooltip.cbSize		= sizeof(TOOLINFO);
+	tiTooltip.hwnd			= hwndMain;
+	tiTooltip.uId			= (UINT_PTR)hwndTooltip;
+	tiTooltip.uFlags		= TTF_SUBCLASS;
+	tiTooltip.hinst			= hInstance;
+	GetClientRect(hwndMain,&tiTooltip.rect);
+	SendMessage(hwndTooltip,TTM_ACTIVATE,FALSE,0);
+	SendMessage(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&tiTooltip);
 	//Setup menus
 	hmenuMain = LoadMenu(hInstance,MAKEINTRESOURCE(IDM_MENU_MAIN));
 	SetMenu(hwndMain,hmenuMain);
