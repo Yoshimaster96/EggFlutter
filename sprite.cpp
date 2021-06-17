@@ -4206,6 +4206,69 @@ void deleteSprites() {
 	//Delete selected sprites
 	remove_if(spriteContexts[0].sprites.begin(),spriteContexts[0].sprites.end(),sprite_delPred);
 }
+void selectTopSprite(int x,int y) {
+	//Select top sprite
+	for(int n=(spriteContexts[0].sprites.size()-1); n>=0; n--) {
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
+		id &= 0x1FF;
+		int xpos = (thisSprite->data[2])<<4;
+		int ypos = (thisSprite->data[1]>>1)<<4;
+		//Check each sprite tile for intersection
+		for(int i=0; i<thisSprite->tiles.size(); i++) {
+			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
+			int xpos2 = xpos+thisSpriteTile->offsX;
+			int ypos2 = ypos+thisSpriteTile->offsY;
+			switch(thisSpriteTile->tile&0xC000) {
+				case 0x0000: {
+					int tileSize = (thisSpriteTile->props&1)?16:8;
+					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+					if(PtInRect(&tileRect,{x,y})) {
+						if(!thisSprite->selected) {
+							clearSpriteSelection();
+							thisSprite->selected = true;
+						}
+						return;
+					}
+					break;
+				}
+				case 0x4000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+					if(PtInRect(&tileRect,{x,y})) {
+						if(!thisSprite->selected) {
+							clearSpriteSelection();
+							thisSprite->selected = true;
+						}
+						return;
+					}
+					break;
+				}
+				case 0x8000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+					if(PtInRect(&tileRect,{x,y})) {
+						if(!thisSprite->selected) {
+							clearSpriteSelection();
+							thisSprite->selected = true;
+						}
+						return;
+					}
+					break;
+				}
+				case 0xC000: {
+					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+					if(PtInRect(&tileRect,{x,y})) {
+						if(!thisSprite->selected) {
+							clearSpriteSelection();
+							thisSprite->selected = true;
+						}
+						return;
+					}
+					break;
+				}
+			}
+		}
+	}
+}
 void moveSprites(int dx,int dy) {
 	dx >>= 4;
 	dy >>= 4;
@@ -4291,16 +4354,17 @@ BYTE spriteDlgData_t1[] = {
 
 };
 LPCTSTR spriteDlgNames_t1[] = {
-
+	//000
 
 
 };
 BYTE spriteDlgData_t2[] = {
-
+	//1B0
 
 
 };
 LPCTSTR spriteDlgNames_t2[] = {
+	//1B0
 
 
 
@@ -4411,6 +4475,7 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 	//Return default
 	return 4;
 }
+
 //Main drawing code
 void updateEntireScreen_sp() {
 	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
@@ -4425,10 +4490,10 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX",NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,NULL,hinstMain,NULL);
-			CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX",NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,NULL,hinstMain,NULL);
 			//Create objects

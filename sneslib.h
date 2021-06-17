@@ -4,6 +4,7 @@
 //Includes
 #include <windows.h>
 #include <windowsx.h>
+#include <commctrl.h>
 #include <tchar.h>
 #include <time.h>
 #include <cstdio>

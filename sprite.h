@@ -40,6 +40,7 @@ int selectSprites(RECT rect);
 void clearSpriteSelection();
 void insertSprites(int x,int y);
 void deleteSprites();
+void selectTopSprite(int x,int y);
 void moveSprites(int dx,int dy);
 //Window
 int focusSprite(int x,int y,UINT * cursor,TCHAR * text);

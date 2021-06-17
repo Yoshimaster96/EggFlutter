@@ -35,6 +35,7 @@ int selectObjects(RECT rect);
 void clearObjectSelection();
 void insertObjects(int x,int y);
 void deleteObjects();
+void selectTopObject(int x,int y);
 void moveObjects(int dx,int dy);
 void resizeObjects(int dx,int dy);
 void increaseObjectZ();

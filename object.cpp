@@ -9367,6 +9367,18 @@ void deleteObjects() {
 	//Delete selected objects
 	remove_if(objectContexts[0].objects.begin(),objectContexts[0].objects.end(),object_delPred);
 }
+void selectTopObject(int x,int y) {
+	//Select top object
+	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
+	int topIdx = objectContexts[0].assocObjects[tileIdx].size()-1;
+	if(topIdx>=0) {
+		object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];
+		if(!thisObject->selected) {
+			clearObjectSelection();
+			thisObject->selected = true;
+		}
+	}
+}
 void moveObjects(int dx,int dy) {
 	dx >>= 4;
 	dy >>= 4;
@@ -9543,6 +9555,7 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 		return retval;
 	}
 }
+
 //Main drawing code
 void updateEntireScreen_obj() {
 	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
@@ -9557,10 +9570,10 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX",NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,NULL,hinstMain,NULL);
-			CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX",NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,NULL,hinstMain,NULL);
 			//Create objects
