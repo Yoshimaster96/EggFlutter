@@ -1171,6 +1171,23 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
+			//Setup tooltip
+			hwndTooltip = CreateWindow(TOOLTIPS_CLASS,NULL,TTS_NOPREFIX|TTS_ALWAYSTIP,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				CW_USEDEFAULT,
+				hwnd,NULL,hinstMain,NULL);
+			TOOLINFO ti;
+			memset(&ti,0,sizeof(TOOLINFO));
+			ti.cbSize		= sizeof(TOOLINFO);
+			ti.uFlags		= TTF_SUBCLASS;
+			ti.hwnd			= hwnd;
+			ti.uId			= 600;
+			ti.rect			= {0,0,640,480};
+			ti.hinst		= hinstMain;
+			SendMessage(hwndTooltip,TTM_SETMAXTIPWIDTH,0,640);
+			SendMessage(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&ti);
 			//Create objects
 			hdcMain = GetDC(hwnd);
 			BITMAPINFO bmi;
@@ -1418,7 +1435,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
 				UINT cursor = 0x7F00; //IDC_ARROW
-				TCHAR tipText[256];
+				TCHAR tipText[256] = "";
 				if(eObj) {
 					selOp = focusObject(levX,levY,&cursor,tipText);
 				} else if(eSp) {
@@ -1430,15 +1447,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				memset(&ti,0,sizeof(TOOLINFO));
 				ti.cbSize		= sizeof(TOOLINFO);
 				ti.uFlags		= TTF_SUBCLASS;
-				ti.hwnd			= hwndMain;
+				ti.hwnd			= hwnd;
 				ti.uId			= 600;
 				ti.rect			= {mouseX,mouseY,mouseX+2,mouseY+2};
 				ti.hinst		= hinstMain;
-				ti.lpszText		= "Hello!";
-				SendMessage(hwndTooltip,TTM_ACTIVATE,FALSE,0);
+				ti.lpszText		= tipText;
 				SendMessage(hwndTooltip,TTM_NEWTOOLRECT,0,(LPARAM)&ti);
 				SendMessage(hwndTooltip,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
-				SendMessage(hwndTooltip,TTM_ACTIVATE,TRUE,0);
+				SendMessage(hwndTooltip,TTM_ACTIVATE,tipText[0]!='\0',0);
 			}
 			
 			updateEntireScreen();
@@ -1607,27 +1623,6 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 0;
 	}
 	SetTimer(hwndMain,800,33,NULL);
-	//Setup tooltip
-	hwndTooltip = CreateWindow(TOOLTIPS_CLASS,NULL,TTS_NOPREFIX|TTS_ALWAYSTIP,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		hwndMain,NULL,hInstance,NULL);
-	if(hwndTooltip==NULL) {
-		MessageBox(NULL,"Tooltip window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
-		return 0;
-	}
-	TOOLINFO ti;
-	memset(&ti,0,sizeof(TOOLINFO));
-	ti.cbSize		= sizeof(TOOLINFO);
-	ti.uFlags		= TTF_SUBCLASS;
-	ti.hwnd			= hwndMain;
-	ti.uId			= 600;
-	ti.rect			= {0,0,640,480};
-	ti.hinst		= hInstance;
-	SendMessage(hwndTooltip,TTM_ACTIVATE,FALSE,0);
-	SendMessage(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&ti);
 	//Create children windows
 	RECT refSize = {0,0,256,384};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);

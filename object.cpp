@@ -9459,6 +9459,8 @@ void decreaseObjectZ() {
 HDC				hdcObj;
 HBITMAP			hbmpObj;
 DWORD *			bmpDataObj;
+HWND			hwndCbObject,hwndLbObject;
+RECT invRect_object = {0,0,0x100,0x100};
 
 int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	//Get top object
@@ -9556,6 +9558,36 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	}
 }
 
+//Control updaters
+void updateWindowSub_object() {
+	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
+	int prevCtx = setObjectContext(1);
+	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
+	if(idx==0) {
+		//TODO
+	} else if(idx==1) {
+		//TODO
+	}
+	drawObjects();
+	dispObjects(bmpDataObj,0x100,0x100,{0,0,0x100,0x100});
+	setObjectContext(prevCtx);
+}
+void updateWindow_object() {
+	//Remove previous elements
+	int prevSize = SendMessage(hwndLbObject,LB_GETCOUNT,0,0);
+	for(int i=0; i<prevSize; i++) {
+		SendMessage(hwndLbObject,LB_DELETESTRING,0,0);
+	}
+	//Add new elements and select first
+	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
+	if(idx==0) {
+		//TODO
+	} else if(idx==1) {
+		//TODO
+	}
+	SendMessage(hwndLbObject,LB_SETCURSEL,0,0);
+	updateWindowSub_object();
+}
 //Main drawing code
 void updateEntireScreen_obj() {
 	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
@@ -9570,12 +9602,12 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndCbObject = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
-				hwnd,NULL,hinstMain,NULL);
-			CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				hwnd,(HMENU)20,hinstMain,NULL);
+			hwndLbObject = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
-				hwnd,NULL,hinstMain,NULL);
+				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
 			hdcObj = GetDC(hwnd);
 			BITMAPINFO bmi;
@@ -9589,9 +9621,11 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			hbmpObj = CreateDIBSection(hdcObj,&bmi,DIB_RGB_COLORS,(void**)&bmpDataObj,NULL,0);
 			memset(bmpDataObj,0,0x10000*sizeof(DWORD));
 			//Init combo boxes
-			//TODO
+			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Standard Objects");
+			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Extended Objects");
+			SendMessage(hwndCbObject,CB_SETCURSEL,0,0);
 			//Init control values
-			//TODO
+			updateWindow_object();
 			break;
 		}
 		case WM_DESTROY: {
@@ -9623,7 +9657,24 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		}
 		//Input
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case 20: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateWindow_object();
+						InvalidateRect(hwnd,&invRect_object,false);
+						UpdateWindow(hwnd);
+						break;
+					}
+				}
+				case 25: {
+					if(HIWORD(wParam)==LBN_SELCHANGE) {
+						updateWindowSub_object();
+						InvalidateRect(hwnd,&invRect_object,false);
+						UpdateWindow(hwnd);
+						break;
+					}
+				}
+			}
 			break;
 		}
 		default: {

@@ -4309,6 +4309,8 @@ void moveSprites(int dx,int dy) {
 HDC				hdcSp;
 HBITMAP			hbmpSp;
 DWORD *			bmpDataSp;
+HWND			hwndCbSprite,hwndLbSprite;
+RECT invRect_sprite = {0,0,0x100,0x100};
 
 BYTE spriteDlgData_t0[] = {
 	//000
@@ -4320,8 +4322,9 @@ BYTE spriteDlgData_t0[] = {
 	0x09,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x0A,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x0C,0x0E,0x07,0xFF,0xFF,0xFF,
-	0x0D,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0D,0x16,0x06,0xFF,0xFF,0xFF,
 	//010
+	0x10,0x16,0x08,0xFF,0xFF,0xFF,
 
 
 };
@@ -4337,6 +4340,7 @@ LPCTSTR spriteDlgNames_t0[] = {
 	"Raphael Raven",
 	"Goal Ring",
 	//010
+	"Caged Ghost (round mound)",
 
 
 };
@@ -4347,14 +4351,23 @@ BYTE spriteDlgData_t1[] = {
 	0x06,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x08,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x0B,0x0E,0x07,0xFF,0xFF,0xFF,
-	0x0E,0x0E,0x07,0xFF,0xFF,0xFF,
-	0x0F,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x0E,0x0C,0x03,0xFF,0xFF,0xFF,
+	0x0F,0x10,0x08,0xFF,0xFF,0xFF,
+	//010
 
 
 
 };
 LPCTSTR spriteDlgNames_t1[] = {
 	//000
+	"Part of Naval Piranha",
+	"Item from Star Mario block",
+	"Projectile from Icy Watermelon",
+	"Rubble from final boss",
+	"Projectile from Kaboomba",
+	"\"GOAL!\" text",
+	"\"BONUS CHALLENGE!\" text",
+	//010
 
 
 };
@@ -4371,48 +4384,48 @@ LPCTSTR spriteDlgNames_t2[] = {
 };
 LPCTSTR whatsThisSprite[0x200] = {
 	//000
-	"A log which floats on water or lava.\nSprite ID: 000",
-	"A closed door which cannot be entered.\nSprite ID: 001",
-	"Part of the Naval Piranha boss.\nSprite ID: 002",
-	"A crate with a key inside.\nSprite ID: 003",
-	"Item from a Star Mario block.\nSprite ID: 004",
-	"An icy watermelon which when eaten allows Yoshi to breathe ice which can freeze enemies.\nSprite ID: 005",
-	"Projectile from an icy watermelon.\nSprite ID: 006",
-	"A watermelon which when eaten allows Yoshi to spit seeds at enemies.\nSprite ID: 007",
-	"Rubble from the final Bowser boss.\nSprite ID: 008",
-	"A fire watermelon which when eaten allows Yoshi to breathe fire which can melt ice and burn enemies.\nSprite ID: 009",
-	"A Kaboomba, walks and shoots cannonballs.\nSprite ID: 00A",
-	"Projectile from a Kaboomba.\nSprite ID: 00B",
-	"A Raphael Raven.\nSprite ID: 00C",
-	"A goal ring which when passed through ends the level.\nSprite ID: 00D",
-	"\"GOAL!\" text for goal ring.\nSprite ID: 00E",
-	"\"BONUS CHALLENGE!\" text for goal ring.\nSprite ID: 00F",
+	"A log which floats on water or lava.\r\nSprite ID: 000",
+	"A closed door which cannot be entered.\r\nSprite ID: 001",
+	"Part of the Naval Piranha boss.\r\nSprite ID: 002",
+	"A crate with a key inside.\r\nSprite ID: 003",
+	"Item from a Star Mario block.\r\nSprite ID: 004",
+	"An icy watermelon which when eaten allows Yoshi to breathe ice which can freeze enemies.\r\nSprite ID: 005",
+	"Projectile from an icy watermelon.\r\nSprite ID: 006",
+	"A watermelon which when eaten allows Yoshi to spit seeds at enemies.\r\nSprite ID: 007",
+	"Rubble from the final Bowser boss.\r\nSprite ID: 008",
+	"A fire watermelon which when eaten allows Yoshi to breathe fire which can melt ice and burn enemies.\r\nSprite ID: 009",
+	"A Kaboomba, walks and shoots cannonballs.\r\nSprite ID: 00A",
+	"Projectile from a Kaboomba.\r\nSprite ID: 00B",
+	"A Raphael Raven.\r\nSprite ID: 00C",
+	"A goal ring which when passed through ends the level.\r\nSprite ID: 00D",
+	"\"GOAL!\" text for goal ring.\r\nSprite ID: 00E",
+	"\"BONUS CHALLENGE!\" text for goal ring.\r\nSprite ID: 00F",
 	//010
-	"A Caged Ghost in the shape of a round mound.\nSprite ID: 010",
-	"Item card from a minigame.\nSprite ID: 011",
-	"A boss door which can be entered. Make sure to set a screen exit!\nSprite ID: 012",
-	"Boss explosion effect.\nSprite ID: 013",
-	"Key from defeated boss.\nSprite ID: 014",
-	"Projectile from Submarine Yoshi.\nSprite ID: 015",
-	"A Bigger Boo.\nSprite ID: 016",
-	"A Frog Pirate which jumps and tries to grab Baby Mario with his tongue.\nSprite ID: 017",
-	"Projectil from a fire watermelon.\nSprite ID: 018",
-	"Bubble.\nSprite ID: 019",
-	"A ski lift which when moves when jumped on.\nSprite ID: 01A",
-	"A vertical log which floats on water or lava.\nSprite ID: 01B",
-	"A Dr. Freezegood whose contents depends on its X/Y coordinates.\nSprite ID: 01C",
-	"A Dr. Freezegood on a ski lift.\nSprite ID: 01D",
-	"A Shy Guy whose color depends on its X/Y coordinates.\nSprite ID: 01E",
-	"A set of rotating doors. Destinations are hardcoded.\nSprite ID: 01F",
+	"A Caged Ghost in the shape of a round mound.\r\nSprite ID: 010",
+	"Item card from a minigame.\r\nSprite ID: 011",
+	"A boss door which can be entered. Make sure to set a screen exit!\r\nSprite ID: 012",
+	"Boss explosion effect.\r\nSprite ID: 013",
+	"Key from defeated boss.\r\nSprite ID: 014",
+	"Projectile from Submarine Yoshi.\r\nSprite ID: 015",
+	"A Bigger Boo.\r\nSprite ID: 016",
+	"A Frog Pirate which jumps and tries to grab Baby Mario with his tongue.\r\nSprite ID: 017",
+	"Projectil from a fire watermelon.\r\nSprite ID: 018",
+	"Bubble.\r\nSprite ID: 019",
+	"A ski lift which when moves when jumped on.\r\nSprite ID: 01A",
+	"A vertical log which floats on water or lava.\r\nSprite ID: 01B",
+	"A Dr. Freezegood whose contents depends on its X/Y coordinates.\r\nSprite ID: 01C",
+	"A Dr. Freezegood on a ski lift.\r\nSprite ID: 01D",
+	"A Shy Guy whose color depends on its X/Y coordinates.\r\nSprite ID: 01E",
+	"A set of rotating doors. Destinations are hardcoded.\r\nSprite ID: 01F",
 	//020
-	"A Bandit who will try to steal Baby Mario.\nSprite ID: 020"
-	"A ? Bucket which can be knocked over and ridden in.\nSprite ID: 021",
-	"A flashing egg which produces a red Coin upon hitting an enemy.\nSprite ID: 022",
-	"A red egg which produces 2 stars upon hitting an enemy.\nSprite ID: 023",
-	"A yellow egg which produces a coin upon hitting an enemy.\nSprite ID: 024",
-	"A green egg which can be shot at enemies.\nSprite ID: 025",
-	"Giant egg for final Bowser boss.\nSprite ID: 026",
-	"A key which can unlock doors.\nSprite ID: 027"
+	"A Bandit who will try to steal Baby Mario.\r\nSprite ID: 020"
+	"A ? Bucket which can be knocked over and ridden in.\r\nSprite ID: 021",
+	"A flashing egg which produces a red Coin upon hitting an enemy.\r\nSprite ID: 022",
+	"A red egg which produces 2 stars upon hitting an enemy.\r\nSprite ID: 023",
+	"A yellow egg which produces a coin upon hitting an enemy.\r\nSprite ID: 024",
+	"A green egg which can be shot at enemies.\r\nSprite ID: 025",
+	"Giant egg for final Bowser boss.\r\nSprite ID: 026",
+	"A key which can unlock doors.\r\nSprite ID: 027",
 
 
 
@@ -4476,6 +4489,50 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 	return 4;
 }
 
+//Control updaters
+void updateWindowSub_sprite() {
+	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
+	int prevCtx = setSpriteContext(1);
+	int idx = SendMessage(hwndCbSprite,CB_GETCURSEL,0,0);
+	int idx2 = SendMessage(hwndLbSprite,LB_GETCURSEL,0,0);
+	if(idx==0) {
+		loadSprites(&spriteDlgData_t0[idx2*6]);
+	} else if(idx==1) {
+		loadSprites(&spriteDlgData_t1[idx2*6]);
+	} else if(idx==2) {
+		loadSprites(&spriteDlgData_t2[idx2*6]);
+	}
+	drawSprites();
+	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
+	setSpriteContext(prevCtx);
+}
+void updateWindow_sprite() {
+	//Remove previous elements
+	int prevSize = SendMessage(hwndLbSprite,LB_GETCOUNT,0,0);
+	for(int i=0; i<prevSize; i++) {
+		SendMessage(hwndLbSprite,LB_DELETESTRING,0,0);
+	}
+	//Add new elements and select first
+	int idx = SendMessage(hwndCbSprite,CB_GETCURSEL,0,0);
+	if(idx==0) {
+		int arrSize = sizeof(spriteDlgNames_t0)/sizeof(LPCTSTR);
+		for(int i=0; i<arrSize; i++) {
+			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t0[i]);
+		}
+	} else if(idx==1) {
+		int arrSize = sizeof(spriteDlgNames_t1)/sizeof(LPCTSTR);
+		for(int i=0; i<arrSize; i++) {
+			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t1[i]);
+		}
+	} else if(idx==2) {
+		int arrSize = sizeof(spriteDlgNames_t2)/sizeof(LPCTSTR);
+		for(int i=0; i<arrSize; i++) {
+			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t2[i]);
+		}
+	}
+	SendMessage(hwndLbSprite,LB_SETCURSEL,0,0);
+	updateWindowSub_sprite();
+}
 //Main drawing code
 void updateEntireScreen_sp() {
 	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
@@ -4490,12 +4547,12 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndCbSprite = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
-				hwnd,NULL,hinstMain,NULL);
-			CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+				hwnd,(HMENU)20,hinstMain,NULL);
+			hwndLbSprite = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
-				hwnd,NULL,hinstMain,NULL);
+				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
 			hdcSp = GetDC(hwnd);
 			BITMAPINFO bmi;
@@ -4509,9 +4566,12 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			hbmpSp = CreateDIBSection(hdcSp,&bmi,DIB_RGB_COLORS,(void**)&bmpDataSp,NULL,0);
 			memset(bmpDataSp,0,0x10000*sizeof(DWORD));
 			//Init combo boxes
-			//TODO
+			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Standard Sprites");
+			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Spawned Sprites");
+			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Commands & Generators");
+			SendMessage(hwndCbSprite,CB_SETCURSEL,0,0);
 			//Init control values
-			//TODO
+			updateWindow_sprite();
 			break;
 		}
 		case WM_DESTROY: {
@@ -4543,7 +4603,24 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		}
 		//Input
 		case WM_COMMAND: {
-			//TODO
+			switch(LOWORD(wParam)) {
+				case 20: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateWindow_sprite();
+						InvalidateRect(hwnd,&invRect_sprite,false);
+						UpdateWindow(hwnd);
+						break;
+					}
+				}
+				case 25: {
+					if(HIWORD(wParam)==LBN_SELCHANGE) {
+						updateWindowSub_sprite();
+						InvalidateRect(hwnd,&invRect_sprite,false);
+						UpdateWindow(hwnd);
+						break;
+					}
+				}
+			}
 			break;
 		}
 		default: {
