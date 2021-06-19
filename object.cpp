@@ -9560,7 +9560,6 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 
 //Control updaters
 void updateWindowSub_object() {
-	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
 	int prevCtx = setObjectContext(1);
 	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
 	if(idx==0) {
@@ -9569,7 +9568,6 @@ void updateWindowSub_object() {
 		//TODO
 	}
 	drawObjects();
-	dispObjects(bmpDataObj,0x100,0x100,{0,0,0x100,0x100});
 	setObjectContext(prevCtx);
 }
 void updateWindow_object() {
@@ -9590,7 +9588,14 @@ void updateWindow_object() {
 }
 //Main drawing code
 void updateEntireScreen_obj() {
-	memset(bmpDataObj,1,0x10000*sizeof(DWORD));
+	//memset(bmpDataObj,1,0x10000*sizeof(DWORD));
+	for(int i=0; i<0x10000; i++) {
+		if((i&0x10)^((i&0x1000)>>8)) {
+			bmpDataObj[i] = 0x01010101;
+		} else {
+			bmpDataObj[i] = 0x81818181;
+		}
+	}
 	int prevCtx = setObjectContext(1);
 	drawObjects();
 	dispObjects(bmpDataObj,0x100,0x100,{0,0,0x100,0x100});
@@ -9605,7 +9610,7 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			hwndCbObject = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,(HMENU)20,hinstMain,NULL);
-			hwndLbObject = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndLbObject = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
@@ -9620,6 +9625,16 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			bmi.bmiHeader.biHeight			= -0x100;
 			hbmpObj = CreateDIBSection(hdcObj,&bmi,DIB_RGB_COLORS,(void**)&bmpDataObj,NULL,0);
 			memset(bmpDataObj,0,0x10000*sizeof(DWORD));
+			//Setup font
+			int ppi = GetDeviceCaps(hdcObj,LOGPIXELSY);
+			int height = -ppi/9;
+			HFONT hfont = CreateFont(height,0,0,0,
+				FW_NORMAL,FALSE,FALSE,FALSE,
+				DEFAULT_CHARSET,
+				OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
+				DEFAULT_PITCH|FF_SWISS,"MS Shell Dlg");
+			SendMessage(hwndCbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessage(hwndLbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
 			//Init combo boxes
 			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Standard Objects");
 			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Extended Objects");

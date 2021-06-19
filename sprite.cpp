@@ -815,12 +815,12 @@ void drawSprite_042(sprite_t * s) {
 //Giant Shy-Guy
 void drawSprite_043(sprite_t * s) {
 	int spRef = (s->data[0]-0x43)<<2;
-	int pal = ((0x9<<2)-spRef)|1;
+	int pal = (0x9<<2)-spRef;
 	int base = findSpGfxFile(0x70);
-	addSpriteTile(s,pal|1,base+0x00,-8,6);
-	addSpriteTile(s,pal|1,base+0x02,8,6);
-	addSpriteTile(s,pal|1,base+0x04,-8,-10);
-	addSpriteTile(s,pal|1,base+0x06,8,-10);
+	addSpriteTile(s,pal|1,base+0x00,-8,-10);
+	addSpriteTile(s,pal|1,base+0x02,8,-10);
+	addSpriteTile(s,pal|1,base+0x04,-8,6);
+	addSpriteTile(s,pal|1,base+0x06,8,6);
 	addSpriteTile(s,pal|0x40,base+0x1A,-9,12);
 	addSpriteTile(s,pal|0x40,base+0x0A,-11,8);
 	addSpriteTile(s,pal,base+0x1A,16,12);
@@ -3774,7 +3774,7 @@ void drawSprite_1E2(sprite_t * s) {
 }
 //Dancing Spear Guy end command
 void drawSprite_1E3(sprite_t * s) {
-	drawSpriteText(s,"Dancing Spear Guy\n      End Dance      ");
+	drawSpriteText(s,"Dancing Spear Guy\n    End Dance    ");
 }
 //Thunder Lakitu end command
 void drawSprite_1E4(sprite_t * s) {
@@ -4315,8 +4315,8 @@ RECT invRect_sprite = {0,0,0x100,0x100};
 BYTE spriteDlgData_t0[] = {
 	//000
 	0x00,0x0E,0x07,0xFF,0xFF,0xFF,
-	0x01,0x0E,0x07,0xFF,0xFF,0xFF,
-	0x03,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x01,0x10,0x07,0xFF,0xFF,0xFF,
+	0x03,0x10,0x07,0xFF,0xFF,0xFF,
 	0x05,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x07,0x0E,0x07,0xFF,0xFF,0xFF,
 	0x09,0x0E,0x07,0xFF,0xFF,0xFF,
@@ -4325,24 +4325,196 @@ BYTE spriteDlgData_t0[] = {
 	0x0D,0x16,0x06,0xFF,0xFF,0xFF,
 	//010
 	0x10,0x16,0x08,0xFF,0xFF,0xFF,
-
-
+	0x12,0x10,0x07,0xFF,0xFF,0xFF,
+	0x16,0x10,0x08,0xFF,0xFF,0xFF,
+	0x17,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x1A,0x0C,0x07,0xFF,0xFF,0xFF,
+	0x1B,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x1C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x1D,0x0C,0x07,0xFF,0xFF,0xFF,
+	0x1E,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x1F,0x10,0x07,0xFF,0xFF,0xFF,
+	//020
+	0x20,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x21,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x22,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x23,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x24,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x25,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x27,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x28,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x2C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x2D,0x16,0x08,0xFF,0xFF,0xFF,
+	0x2F,0x0E,0x07,0xFF,0xFF,0xFF,
+	//030
+	0x30,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x31,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x32,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x33,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x34,0x18,0x04,0xFF,0xFF,0xFF,
+	0x36,0x14,0x05,0xFF,0xFF,0xFF,
+	0x37,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x39,0x0C,0x07,0xFF,0xFF,0xFF,
+	0x3A,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x3B,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x3C,0x10,0x07,0xFF,0xFF,0xFF,
+	0x3D,0x0E,0x00,0xFF,0xFF,0xFF,
+	0x3E,0x0E,0x08,0xFF,0xFF,0xFF,
+	0x3F,0x14,0x08,0xFF,0xFF,0xFF,
+	//040
+	0x42,0x0E,0x05,0xFF,0xFF,0xFF,
+	0x45,0x0E,0x08,0xFF,0xFF,0xFF,
+	0x46,0x16,0x08,0xFF,0xFF,0xFF,
+	0x48,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x4C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x4E,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x4F,0x0E,0x07,0xFF,0xFF,0xFF,
+	//050
+	0x50,0x0E,0x05,0xFF,0xFF,0xFF,
+	0x51,0x0E,0x05,0xFF,0xFF,0xFF,
+	0x52,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x54,0x0E,0x08,0xFF,0xFF,0xFF,
+	0x55,0x10,0x07,0xFF,0xFF,0xFF,
+	0x56,0x10,0x07,0xFF,0xFF,0xFF,
+	0x57,0x1E,0x05,0xFF,0xFF,0xFF,
+	0x58,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x59,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x5B,0x10,0x07,0xFF,0xFF,0xFF,
+	0x5C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x5E,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x5F,0x0E,0x07,0xFF,0xFF,0xFF,
+	//060
+	0x62,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x63,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x64,0x10,0x07,0xFF,0xFF,0xFF,
+	0x65,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x66,0x10,0x08,0xFF,0xFF,0xFF,
+	0x67,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x68,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x69,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x6A,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x6C,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x6D,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x6E,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x6F,0x0E,0x07,0xFF,0xFF,0xFF,
+	//070
+	0x70,0x10,0x07,0xFF,0xFF,0xFF,
+	0x71,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x72,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x73,0x0E,0x03,0xFF,0xFF,0xFF,
+	0x74,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x76,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x77,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x78,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x79,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x7A,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x7F,0x0E,0x07,0xFF,0xFF,0xFF,
+	//080
+	
+	
+	
 };
 LPCTSTR spriteDlgNames_t0[] = {
 	//000
-	"Floating Log",
-	"Closed Door",
-	"Crate (Key)",
-	"Icy Watermelon",
-	"Watermelon",
-	"Fire Watermelon",
-	"Kaboomba",
-	"Raphael Raven",
-	"Goal Ring",
+	"000\tLog, floats on lava/water (X&1)",
+	"001\tClosed door",
+	"003\tCrate (Key)",
+	"005\tIcy Watermelon",
+	"007\tWatermelon",
+	"009\tFire Watermelon",
+	"00A\tKaboomba",
+	"00C\tRaphael the Raven",
+	"00D\tGoal Ring",
 	//010
-	"Caged Ghost (round mound)",
-
-
+	"010\tCaged Ghost (round mound)",
+	"012\tBoss door",
+	"016\tBigger Boo",
+	"017\tFrog Pirate",
+	"01A\tSki Lift",
+	"01B\tVertical log, floats on lava/water (X&1)",
+	"01C\tDr. Freezegood, nothing/6 stars/1-UP/Bumpty (X/Y&1)",
+	"01D\tDr. Freezegood on Ski Lift",
+	"01E\tShy Guy, green/red/yellow/pink (X/Y&1)",
+	"01F\tRotating doors",
+	//020
+	"020\tBandit",
+	"021\t? Bucket, floats on lava/water (X&1)",
+	"022\tFlashing Egg",
+	"023\tRed Egg",
+	"024\tYellow Egg",
+	"025\tGreen Egg",
+	"027\tKey",
+	"028\tHuffin' Puffin",
+	"02C\tLunge Fish",
+	"02D\tSalvo the Slime",
+	"02F\tLittle Mouser nest",
+	//030
+	"030\tLittle Mouser",
+	"031\tPotted Spiked Fun Guy",
+	"032\tLittle Mouser, looking around/behind stuff (X&1)",
+	"033\tLittle Mouser, from nest",
+	"034\tRoger the Potted Ghost",
+	"036\tFake falling wall",
+	"037\tGrim Leecher",
+	"039\tSpinning platform",
+	"03A\t3 Mini Ravens",
+	"03B\tMini Raven",
+	"03C\tTap-Tap the Red Nose",
+	"03D\tSeesaw",
+	"03E\tSkinny platform",
+	"03F\tSlime",
+	//040
+	"042\tVertical Pipe Exit Down",
+	"045\tPrince Froggy's throat, throat/before/throat & uvula/after (X/Y&1)",
+	"046\tBurt the Bashful",
+	"048\tKamek, cutscene",
+	"04C\tUpside-down Blow Hard",
+	"04E\tLocked door, for minigames",
+	"04F\tMiddle Ring",
+	//050
+	"050\tWide plank",
+	"051\tOctagonal log",
+	"052\tBalloon platform, randomly colored",
+	"054\tUpside-down Wild Piranha",
+	"055\tFlatbed Ferry pinwheel, green",
+	"056\tFlatbed Ferry pinwheel, pink",
+	"057\tRoger Lift",
+	"058\tSolo Toady, green",
+	"059\tSuper Star, continuous",
+	"05B\tCoin Bandit",
+	"05C\tSolo Toady, pink",
+	"05E\tShort plank",
+	"05F\tShort plank, always spinning",
+	//060
+	"062\tGoomba",
+	"063\tMuddy Buddy",
+	"064\tFlatbed Ferry pinwheel, pink, size/direction (X/Y&1)",
+	"065\tRed Coin",
+	"066\tWild Piranha",
+	"067\tHidden Winged Cloud, stars/seed/flower/1-UP (X/Y&1)",
+	"068\tFlashing Egg Block",
+	"069\tRed Egg Block",
+	"06A\tYellow Egg Block",
+	"06C\tLarge spring ball",
+	"06D\tHootie the Blue Fish, clockwise",
+	"06E\tHootie the Blue Fish, counterclockwise",
+	"06F\tSpring ball",
+	//070
+	"070\tClawdaddy",
+	"071\tBig Boo & 3 Boos/Big Boo/Big Boo & 3 Boos/Boo (X/Y&1)",
+	"072\tTrain Bandit",
+	"073\tLarge balloon platform with pump",
+	"074\tSpike",
+	"076\tPiro Dangle, clockwise",
+	"077\tPiro Dangle, counterclockwise",
+	"078\tBullet Bill launcher, red",
+	"079\tBullet Bill launcher, yellow",
+	"07A\tBullet Bill launcher, green",
+	"07F\tLog seesaw",
+	//080
+	
+	
+	
 };
 BYTE spriteDlgData_t1[] = {
 	//000
@@ -4354,37 +4526,173 @@ BYTE spriteDlgData_t1[] = {
 	0x0E,0x0C,0x03,0xFF,0xFF,0xFF,
 	0x0F,0x10,0x08,0xFF,0xFF,0xFF,
 	//010
-
-
-
+	0x11,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x13,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x14,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x15,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x18,0x0E,0x07,0xFF,0xFF,0xFF,
+	0x19,0x0E,0x07,0xFF,0xFF,0xFF,
+	//020
+	
+	
+	
 };
 LPCTSTR spriteDlgNames_t1[] = {
 	//000
-	"Part of Naval Piranha",
-	"Item from Star Mario block",
-	"Projectile from Icy Watermelon",
-	"Rubble from final boss",
-	"Projectile from Kaboomba",
-	"\"GOAL!\" text",
-	"\"BONUS CHALLENGE!\" text",
+	"002\tPart of Naval Piranha",
+	"004\tItem from Star Mario block",
+	"006\tProjectile from Icy Watermelon",
+	"008\tRubble from final boss",
+	"00B\tProjectile from Kaboomba",
+	"00E\t\"GOAL!\" text",
+	"00F\t\"BONUS CHALLENGE!\" text",
 	//010
-
-
+	"010\tItem from minigame",
+	"013\tBoss explosion",
+	"014\tKey from boss",
+	"015\tTorpedo from Submarine Yoshi",
+	"018\tProjectile from Fire Watermelon",
+	"019\tBubble",
+	//020
+	
+	
+	
 };
 BYTE spriteDlgData_t2[] = {
 	//1B0
-
-
+	0xBA,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xBB,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xBC,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xBD,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xBE,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xBF,0x0F,0x04,0xFF,0xFF,0xFF,
+	//1C0
+	0xC0,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC1,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC2,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC3,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC4,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC5,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC6,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC7,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC8,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xC9,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCA,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCB,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCC,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCD,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCE,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCF,0x0F,0x05,0xFF,0xFF,0xFF,
+	//1D0
+	0xD0,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD1,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD2,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD3,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD4,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD5,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD6,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD7,0x0F,0x06,0xFF,0xFF,0xFF,
+	0xD8,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD9,0x0F,0x06,0xFF,0xFF,0xFF,
+	0xDA,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xDB,0x0F,0x06,0xFF,0xFF,0xFF,
+	0xDC,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xDD,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xDE,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xDF,0x0F,0x05,0xFF,0xFF,0xFF,
+	//1E0
+	0xE0,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xE1,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xE2,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xE3,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xE4,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xE5,0x0F,0x06,0xFF,0xFF,0xFF,
+	0xE6,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xE7,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xE8,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xE9,0x0F,0x00,0xFF,0xFF,0xFF,
+	0xEA,0x0F,0x00,0xFF,0xFF,0xFF,
+	0xEB,0x0F,0x02,0xFF,0xFF,0xFF,
+	0xEC,0x0F,0x02,0xFF,0xFF,0xFF,
+	0xED,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xEE,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xEF,0x0F,0x02,0xFF,0xFF,0xFF,
+	//1F0
+	0xF0,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xF1,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xF2,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xF3,0x0F,0x06,0xFF,0xFF,0xFF,
+	0xF4,0x0F,0x06,0xFF,0xFF,0xFF
 };
 LPCTSTR spriteDlgNames_t2[] = {
 	//1B0
-
-
-
+	"1BA\tGraphics/Palette Changer 00",
+	"1BB\tGraphics/Palette Changer 01",
+	"1BC\tGraphics/Palette Changer 02",
+	"1BD\tGraphics/Palette Changer 03",
+	"1BE\tGraphics/Palette Changer 04",
+	"1BF\tGraphics/Palette Changer 05",
+	//1C0
+	"1C0\tGraphics/Palette Changer 06",
+	"1C1\tGraphics/Palette Changer 07",
+	"1C2\tGraphics/Palette Changer 08",
+	"1C3\tGraphics/Palette Changer 09",
+	"1C4\tGraphics/Palette Changer 0A",
+	"1C5\tGraphics/Palette Changer 0B",
+	"1C6\tGraphics/Palette Changer 0C",
+	"1C7\tGraphics/Palette Changer 0D",
+	"1C8\tGraphics/Palette Changer 0E",
+	"1C9\tGraphics/Palette Changer 0F",
+	"1CA\tVery Slow Auto-Scroll",
+	"1CB\tSpecial Auto-Scroll 0",
+	"1CC\tSpecial Auto-Scroll 1",
+	"1CD\tSpecial Auto-Scroll 2",
+	"1CE\tSpecial Auto-Scroll 3",
+	"1CF\tSpecial Auto-Scroll 4",
+	//1D0
+	"1D0\tSpecial Auto-Scroll 5",
+	"1D1\tSpecial Auto-Scroll 6",
+	"1D2\tSpecial Auto-Scroll 7",
+	"1D3\tSpecial Auto-Scroll 8",
+	"1D4\tSlow Auto-Scroll",
+	"1D5\tBoo Balloon End",
+	"1D6\tLock Scroll Horizontal",
+	"1D7\tGusty Generator",
+	"1D8\tGusty Generator End",
+	"1D9\tLakitu End",
+	"1DA\tFuzzy Generator End",
+	"1DB\tPoochy End",
+	"1DC\tFang Generator",
+	"1DD\tFang Generator End",
+	"1DE\tFang 2 Generator",
+	"1DF\tFang 2 Generator End",
+	//1E0
+	"1E0\tWall Lakitu Generator",
+	"1E1\tWall Lakitu Generator End",
+	"1E2\tDancing Spear Guy Dance 0/1/2/3 (X/Y&1)",
+	"1E3\tDancing Spear Guy End Dance",
+	"1E4\tThunder Lakitu End",
+	"1E5\tFlutter Generator",
+	"1E6\tFlutter Generator End",
+	"1E7\tNipper Spore Generator",
+	"1E8\tNipper Spore Generator End",
+	"1E9\tBaron Von Zeppelin (Needlenose) Generator",
+	"1EA\tBaron Von Zeppelin (Needlenose) Generator End",
+	"1EB\tBaron Von Zeppelin (Bomb) Generator",
+	"1EC\tBaron Von Zeppelin (Bomb) Generator End",
+	"1ED\tBalloon Platform Generator",
+	"1EE\tBalloon Platform Generator End",
+	"1EF\tFlatbed Ferry (4 Yellow) Generator",
+	//1F0
+	"1F0\tLemon Drop Generator",
+	"1F1\tLemon Drop Generator End",
+	"1F2\tFuzzy Effect End",
+	"1F3\tGoonie End",
+	"1F4\tFuzzy Generator"
 };
 LPCTSTR whatsThisSprite[0x200] = {
 	//000
-	"A log which floats on water or lava.\r\nSprite ID: 000",
+	"A log which floats on lava or water depending on its X coordinate.\r\nSprite ID: 000",
 	"A closed door which cannot be entered.\r\nSprite ID: 001",
 	"Part of the Naval Piranha boss.\r\nSprite ID: 002",
 	"A crate with a key inside.\r\nSprite ID: 003",
@@ -4396,7 +4704,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"A fire watermelon which when eaten allows Yoshi to breathe fire which can melt ice and burn enemies.\r\nSprite ID: 009",
 	"A Kaboomba, walks and shoots cannonballs.\r\nSprite ID: 00A",
 	"Projectile from a Kaboomba.\r\nSprite ID: 00B",
-	"A Raphael Raven.\r\nSprite ID: 00C",
+	"A Raphael the Raven.\r\nSprite ID: 00C",
 	"A goal ring which when passed through ends the level.\r\nSprite ID: 00D",
 	"\"GOAL!\" text for goal ring.\r\nSprite ID: 00E",
 	"\"BONUS CHALLENGE!\" text for goal ring.\r\nSprite ID: 00F",
@@ -4409,26 +4717,120 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"Projectile from Submarine Yoshi.\r\nSprite ID: 015",
 	"A Bigger Boo.\r\nSprite ID: 016",
 	"A Frog Pirate which jumps and tries to grab Baby Mario with his tongue.\r\nSprite ID: 017",
-	"Projectil from a fire watermelon.\r\nSprite ID: 018",
+	"Projectile from a fire watermelon.\r\nSprite ID: 018",
 	"Bubble.\r\nSprite ID: 019",
 	"A ski lift which when moves when jumped on.\r\nSprite ID: 01A",
-	"A vertical log which floats on water or lava.\r\nSprite ID: 01B",
+	"A vertical log which floats on lava or water depending on its X coordinate.\r\nSprite ID: 01B",
 	"A Dr. Freezegood whose contents depends on its X/Y coordinates.\r\nSprite ID: 01C",
 	"A Dr. Freezegood on a ski lift.\r\nSprite ID: 01D",
 	"A Shy Guy whose color depends on its X/Y coordinates.\r\nSprite ID: 01E",
 	"A set of rotating doors. Destinations are hardcoded.\r\nSprite ID: 01F",
 	//020
-	"A Bandit who will try to steal Baby Mario.\r\nSprite ID: 020"
-	"A ? Bucket which can be knocked over and ridden in.\r\nSprite ID: 021",
+	"A Bandit who will try to steal Baby Mario.\r\nSprite ID: 020",
+	"A ? Bucket which floats on lava or water depending on its X coordinate.\r\nSprite ID: 021",
 	"A flashing egg which produces a red Coin upon hitting an enemy.\r\nSprite ID: 022",
 	"A red egg which produces 2 stars upon hitting an enemy.\r\nSprite ID: 023",
 	"A yellow egg which produces a coin upon hitting an enemy.\r\nSprite ID: 024",
 	"A green egg which can be shot at enemies.\r\nSprite ID: 025",
 	"Giant egg for final Bowser boss.\r\nSprite ID: 026",
 	"A key which can unlock doors.\r\nSprite ID: 027",
-
-
-
+	"A Huffin' Puffin' which runs away from Yoshi.\r\nSprite ID: 028",
+	"Egg transformation which is carried by Super Baby Mario.\r\nSprite ID: 029",
+	"Giant red egg which is created when Yoshi eats a Fat Guy.\r\nSprite ID: 02A",
+	"Giant green egg which is created when Yoshi eats a Fat Guy.\r\nSprite ID: 02B",
+	"A Lunge Fish which tries to swallow Yoshi whole.\r\nSprite ID: 02C",
+	"A Salvo the Slime.\r\nSprite ID: 02D",
+	"Part of Salvo the Slime.\r\nSprite ID: 02E",
+	"A Little Mouser nest which can spawn Little Mousers.\r\nSprite ID: 02F",
+	//030
+	"A Little Mouser which tries to steal the player's eggs.\r\nSprite ID: 030",
+	"A Potted Spiked Fun Guy which jumps towards Yoshi.\r\nSprite ID: 031",
+	"A Little Mouser whose behavior depends on its X coordinates.\r\nSprite ID: 032",
+	"A Little Mouser which spawns from a nest.\r\nSprite ID: 033",
+	"A Roger the Potted Ghost.\r\nSprite ID: 034",
+	"Part of Roger the Potted Ghost.\r\nSprite ID: 035",
+	"A fake falling wall which can crush Yoshi.\r\nSprite ID: 036",
+	"A Grim Leecher which can hijack Yoshi.\r\nSprite ID: 037",
+	"Projectile from Roger the Potted Ghost.\r\nSprite ID: 038",
+	"A spinning platform which spins vertically.\r\nSprite ID: 039",
+	"A group of 3 Mini Ravens which walk along edges.\r\nSprite ID: 03A",
+	"A Mini Raven which walks along edges.\r\nSprite ID: 03B",
+	"A Tap-Tap the Red Nose.\r\nSprite ID: 03C",
+	"A seesaw platform that tilts under Yoshi's weight.\r\nSprite ID: 03D",
+	"A flexible skinny platform that can be broken by ground pounding.\r\nSprite ID: 03E",
+	"A Slime which is camouflaged as a block platform.\r\nSprite ID: 03F",
+	//040
+	"Baby Luigi in the ending cutscene.\r\nSprite ID: 040",
+	"Stork in the ending cutscene.\r\nSprite ID: 041",
+	"Vertical pipe entrance down. Make sure to set a screen exit!\r\nSprite ID: 042",
+	"Red Giant Shy Guy which gets spawned during the Prince Froggy boss.\r\nSprite ID: 043",
+	"Green Giant Shy Guy which gets spawned during the Prince Froggy boss.\r\nSprite ID: 044",
+	"A Prince Froggy boss whose behavior depends on its X/Y coordinates.\r\nSprite ID: 045",
+	"A Burt the Bashful.\r\nSprite ID: 046",
+	"Shy Guy for Roger the Potted Ghost.\r\nSprite ID: 047",
+	"A Kamek which is used for boss cutscenes.\r\nSprite ID: 048",
+	"Projectile from Fire Lakitu.\r\nSprite ID: 049",
+	"Projectile from Fire Lakitu.\r\nSprite ID: 04A",
+	"Projectile from Fire Lakitu.\r\nSprite ID: 04B",
+	"An upside-down Blow Hard which shoots Needlenoses.\r\nSprite ID: 04C",
+	"Unknown, do not use.\r\nSprite ID: 04D",
+	"A locked door, intended for use with minigames. Make sure to set a screen exit!\r\nSprite ID: 04E",
+	"A Middle Ring which acts as a checkpoint to return to upon death.\r\nSprite ID: 04F",
+	//050
+	"A wide board platform which tilts under Yoshi's weight.\r\nSprite ID: 050",
+	"An octagonal log platform which rotates under Yoshi's weight.\r\nSprite ID: 051",
+	"A Balloon Platform which gets a random color when spawned.\r\nSprite ID: 052",
+	"Kamek says \"OH MY!\"\r\nSprite ID: 053",
+	"An upside down Wild Piranha which tries to eat Yoshi.\r\nSprite ID: 054",
+	"A large green Flatbed Ferry pinwheel platform which spins when Yoshi stands on it.\r\nSprite ID: 055",
+	"A small pink Flatbed Ferry pinwheel platform which spins when Yoshi stands on it.\r\nSprite ID: 056",
+	"A Roger Lift that Yoshi can stand on and moves in a hardcoded path.\r\nSprite ID: 057",
+	"A green Solo Toady which tries to steal Baby Mario.\r\nSprite ID: 058",
+	"A Super Star powerup which only appears when Baby Mario is super, and acts as a continuation powerup.\r\nSprite ID: 059",
+	"Projectile from Raphael the Raven.\r\nSPrite ID: 05A",
+	"A Coin Bandit which runs away from Yoshi until his coin is grabbed, then will try to steal Baby Mario.\r\nSprite ID: 05B",
+	"A pink Solo Toady which tries to keep Baby Mario away from Yoshi when he is in danger.\r\nSprite ID: 05C",
+	"Crashes the game, do not use.\r\nSprite ID: 05D",
+	"A short board platform which tilts under Yoshi's weight.\r\nSprite ID: 05E",
+	"A short board platform which continuously spins horizontally.\r\nSprite ID: 05F",
+	//060
+	"Bomb.\r\nSprite ID: 060",
+	"Baby Mario sprite, handled specially and should not be inserted directly in a level.\r\nSprite ID: 061",
+	"A Goomba which can be squashed by Yoshi, though it does not kill it.\r\nSprite ID: 062",
+	"A Muddy Buddy which can be ridden across dangerous spikes.\r\nSprite ID: 063",
+	"A pink Flatbed Ferry pinwheel whose size and direction depends on its X/Y coordinates.\r\nSprite ID: 064",
+	"A Red Coin, one of 20 in a level.\r\nSprite ID: 065",
+	"A Wild Piranha which tries to eat Yoshi.\r\nSprite ID: 066",
+	"A Hidden Winged Cloud whose contents depends on its X/Y coordinates.\r\nSprite ID: 067",
+	"A Flashing Egg Block which produces a Flashing Egg.\r\nSprite ID: 068",
+	"A Red Egg Block which produces a Red Egg.\r\nSprite ID: 069",
+	"A Yellow Egg Block which produces a Yellow Egg.\r\nSprite ID: 06A",
+	"Green Egg Block in the process of being hit.\r\nSprite ID: 06B",
+	"A large spring ball which can be bounced on.\r\nSprite ID: 06C",
+	"A Hootie the Blue Fish which moves clockwise.\r\nSprite ID: 06D",
+	"A Hootie the Blue Fish which moves counterclockwise.\r\nSprite ID: 06E",
+	"A spring ball which can be bounced on.\r\nSprite ID: 06F",
+	//070
+	"A Clawdaddy which tries to pinch Yoshi with his large claws.\r\nSprite ID: 070",
+	"A group of Boos whose members depends on its X/Y coordinates.\r\nSprite ID: 071",
+	"A Train Bandit which chases after Train Yoshi to try to stun him.\r\nSprite ID: 072",
+	"A pump producing a large balloon platform which can be ridden on.\r\nSprite ID: 073",
+	"A Spike which spits spiked balls out of its large mouth.\r\nSprite ID: 074",
+	"Projectile for Spike.\r\nSprite ID: 075",
+	"A Piro Dangle which moves clockwise.\r\nSprite ID: 076",
+	"A Piro Dangle which moves counterclockwise.\r\nSprite ID: 077",
+	"A red Bullet Bill blaster which shoots red Bullet Bills.\r\nSprite ID: 078",
+	"A yellow Bullet Bill blaster which shoots yellow Bullet Bills.\r\nSprite ID: 079",
+	"A green Bullet Bill blaster which shoots green Bullet Bills.\r\nSprite ID: 07A",
+	"Red Bullet Bill which chases the player in any direction.\r\nSprite ID: 07B",
+	"Yellow Bullet Bill which bounces off walls.\r\nSprite ID: 07C",
+	"Green Bullet Bill which flies in a straight path.\r\nSprite ID: 07D",
+	"Dent of squishy block platform.\r\nSprite ID: 07E",
+	"A log seesaw which tilts under Yoshi's weight.\r\nSprite ID: 07F",
+	//080
+	
+	
+	
 };
 
 int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
@@ -4491,7 +4893,6 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 
 //Control updaters
 void updateWindowSub_sprite() {
-	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
 	int prevCtx = setSpriteContext(1);
 	int idx = SendMessage(hwndCbSprite,CB_GETCURSEL,0,0);
 	int idx2 = SendMessage(hwndLbSprite,LB_GETCURSEL,0,0);
@@ -4503,7 +4904,6 @@ void updateWindowSub_sprite() {
 		loadSprites(&spriteDlgData_t2[idx2*6]);
 	}
 	drawSprites();
-	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
 	setSpriteContext(prevCtx);
 }
 void updateWindow_sprite() {
@@ -4535,7 +4935,14 @@ void updateWindow_sprite() {
 }
 //Main drawing code
 void updateEntireScreen_sp() {
-	memset(bmpDataSp,1,0x10000*sizeof(DWORD));
+	//memset(bmpDataSp,1,0x10000*sizeof(DWORD));
+	for(int i=0; i<0x10000; i++) {
+		if((i&0x10)^((i&0x1000)>>8)) {
+			bmpDataSp[i] = 0x01010101;
+		} else {
+			bmpDataSp[i] = 0x81818181;
+		}
+	}
 	int prevCtx = setSpriteContext(1);
 	drawSprites();
 	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
@@ -4550,7 +4957,7 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			hwndCbSprite = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,(HMENU)20,hinstMain,NULL);
-			hwndLbSprite = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndLbSprite = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
@@ -4565,9 +4972,19 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			bmi.bmiHeader.biHeight			= -0x100;
 			hbmpSp = CreateDIBSection(hdcSp,&bmi,DIB_RGB_COLORS,(void**)&bmpDataSp,NULL,0);
 			memset(bmpDataSp,0,0x10000*sizeof(DWORD));
+			//Setup font
+			int ppi = GetDeviceCaps(hdcSp,LOGPIXELSY);
+			int height = -ppi/9;
+			HFONT hfont = CreateFont(height,0,0,0,
+				FW_NORMAL,FALSE,FALSE,FALSE,
+				DEFAULT_CHARSET,
+				OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
+				DEFAULT_PITCH|FF_SWISS,"MS Shell Dlg");
+			SendMessage(hwndCbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessage(hwndLbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
 			//Init combo boxes
 			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Standard Sprites");
-			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Spawned Sprites");
+			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Special & Misc. Sprites");
 			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Commands & Generators");
 			SendMessage(hwndCbSprite,CB_SETCURSEL,0,0);
 			//Init control values
