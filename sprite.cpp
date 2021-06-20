@@ -4599,7 +4599,7 @@ LPCTSTR spriteDlgNames_t0[] = {
 	//060
 	"062\tGoomba",
 	"063\tMuddy Buddy",
-	"064\tFlatbed Ferry pinwheel, pink, size/direction (X/Y&1)",
+	"064\tFlatbed Ferry pinwheel, pink, direction/size (X/Y&1)",
 	"065\tRed Coin",
 	"066\tWild Piranha",
 	"067\tHidden Winged Cloud, 5 stars/seed/flower/1-UP (X/Y&1)",
@@ -5150,7 +5150,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"Baby Mario sprite, handled specially and should not be inserted directly in a level.\r\nSprite ID: 061",
 	"A Goomba who can be squashed by Yoshi, though it does not kill it.\r\nSprite ID: 062",
 	"A Muddy Buddy who can be ridden across dangerous spikes.\r\nSprite ID: 063",
-	"A pink Flatbed Ferry pinwheel whose size and direction depends on its X/Y coordinates.\r\nSprite ID: 064",
+	"A pink Flatbed Ferry pinwheel whose direction/size depends on its X/Y coordinates.\r\nSprite ID: 064",
 	"A Red Coin, one of 20 in a level.\r\nSprite ID: 065",
 	"A Wild Piranha who tries to eat Yoshi.\r\nSprite ID: 066",
 	"A Hidden Winged Cloud whose contents depend on its X/Y coordinates.\r\nSprite ID: 067",
