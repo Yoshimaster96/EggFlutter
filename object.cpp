@@ -313,7 +313,7 @@ void drawObject_extended09(object_t * o) {
 	int preserve = mtOff;
 	for(int j=0; j<3; j++) {
 		for(int i=0; i<2; i++) {
-			int offset = (j*6)+(i<<1);
+			int offset = (j*4)+(i<<1);
 			WORD tile = romBuf[0x092450+offset]|(romBuf[0x092451+offset]<<8);
 			addObjectTile(o,tile,mtOff);
 			mtOff = offsetMap16Right(mtOff);
@@ -9462,6 +9462,73 @@ DWORD *			bmpDataObj;
 HWND			hwndCbObject,hwndLbObject;
 RECT invRect_object = {0,0,0x100,0x100};
 
+BYTE objectDlgData_t0[] = {
+	//00
+	0x01,0x00,0x66,0x03,0x03,0xFF,
+	0x02,0x00,0x67,0x03,0xFF,0xFF,
+	0x03,0x00,0x68,0x03,0xFF,0xFF,
+	
+	
+	
+};
+LPCTSTR objectDlgNames_t0[] = {
+	//00
+	"01\tNormal ground",
+	"02\tNormal ground left edge",
+	"03\tNormal ground left edge",
+	
+	
+	
+};
+BYTE objectDlgData_t1[] = {
+	//00
+	0x00,0x00,0x56,0x00,0xFF,0xFF,
+	0x00,0x00,0x58,0x01,0xFF,0xFF,
+	0x00,0x00,0x56,0x02,0xFF,0xFF,
+	0x00,0x00,0x58,0x03,0xFF,0xFF,
+	0x00,0x00,0x57,0x04,0xFF,0xFF,
+	0x00,0x00,0x58,0x05,0xFF,0xFF,
+	0x00,0x00,0x57,0x06,0xFF,0xFF,
+	0x00,0x00,0x58,0x07,0xFF,0xFF,
+	0x00,0x00,0x57,0x08,0xFF,0xFF,
+	0x00,0x00,0x56,0x09,0xFF,0xFF,
+	
+	
+	
+};
+LPCTSTR objectDlgNames_t1[] = {
+	//00
+	"00\tJungle leaf facing left",
+	"01\tJungle leaf facing right",
+	"02\tJungle leaf facing left, short",
+	"03\tJungle leaf facing right, short",
+	"04\tSmall jungle leaf facing left",
+	"05\tSmall jungle leaf facing right",
+	"06\tSmall jungle leaf facing left short",
+	"07\tSmall jungle leaf facing right short",
+	"08\t3 jungle leaves",
+	"09\t2 jungle leaves",
+	
+	
+	
+};
+LPCTSTR whatsThisObjectExt[0x100] = {
+	//00
+	
+	
+	
+};
+LPCTSTR whatsThisObject[0x100] = {
+	//00
+	"An extended object command. This description should not appear.\r\nObject ID: 00",
+	"A normal ground.\r\nObject ID: 01",
+	"A normal ground left edge.\r\nObject ID: 02",
+	"A normal ground right edge.\r\nObject ID: 03",
+	
+	
+	
+};
+
 int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	//Get top object
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
@@ -9472,7 +9539,13 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	} else {
 		object_t * thisObject = objectContexts[0].assocObjects[tileIdx][topIdx];
 		int id = thisObject->data[0];
+		int idExt = thisObject->data[3];
 		*cursor = 0x7F86; //IDC_SIZEALL
+		if(id) {
+			//_tcscpy(text,whatsThisObject[id]);
+		} else {
+			//_tcscpy(text,whatsThisObjectExt[idExt]);
+		}
 		int retval = 5;
 		if(thisObject->selected) {
 			int resizeCaps = romBuf[0x0904EC+id]+1;
@@ -9562,10 +9635,11 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 void updateWindowSub_object() {
 	int prevCtx = setObjectContext(1);
 	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
+	int idx2 = SendMessage(hwndLbObject,LB_GETCURSEL,0,0);
 	if(idx==0) {
-		//TODO
+		loadObjects(&objectDlgData_t0[idx2*6]);
 	} else if(idx==1) {
-		//TODO
+		loadObjects(&objectDlgData_t1[idx2*6]);
 	}
 	drawObjects();
 	setObjectContext(prevCtx);
@@ -9579,9 +9653,15 @@ void updateWindow_object() {
 	//Add new elements and select first
 	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
 	if(idx==0) {
-		//TODO
+		int arrSize = sizeof(objectDlgNames_t0)/sizeof(LPCTSTR);
+		for(int i=0; i<arrSize; i++) {
+			SendMessage(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t0[i]);
+		}
 	} else if(idx==1) {
-		//TODO
+		int arrSize = sizeof(objectDlgNames_t1)/sizeof(LPCTSTR);
+		for(int i=0; i<arrSize; i++) {
+			SendMessage(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t1[i]);
+		}
 	}
 	SendMessage(hwndLbObject,LB_SETCURSEL,0,0);
 	updateWindowSub_object();

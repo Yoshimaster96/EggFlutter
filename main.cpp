@@ -1186,7 +1186,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			ti.uId			= 600;
 			ti.rect			= {0,0,640,480};
 			ti.hinst		= hinstMain;
-			SendMessage(hwndTooltip,TTM_SETMAXTIPWIDTH,0,640);
+			SendMessage(hwndTooltip,TTM_SETMAXTIPWIDTH,0,320);
 			SendMessage(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&ti);
 			//Create objects
 			hdcMain = GetDC(hwnd);
