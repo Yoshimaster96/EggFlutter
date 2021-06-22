@@ -10057,7 +10057,7 @@ LPCTSTR whatsThisObject[0x100] = {
 	"",
 	"",
 	"",
-	""};
+	"An end of object data command. This description should not appear.\r\nObject ID: FF"};
 
 int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 	//Get top object
@@ -10198,7 +10198,7 @@ void updateWindow_object() {
 }
 //Main drawing code
 void updateEntireScreen_obj() {
-	//memset(bmpDataObj,1,0x10000*sizeof(DWORD));
+	//memset(bmpDataObj,0x80,0x10000*sizeof(DWORD));
 	for(int i=0; i<0x10000; i++) {
 		if((i&0x10)^((i&0x1000)>>8)) {
 			bmpDataObj[i] = 0x01010101;

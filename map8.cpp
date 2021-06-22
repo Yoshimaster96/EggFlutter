@@ -448,7 +448,7 @@ RECT invRect_map8 = {0,0,0x100,0x100};
 
 //Main drawing code
 void updateEntireScreen_map8() {
-	memset(bmpDataMap8,1,0x4000*sizeof(DWORD));
+	memset(bmpDataMap8,0x80,0x4000*sizeof(DWORD));
 	for(int j=0; j<0x10; j++) {
 		WORD row = map8Base+(j<<4);
 		BYTE props = map8Pal<<2;

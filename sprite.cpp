@@ -255,7 +255,7 @@ void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs,
 	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
 	for(int i=0; i<0x100; i++) {
 		DWORD color = bmpDataBg[base+i];
-		if(color!=0x01010101) {
+		if(color!=0x80808080) {
 			putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
 			if(inv) invertPixel(pixelBuf,width,height,{offsX+i,offsY});
 		}
@@ -2612,6 +2612,12 @@ void drawSprite_129(sprite_t * s) {
 	addSpriteTile(s,(0xA<<2)|1,base+0x06,-8,8);
 	addSpriteTile(s,(0xA<<2)|0x41,base+0x06,8,8);
 }
+//Shy Guy hiding Bandit
+void drawSprite_12A(sprite_t * s) {
+	addSpriteTile(s,(0x8<<2)|1,0x0088,0,-3);
+	addSpriteTile(s,(0x8<<2),0x009E,1,8);
+	addSpriteTile(s,(0x8<<2),0x009E,7,8);
+}
 //Fat Guy
 void drawSprite_12B(sprite_t * s) {
 	int base = findSpGfxFile(0x50);
@@ -2974,14 +2980,14 @@ void drawSprite_156(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),0x4176,-8,8);
 	addSpriteTile(s,(0x8<<2),0x4177,8,8);
 	if(s->data[2]&1) {
+		addSpriteTile(s,(0x8<<2),0x4166,-8,-24);
+		addSpriteTile(s,(0x8<<2),0x4167,8,-24);
+		addSpriteTile(s,(0x8<<2),0x4176,-8,-8);
+		addSpriteTile(s,(0x8<<2),0x4177,8,-8);
 		addSpriteTile(s,(0x8<<2),0x4166,-8,-40);
 		addSpriteTile(s,(0x8<<2),0x4167,8,-40);
 		addSpriteTile(s,(0x8<<2),0x4176,-8,-24);
 		addSpriteTile(s,(0x8<<2),0x4177,8,-24);
-		addSpriteTile(s,(0x8<<2),0x4166,-8,-72);
-		addSpriteTile(s,(0x8<<2),0x4167,8,-72);
-		addSpriteTile(s,(0x8<<2),0x4176,-8,-56);
-		addSpriteTile(s,(0x8<<2),0x4177,8,-56);
 	}
 }
 //Wall Lakitu
@@ -3698,20 +3704,12 @@ void drawSprite_1BA(sprite_t * s) {
 	snprintf(spStr,256,"Graphics/Palette\n   Changer %02X   ",spRef);
 	drawSpriteText(s,spStr);
 }
-//Very slow auto-scroll command
-void drawSprite_1CA(sprite_t * s) {
-	drawSpriteText(s," Very Slow \nAuto-Scroll");
-}
 //Special auto-scroll command
-void drawSprite_1CB(sprite_t * s) {
+void drawSprite_1CA(sprite_t * s) {
 	char spStr[256];
-	int spRef = (s->data[0]-0xCB);
-	snprintf(spStr,256,"   Special   \nAuto-Scroll %d",spRef);
+	int spRef = (s->data[0]-0xCA);
+	snprintf(spStr,256,"    Special    \nAuto-Scroll  %02X",spRef);
 	drawSpriteText(s,spStr);
-}
-//Slow auto-scroll command
-void drawSprite_1D4(sprite_t * s) {
-	drawSpriteText(s,"   Slow    \nAuto-Scroll");
 }
 //Boo Balloon end command
 void drawSprite_1D5(sprite_t * s) {
@@ -3941,7 +3939,7 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//120
 	drawSprite_120,drawSprite_121,drawSprite_021,drawSprite_021,
 	drawSprite_124,drawSprite_048,drawSprite_126,drawSprite_127,
-	drawSprite_128,drawSprite_129,drawSprite_01E,drawSprite_12B,
+	drawSprite_128,drawSprite_129,drawSprite_12A,drawSprite_12B,
 	drawSprite_12C,drawSprite_12D,drawSprite_12E,drawSprite_12F,
 	//130
 	drawSprite_130,drawSprite_04E,drawSprite_132,drawSprite_133,
@@ -3991,11 +3989,11 @@ void (*spriteDrawFunc[0x200])(sprite_t * s) = {
 	//1C0
 	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
 	drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,drawSprite_1BA,
-	drawSprite_1BA,drawSprite_1BA,drawSprite_1CA,drawSprite_1CB,
-	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
+	drawSprite_1BA,drawSprite_1BA,drawSprite_1CA,drawSprite_1CA,
+	drawSprite_1CA,drawSprite_1CA,drawSprite_1CA,drawSprite_1CA,
 	//1D0
-	drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,drawSprite_1CB,
-	drawSprite_1D4,drawSprite_1D5,drawSprite_1D6,drawSprite_1D7,
+	drawSprite_1CA,drawSprite_1CA,drawSprite_1CA,drawSprite_1CA,
+	drawSprite_1CA,drawSprite_1D5,drawSprite_1D6,drawSprite_1D7,
 	drawSprite_1D8,drawSprite_1D9,drawSprite_1DA,drawSprite_1DB,
 	drawSprite_1DC,drawSprite_1DD,drawSprite_1DE,drawSprite_1DF,
 	//1E0
@@ -4573,10 +4571,117 @@ BYTE spriteDlgData_t0[] = {
 	0x3E,0x0F,0x07,0xFF,0xFF,0xFF,
 	0x3F,0x0F,0x07,0xFF,0xFF,0xFF,
 	//140
-	
-	
-	
-};
+	0x40,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x41,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x42,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x43,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x44,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x45,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x46,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x47,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x48,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x49,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x4F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//150
+	0x50,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x51,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x52,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x53,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x54,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x55,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x56,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x57,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x58,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x59,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x5F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//160
+	0x60,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x61,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x62,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x64,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x65,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x66,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x67,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x68,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x69,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x6F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//170
+	0x70,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x71,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x73,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x74,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x75,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x76,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x77,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x78,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x79,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7E,0x0F,0x07,0xFF,0xFF,0xFF,
+	//180
+	0x80,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x81,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x82,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x83,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x84,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x85,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x86,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x87,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x88,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x89,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x8F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//190
+	0x90,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x91,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x92,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x93,0x0F,0x00,0xFF,0xFF,0xFF,
+	0x94,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x97,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x98,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x99,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x9F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//1A0
+	0xA0,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA1,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA3,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA4,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA5,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA6,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA7,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA8,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xA9,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAA,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAB,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAC,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAD,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAF,0x0F,0x07,0xFF,0xFF,0xFF};
 LPCTSTR spriteDlgNames_t0[] = {
 	//000
 	"000\tLog, lava/water (X)",
@@ -4651,7 +4756,7 @@ LPCTSTR spriteDlgNames_t0[] = {
 	//060
 	"062\tGoomba",
 	"063\tMuddy Buddy",
-	"064\tFlatbed Ferry pinwheel, pink, direction/size (YX)",
+	"064\tPink Flatbed Ferry pinwheel, direction/size (YX)",
 	"065\tRed Coin",
 	"066\tWild Piranha",
 	"067\tHidden Winged Cloud, 5 stars/seed/flower/1-UP (YX)",
@@ -4817,7 +4922,7 @@ LPCTSTR spriteDlgNames_t0[] = {
 	"124\tStretch, green/red/yellow/pink (YX)",
 	"125\tKamek, ending cutscene/flying & chasing (X)",
 	"126\tSpike log on chain",
-	"12A\tShy Guy hiding Bandit, green/red/yellow/pink (YX)",
+	"12A\tShy Guy hiding Bandit",
 	"12B\tFat Guy, red/green (X)",
 	"12C\tFly Guy, Red Coin/Whirly Guy (X)",
 	"12F\tLava Drop, horizontal",
@@ -4838,10 +4943,117 @@ LPCTSTR spriteDlgNames_t0[] = {
 	"13E\tFang, flying",
 	"13F\tFlopsy Fish, swimming",
 	//140
-	
-	
-	
-};
+	"140\tFlopsy Fish, swimming & jumping",
+	"141\tFlopsy Fish, jumping in arc",
+	"142\tFlopsy Fish, jumping across, right/left (X)",
+	"143\tSpray Fish",
+	"144\tHorizontal flipper, right/left (X)",
+	"145\tBlue Sluggy, falling/on ceiling (X)",
+	"146\tPink Sluggy, falling/on ceiling (X)",
+	"147\tHorizontal Pipe Exit Left",
+	"148\tLarge spring ball",
+	"149\tArrow cloud, up",
+	"14A\tArrow cloud, up right",
+	"14B\tArrow cloud, right",
+	"14C\tArrow cloud, down right",
+	"14D\tArrow cloud, down",
+	"14E\tArrow cloud, down left",
+	"14F\tArrow cloud, left",
+	//150
+	"150\tArrow cloud, up left",
+	"151\tArrow cloud, rotating",
+	"152\tFlutter",
+	"153\tGoonie with Shy Guy",
+	"154\tShark Chomp",
+	"155\tVery Goonie",
+	"156\tCactus Jack, 1/3 (X)",
+	"157\tWall Lakitu",
+	"158\tBowling Goonie",
+	"159\tGrunt, walking",
+	"15A\tGrunt, running",
+	"15B\tDancing Spear Guy",
+	"15C\tSpiked platform switch, green",
+	"15D\tSpiked platform switch, red",
+	"15E\tPink Flatbed Ferry pinwheel with Shy Guys, clockwise/counterclockwise (X)",
+	"15F\tSpiked platform, green",
+	//160
+	"160\tSpiked platform, red",
+	"161\tBonus item, Red Coin/key/flower/door (YX)",
+	"162\tDouble spiked platform with switch",
+	"164\tNipper Plant",
+	"165\tNipper Spore",
+	"166\tThunder Lakitu, 1/2 (X)",
+	"167\tGreen Koopa Shell",
+	"168\tRed Koopa Shell",
+	"169\tGreen Beach Koopa",
+	"16A\tRed Beach Koopa",
+	"16B\tGreen Koopa Troopa",
+	"16C\tRed Koopa Troopa",
+	"16D\tGreen Koopa Paratroopa, jumping",
+	"16E\tRed Koopa Paratroopa, flying horizontally, right/left (X)",
+	"16F\tRed Koopa Paratroopa, flying vertically, down/up (X)",
+	//170
+	"170\tAqua Lakitu",
+	"171\tNaval Piranha",
+	"173\tBaron Von Zeppelin, Shy Guy",
+	"174\tBaron Von Zeppelin, Needlenose",
+	"175\tBaron Von Zeppelin, bomb",
+	"176\tBaron Von Zeppelin, Bandit",
+	"177\tBaron Von Zeppelin, large spring ball",
+	"178\tBaron Von Zeppelin, 1-UP",
+	"179\tBaron Von Zeppelin, key",
+	"17A\tBaron Von Zeppelin, 5 coins",
+	"17B\tBaron Von Zeppelin, watermelon",
+	"17C\tBaron Von Zeppelin, fire watermelon",
+	"17D\tBaron Von Zeppelin, icy watermelon",
+	"17E\tBaron Von Zeppelin, crate, 6 stars",
+	//180
+	"180\tSpinning log",
+	"181\tCrazee Dayzee/Bubble Dayzee (X)",
+	"182\tDragonfly ambience",
+	"183\tButterfly ambience",
+	"184\tBumpty",
+	"185\tFlatbed Ferry, green active line-guided left",
+	"186\tFlatbed Ferry, green active line-guided right",
+	"187\tFlatbed Ferry, yellow active line-guided left",
+	"188\tFlatbed Ferry, yellow active line-guided right",
+	"189\tFlatbed Ferry, green line-guided left",
+	"18A\tFlatbed Ferry, green line-guided right",
+	"18B\tFlatbed Ferry, yellow line-guided left",
+	"18C\tFlatbed Ferry, yellow line-guided right",
+	"18D\tFlatbed Ferry, red line-guided left",
+	"18E\tFlatbed Ferry, red line-guided right",
+	"18F\tWhirly lift",
+	//190
+	"190\tFalling icicle",
+	"191\tBird ambience",
+	"192\tMufti Guy, green/red/yellow/pink (YX)",
+	"193\tCaged Ghost, squeezed in sewer",
+	"194\tBlargg",
+	"197\tArrow sign, up/right/left/down (YX)",
+	"198\tArrow sign, up left/up right/down left/down right (YX)",
+	"199\tDizzy Dandy",
+	"19A\tBoo Guy",
+	"19B\tBumpty, sliding",
+	"19C\tBumpty, flying",
+	"19D\tSkeleton Goonie",
+	"19E\tFlightless Skeleton Goonie",
+	"19F\tSkeleton Goonie with bomb",
+	//1A0
+	"1A0\tFirebar, 2 ends, clockwise/counterclockwise (X)",
+	"1A1\tFirebar, 1 end, clockwise/counterclockwise (X)",
+	"1A3\tLittle Skull Mouser",
+	"1A4\tCork sealing 3D pipe",
+	"1A5\tGrinder, runs away",
+	"1A6\tGrinder, spits seeds",
+	"1A7\tGrinder, Short Fuse right/Short Fuse left/Seedy Sally right/Seedy Sally left (YX)",
+	"1A8\tGrinder, grabs Baby Mario",
+	"1A9\tGrinder, climbs & spits seeds",
+	"1AA\tHot Lips",
+	"1AB\tBoo Balloon, coin/! switch (X)",
+	"1AC\tFrog ambience",
+	"1AD\tKamek, shoots magic",
+	"1AF\tCoin"};
 BYTE spriteDlgData_t1[] = {
 	//000
 	0x02,0x0E,0x07,0xFF,0xFF,0xFF,
@@ -4944,11 +5156,28 @@ BYTE spriteDlgData_t1[] = {
 	0x2E,0x0F,0x06,0xFF,0xFF,0xFF,
 	//130
 	0x3B,0x0F,0x07,0xFF,0xFF,0xFF,
-	//140
-	
-	
-	
-};
+	//160
+	0x63,0x0F,0x07,0xFF,0xFF,0xFF,
+	//170
+	0x72,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x7F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//190
+	0x95,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x96,0x0F,0x07,0xFF,0xFF,0xFF,
+	//1A0
+	0xA2,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xAE,0x0F,0x07,0xFF,0xFF,0xFF,
+	//1B0
+	0xB0,0x0F,0x03,0xFF,0xFF,0xFF,
+	0xB1,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB2,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB3,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB4,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB5,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB6,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB7,0x0F,0x07,0xFF,0xFF,0xFF,
+	0xB8,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xB9,0x0F,0x07,0xFF,0xFF,0xFF};
 LPCTSTR spriteDlgNames_t1[] = {
 	//000
 	"002\tNaval Piranha's stalk",
@@ -5014,7 +5243,7 @@ LPCTSTR spriteDlgNames_t1[] = {
 	"0AB\tFill Eggs command",
 	"0AC\tSignal arrow from final boss",
 	//0B0
-	"0B3\tFuzzy fart",
+	"0B3\tFuzzy cloud",
 	//0C0
 	"0C9\tWinged Cloud, nothing (crash)",
 	"0CD\tBaron Von Zeppelin, Giant Egg from final boss",
@@ -5051,11 +5280,28 @@ LPCTSTR spriteDlgNames_t1[] = {
 	"12E\tBoss pop effect",
 	//130
 	"13B\tStomach juice",
-	//140
-	
-	
-	
-};
+	//160
+	"163\tGreen Needlenose",
+	//170
+	"172\tNaval Piranha's stalk",
+	"17F\tBaron Von Zeppelin",
+	//190
+	"195\tUnbalanced snowy platform, small",
+	"196\tUnbalanced snowy platform, large",
+	//1A0
+	"1A2\tStar",
+	"1AE\tKamek's magic",
+	//1B0
+	"1B0\tLarge balloon platform's balloon part",
+	"1B1\tMinigame coin cannon",
+	"1B2\tMinigame coin",
+	"1B3\tMinigame Bandit (Gather Coins)",
+	"1B4\tMinigame checker platform",
+	"1B5\tMinigame Bandit (Pop Balloons)",
+	"1B6\tMinigame balloon",
+	"1B7\tMinigame Bandit (Seed Spitting)",
+	"1B8\tMinigame watermelon",
+	"1B9\tMinigame Bandit (Seed Spitting 2P)"};
 BYTE spriteDlgData_t2[] = {
 	//1B0
 	0xBA,0x0F,0x04,0xFF,0xFF,0xFF,
@@ -5075,18 +5321,18 @@ BYTE spriteDlgData_t2[] = {
 	0xC7,0x0F,0x04,0xFF,0xFF,0xFF,
 	0xC8,0x0F,0x04,0xFF,0xFF,0xFF,
 	0xC9,0x0F,0x04,0xFF,0xFF,0xFF,
-	0xCA,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xCB,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xCC,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xCD,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xCE,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xCF,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xCA,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCB,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCC,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCD,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCE,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xCF,0x0F,0x04,0xFF,0xFF,0xFF,
 	//1D0
-	0xD0,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xD1,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xD2,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xD3,0x0F,0x05,0xFF,0xFF,0xFF,
-	0xD4,0x0F,0x05,0xFF,0xFF,0xFF,
+	0xD0,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xD1,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xD2,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xD3,0x0F,0x04,0xFF,0xFF,0xFF,
+	0xD4,0x0F,0x04,0xFF,0xFF,0xFF,
 	0xD5,0x0F,0x05,0xFF,0xFF,0xFF,
 	0xD6,0x0F,0x05,0xFF,0xFF,0xFF,
 	0xD7,0x0F,0x06,0xFF,0xFF,0xFF,
@@ -5140,18 +5386,18 @@ LPCTSTR spriteDlgNames_t2[] = {
 	"1C7\tGraphics/Palette Changer 0D",
 	"1C8\tGraphics/Palette Changer 0E",
 	"1C9\tGraphics/Palette Changer 0F",
-	"1CA\tVery Slow Auto-Scroll",
-	"1CB\tSpecial Auto-Scroll 0",
-	"1CC\tSpecial Auto-Scroll 1",
-	"1CD\tSpecial Auto-Scroll 2",
-	"1CE\tSpecial Auto-Scroll 3",
-	"1CF\tSpecial Auto-Scroll 4",
+	"1CA\tSpecial Auto-Scroll 00",
+	"1CB\tSpecial Auto-Scroll 01",
+	"1CC\tSpecial Auto-Scroll 02",
+	"1CD\tSpecial Auto-Scroll 03",
+	"1CE\tSpecial Auto-Scroll 04",
+	"1CF\tSpecial Auto-Scroll 05",
 	//1D0
-	"1D0\tSpecial Auto-Scroll 5",
-	"1D1\tSpecial Auto-Scroll 6",
-	"1D2\tSpecial Auto-Scroll 7",
-	"1D3\tSpecial Auto-Scroll 8",
-	"1D4\tSlow Auto-Scroll",
+	"1D0\tSpecial Auto-Scroll 06",
+	"1D1\tSpecial Auto-Scroll 07",
+	"1D2\tSpecial Auto-Scroll 08",
+	"1D3\tSpecial Auto-Scroll 09",
+	"1D4\tSpecial Auto-Scroll 0A",
 	"1D5\tBoo Balloon End",
 	"1D6\tLock Scroll Horizontal",
 	"1D7\tGusty Generator",
@@ -5241,7 +5487,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	//030
 	"A Little Mouser.\r\nSprite ID: 030",
 	"A Potted Spiked Fun Guy.\r\nSprite ID: 031",
-	"A Little Mouser decoration, either hides in nest (X:0) or peeks from behind stuff (X:1).\r\nSprite ID: 032",
+	"A Little Mouser, either hides in nest (X:0) or peeks from behind stuff (X:1).\r\nSprite ID: 032",
 	"A Little Mouser spawned from a nest.\r\nSprite ID: 033",
 	"A Roger the Potted Ghost.\r\nSprite ID: 034",
 	"Roger the Potted Ghost's ghost part.\r\nSprite ID: 035",
@@ -5378,7 +5624,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"A Morph Bubble containing a Mole Yoshi powerup.\r\nSprite ID: 0B0",
 	"A Morph Bubble containing a Helicopter Yoshi powerup.\r\nSprite ID: 0B1",
 	"A Morph Bubble containing a Train Yoshi powerup.\r\nSprite ID: 0B2",
-	"Fart cloud.\r\nSprite ID: 0B3",
+	"Fuzzy cloud.\r\nSprite ID: 0B3",
 	"A Morph Bubble containing a Submarine Yoshi powerup.\r\nSprite ID: 0B4",
 	"A Hidden Winged Cloud, containing a 1-UP (YX:00), 5 stars (YX:01), a ! Switch (YX:10), or 5 stars (YX:11).\r\nSprite ID: 0B5",
 	"A Winged Cloud containing 8 coins.\r\nSprite ID: 0B6",
@@ -5504,7 +5750,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"Spike log on a chain wheel part.\r\nSprite ID: 127",
 	"Bowser's wave.\r\nSprite ID: 128",
 	"Fuzzy.\r\nSprite ID: 129",
-	"A Shy Guy which hides a Bandit, either green (YX:00), red (YX:01), yellow (YX:10), or pink (YX:11).\r\nSprite ID: 12A",
+	"A Shy Guy which hides a Bandit.\r\nSprite ID: 12A",
 	"A Fat Guy, either red (X:0) or green (X:1).\r\nSprite ID: 12B",
 	"A Fly Guy carrying a Red Coin (X:0) or a Whirly Fly Guy (X:1).\r\nSprite ID: 12C",
 	"Yoshi from intro cutscene.\r\nSprite ID: 12D",
@@ -5559,161 +5805,161 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"A Dancing Spear Guy.\r\nSprite ID: 15B",
 	"A green spiked platform switch.\r\nSprite ID: 15C",
 	"A red spiked platform switch.\r\nSprite ID: 15D",
-	"",
-	"",
+	"A pink Flatbed Ferry pinwheel with Shy Guys, either clockwise (X:0) or counterclockwise (X:1).\r\nSprite ID: 15E",
+	"A green spiked platform.\r\nSprite ID: 15F",
 	//160
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A red spiked platform.\r\nSprite ID: 160",
+	"A bonus item, either Red Coin (YX:00), key (YX:01), flower (YX:10), or door (YX:11).\r\nSprite ID: 161",
+	"A double green spiked platform with switch.\r\nSprite ID: 162",
+	"Green Needlenose.\r\nSprite ID: 163",
+	"A Nipper Plant.\r\nSprite ID: 164",
+	"A Nipper Spore.\r\nSprite ID: 165",
+	"A Thunder Lakitu, either 1 (X:0) or 2 (X:1).\r\nSprite ID: 166",
+	"A Green Koopa Shell.\r\nSprite ID: 167",
+	"A Red Koopa Shell.\r\nSprite ID: 168",
+	"A Green Beach Koopa.\r\nSprite ID: 169",
+	"A Red Beach Koopa.\r\nSprite ID: 16A",
+	"A Green Koopa Troopa.\r\nSprite ID: 16B",
+	"A Red Koopa Troopa.\r\nSprite ID: 16C",
+	"A Green Koopa Paratroopa, jumping.\r\nSprite ID: 16D",
+	"A Red Koopa Paratroopa flying horizontally, either right (X:0) or left (X:1).\r\nSprite ID: 16E",
+	"A Red Koopa Paratroopa flying vertically, either down (X:0) or up (X:1).\r\nSprite ID: 16F",
 	//170
 	"An Aqua Lakitu.\r\nSprite ID: 170",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A Naval Piranha.\r\nSprite ID: 171",
+	"Naval Piranha's bud.\r\nSprite ID: 172",
+	"A Baron Von Zeppelin carrying a Shy Guy.\r\nSprite ID: 173",
+	"A Baron Von Zeppelin carrying a Needlenose.\r\nSprite ID: 174",
+	"A Baron Von Zeppelin carrying a bomb.\r\nSprite ID: 175",
+	"A Baron Von Zeppelin carrying a Bandit.\r\nSprite ID: 176",
+	"A Baron Von Zeppelin carrying a large spring ball.\r\nSprite ID: 177",
+	"A Baron Von Zeppelin carrying a 1-UP.\r\nSprite ID: 178",
+	"A Baron Von Zeppelin carrying a key.\r\nSprite ID: 179",
+	"A Baron Von Zeppelin carrying 5 coins.\r\nSprite ID: 17A",
+	"A Baron Von Zeppelin carrying a watermelon.\r\nSprite ID: 17B",
+	"A Baron Von Zeppelin carrying a fire watermelon.\r\nSprite ID: 17C",
+	"A Baron Von Zeppelin carrying an icy watermelon.\r\nSprite ID: 17D",
+	"A Baron Von Zeppelin carrying a crate with 6 stars.\r\nSprite ID: 17E",
+	"Baron Von Zeppelin.\r\nSprite ID: 17F",
 	//180
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A spinning log.\r\nSprite ID: 180",
+	"A Crazee Dayzee (X:0) or Bubble Dayzee (X:1).\r\nSprite ID: 181",
+	"A dragonfly ambience.\r\nSprite ID: 182",
+	"A butterfly ambience.\r\nSprite ID: 183",
+	"A Bumpty.\r\nSprite ID: 184",
+	"A green active line-guided Flatbed Ferry going left.\nSprite ID: 185",
+	"A green active line-guided Flatbed Ferry going right.\r\nSprite ID: 186",
+	"A yellow active line-guided Flatbed Ferry going left.\nSprite ID: 187",
+	"A yellow active line-guided Flatbed Ferry going right.\r\nSprite ID: 188",
+	"A green line-guided Flatbed Ferry going left.\nSprite ID: 189",
+	"A green line-guided Flatbed Ferry going right.\r\nSprite ID: 18A",
+	"A yellow line-guided Flatbed Ferry going left.\nSprite ID: 18B",
+	"A yellow line-guided Flatbed Ferry going right.\r\nSprite ID: 18C",
+	"A red line-guided Flatbed Ferry going left.\nSprite ID: 18D",
+	"A red line-guided Flatbed Ferry going right.\r\nSprite ID: 18E",
+	"A whirly lift.\r\nSprite ID: 18F",
 	//190
 	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A bird ambience.\r\nSprite ID: 191",
+	"A Mufti Guy, either green (YX:00), red (YX:01), yellow (YX:10), or pink (YX:11).\r\nSprite ID: 192",
+	"A Caged Ghost, squeezed in a sewer pipe.\r\nSprite ID: 193",
+	"A Blargg.\r\nSprite ID: 194",
+	"Small unbalanced snowy platform.\r\nSprite ID: 195",
+	"Large unbalanced snowy platform.\r\nSprite ID: 196",
+	"An arrow sign, either up (YX:00), right (YX:01), left (YX:10), or down (YX:11).\r\nSprite ID: 197",
+	"An arrow sign, either up left (YX:00), up right (YX:01), down left (YX:10), or down right (YX:11).\r\nSprite ID: 198",
+	"A Dizzy Dandy.\r\nSprite ID: 199",
+	"A Boo Guy.\r\nSprite ID: 19A",
+	"A Bumpty sliding.\r\nSprite ID: 19B",
+	"A Bumpty flying.\r\nSprite ID: 19C",
+	"A Skeleton Goonie.\r\nSprite ID: 19D",
+	"A Flightless Skeleton Goonie.\r\nSprite ID: 19E",
+	"A Skeleton Goonie with a bomb.\r\nSprite ID: 19F",
 	//1A0
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A firebar with 2 ends, either clockwise (X:0) or counterclockwise (X:1).\r\nSprite ID: 1A0",
+	"A firebar with 1 end, either clockwise (X:0) or counterclockwise (X:1).\r\nSprite ID: 1A1",
+	"Star.\r\nSprite ID: 1A2",
+	"A Little Skull Mouser.\r\nSprite ID: 1A3",
+	"A cork sealing a 3D pipe.\r\nSprite ID: 1A4",
+	"A Grinder running away.\r\nSprite ID: 1A5",
+	"A Grinder spitting seeds.\r\nSprite ID: 1A6",
+	"A Grinder, either Short Fuse right (YX:00), Short Fuse left (YX:01), Seedy Sally right (YX:10), or Seedy Sally left (YX:11).\r\nSprite ID: 1A7",
+	"A Grinder grabbing Baby Mario.\r\nSprite ID: 1A8",
+	"A Grinder climbing and spitting seeds.\r\nSprite ID: 1A9",
+	"A Hot Lips.\r\nSprite ID: 1AA",
+	"A Boo Balloon, either coin (X:0) or ! switch (X:1).\r\nSprite ID: 1AB",
+	"A frog ambience.\r\nSprite ID: 1AC",
+	"A Kamek shooting magic.\r\nSprite ID: 1AD",
+	"Kamek's magic.\r\nSprite ID: 1AE",
+	"A Coin.\r\nSprite ID: 1AF",
 	//1B0
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"Large balloon platform's balloon part.\r\nSprite ID: 1B0",
+	"Minigame coin cannon.\r\nSprite ID: 1B1",
+	"Minigame coin.\r\nSprite ID: 1B2",
+	"Minigame Bandit for Gather Coins.\r\nSprite ID: 1B3",
+	"Minigame checker platform.\r\nSprite ID: 1B4",
+	"Minigame Bandit for Pop Balloons.\r\nSprite ID: 1B5",
+	"Minigame balloon.\r\nSprite ID: 1B6",
+	"Minigame Bandit for Seed Spitting.\r\nSprite ID: 1B7",
+	"Minigame watermelon.\r\nSprite ID: 1B8",
+	"Minigame Bandit for Seed Spitting 2P.\r\nSprite ID: 1B9",
+	"A Graphics/Palette Changer 00.\r\nSprite ID: 1BA",
+	"A Graphics/Palette Changer 01.\r\nSprite ID: 1BB",
+	"A Graphics/Palette Changer 02.\r\nSprite ID: 1BC",
+	"A Graphics/Palette Changer 03.\r\nSprite ID: 1BD",
+	"A Graphics/Palette Changer 04.\r\nSprite ID: 1BE",
+	"A Graphics/Palette Changer 05.\r\nSprite ID: 1BF",
 	//1C0
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A Graphics/Palette Changer 06.\r\nSprite ID: 1C0",
+	"A Graphics/Palette Changer 07.\r\nSprite ID: 1C1",
+	"A Graphics/Palette Changer 08.\r\nSprite ID: 1C2",
+	"A Graphics/Palette Changer 09.\r\nSprite ID: 1C3",
+	"A Graphics/Palette Changer 0A.\r\nSprite ID: 1C4",
+	"A Graphics/Palette Changer 0B.\r\nSprite ID: 1C5",
+	"A Graphics/Palette Changer 0C.\r\nSprite ID: 1C6",
+	"A Graphics/Palette Changer 0D.\r\nSprite ID: 1C7",
+	"A Graphics/Palette Changer 0E.\r\nSprite ID: 1C8",
+	"A Graphics/Palette Changer 0F.\r\nSprite ID: 1C9",
+	"A Special Auto-Scroll 00.\r\nSprite ID: 1CA",
+	"A Special Auto-Scroll 01.\r\nSprite ID: 1CA",
+	"A Special Auto-Scroll 02.\r\nSprite ID: 1CA",
+	"A Special Auto-Scroll 03.\r\nSprite ID: 1CA",
+	"A Special Auto-Scroll 04.\r\nSprite ID: 1CA",
+	"A Special Auto-Scroll 05.\r\nSprite ID: 1CA",
 	//1D0
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A Special Auto-Scroll 06.\r\nSprite ID: 1D0",
+	"A Special Auto-Scroll 07.\r\nSprite ID: 1D1",
+	"A Special Auto-Scroll 08.\r\nSprite ID: 1D2",
+	"A Special Auto-Scroll 09.\r\nSprite ID: 1D3",
+	"A Special Auto-Scroll 0A.\r\nSprite ID: 1D4",
+	"A Boo Balloon ender.\r\nSprite ID: 1D5",
+	"A Lock Horizontal Scroll.\r\nSprite ID: 1D6",
+	"A Gusty generator.\r\nSprite ID: 1D7",
+	"A Gusty generator ender.\r\nSprite ID: 1D8",
+	"A Lakitu ender.\r\nSprite ID: 1D9",
+	"A Fuzzy generator ender.\r\nSprite ID: 1DA",
+	"A Poochy ender.\r\nSprite ID: 1DB",
+	"A Fang generator.\r\nSprite ID: 1DC",
+	"A Fang generator ender.\r\nSprite ID: 1DD",
+	"A Fang 2 generator.\r\nSprite ID: 1DE",
+	"A Fang 2 generator ender.\r\nSprite ID: 1DF",
 	//1E0
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	"A Wall Lakitu generator.\r\nSprite ID: 1E0",
+	"A Wall Lakitu generator ender.\r\nSprite ID: 1E1",
+	"A Dancing Spear Guy dance trigger, either dance 0 (YX:00), dance 1 (YX:01), dance 2 (YX:02), or dance 3 (YX:03).\r\nSprite ID: 1E2",
+	"A Dancing Spear Guy dance ender.\r\nSprite ID: 1E3",
+	"A Thunder Lakitu ender.\r\nSprite ID: 1E4",
+	"A Flutter generator.\r\nSprite ID: 1E5",
+	"A Flutter generator ender.\r\nSprite ID: 1E6",
+	"A Nipper Spore generator.\r\nSprite ID: 1E7",
+	"A Nipper Spore generator ender.\r\nSprite ID: 1E8",
+	"A Baron Von Zeppelin (Needlenose) generator.\r\nSprite ID: 1E9",
+	"A Baron Von Zeppelin (Needlenose) generator ender.\r\nSprite ID: 1EA",
+	"A Baron Von Zeppelin (bomb) generator.\r\nSprite ID: 1EB",
+	"A Baron Von Zeppelin (bomb) generator ender.\r\nSprite ID: 1EC",
+	"A balloon platform generator.\r\nSprite ID: 1ED",
+	"A balloon platform generator ender.\r\nSprite ID: 1EE",
+	"A 4 yellow line-guided Flatbed Ferry generator.\r\nSprite ID: 1EF",
 	//1F0
 	"A Lemon Drop generator.\r\nSprite ID: 1F0",
 	"A Lemon Drop generator ender.\r\nSprite ID: 1F1",
@@ -5834,14 +6080,7 @@ void updateWindow_sprite() {
 }
 //Main drawing code
 void updateEntireScreen_sp() {
-	//memset(bmpDataSp,1,0x10000*sizeof(DWORD));
-	for(int i=0; i<0x10000; i++) {
-		if((i&0x10)^((i&0x1000)>>8)) {
-			bmpDataSp[i] = 0x01010101;
-		} else {
-			bmpDataSp[i] = 0x81818181;
-		}
-	}
+	memset(bmpDataSp,0x80,0x10000*sizeof(DWORD));
 	int prevCtx = setSpriteContext(1);
 	drawSprites();
 	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
