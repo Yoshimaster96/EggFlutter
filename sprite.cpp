@@ -2597,7 +2597,7 @@ void drawSprite_127(sprite_t * s) {
 }
 //Ground shake
 void drawSprite_128(sprite_t * s) {
-	drawSpriteText(s,"Ground\n Shake");
+	drawSpriteText(s,"Baby  Bowser\n    Wave    ");
 }
 //Fuzzy
 void drawSprite_129(sprite_t * s) {
@@ -2650,9 +2650,9 @@ void drawSprite_12D(sprite_t * s) {
 	addSpriteTile(s,(0x8<<2),base+0x02,9,2);
 	addSpriteTile(s,(0x8<<2),base+0x12,9,10);
 }
-//Unknown
+//Boss pop effect
 void drawSprite_12E(sprite_t * s) {
-	drawSpriteText(s,"  Unknown  \nBG  Related");
+	drawSpriteText(s,"Boss Pop\n Effect ");
 }
 //Lava Drop, horizontal
 void drawSprite_12F(sprite_t * s) {
@@ -4546,6 +4546,33 @@ BYTE spriteDlgData_t0[] = {
 	0x1E,0x0F,0x07,0xFF,0xFF,0xFF,
 	0x1F,0x0F,0x07,0xFF,0xFF,0xFF,
 	//120
+	0x20,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x22,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x23,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x24,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x25,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x26,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2B,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//130
+	0x30,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x31,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x32,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x33,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x34,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x35,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x36,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x37,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x38,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x39,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x3A,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x3C,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x3D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x3E,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x3F,0x0F,0x07,0xFF,0xFF,0xFF,
+	//140
 	
 	
 	
@@ -4603,7 +4630,7 @@ LPCTSTR spriteDlgNames_t0[] = {
 	"042\tVertical Pipe Exit Down",
 	"045\tPrince Froggy, throat/before/throat & uvula/after (YX)",
 	"046\tBurt the Bashful",
-	"048\tKamek, cutscene",
+	"048\tKamek, boss cutscene",
 	"04C\tUpside-down Blow Hard",
 	"04E\tLocked door",
 	"04F\tMiddle Ring",
@@ -4784,6 +4811,33 @@ LPCTSTR spriteDlgNames_t0[] = {
 	"11E\tArrow Wheel, brown",
 	"11F\tArrow Wheel, blue",
 	//120
+	"120\tArrow lift, double ended",
+	"122\t? bucket, Bandit",
+	"123\t? bucket, 5 coins",
+	"124\tStretch, green/red/yellow/pink (YX)",
+	"125\tKamek, ending cutscene/flying & chasing (X)",
+	"126\tSpike log on chain",
+	"12A\tShy Guy hiding Bandit, green/red/yellow/pink (YX)",
+	"12B\tFat Guy, red/green (X)",
+	"12C\tFly Guy, Red Coin/Whirly Guy (X)",
+	"12F\tLava Drop, horizontal",
+	//130
+	"130\tLava Drop, vertical",
+	"131\tLocked door",
+	"132\tLemon Drop",
+	"133\tLantern Ghost",
+	"134\tBaby Bowser",
+	"135\tRaven circling forever, counterclockwise/clockwise (X)",
+	"136\tRaven circling back & forth, counterclockwise/clockwise (X)",
+	"137\tFalling rock platform, 3x6",
+	"138\tFalling rock platform, 3x3",
+	"139\tFalling rock platform, 3x9",
+	"13A\tFalling rock platform, 6x3",
+	"13C\tVertical flipper, up/down (X)",
+	"13D\tFang, hanging from ceiling",
+	"13E\tFang, flying",
+	"13F\tFlopsy Fish, swimming",
+	//140
 	
 	
 	
@@ -4882,6 +4936,15 @@ BYTE spriteDlgData_t1[] = {
 	0x1C,0x0F,0x07,0xFF,0xFF,0xFF,
 	0x1D,0x0F,0x07,0xFF,0xFF,0xFF,
 	//120
+	0x21,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x27,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x28,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x29,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2D,0x0F,0x07,0xFF,0xFF,0xFF,
+	0x2E,0x0F,0x06,0xFF,0xFF,0xFF,
+	//130
+	0x3B,0x0F,0x07,0xFF,0xFF,0xFF,
+	//140
 	
 	
 	
@@ -4980,6 +5043,15 @@ LPCTSTR spriteDlgNames_t1[] = {
 	"11C\tLakitu's cloud",
 	"11D\tLakitu's Spiny Egg",
 	//120
+	"121\tExplosion of number platform",
+	"127\tSpike log on a chain, wheel part",
+	"128\tBowser's wave",
+	"129\tFuzzy",
+	"12D\tYoshi from intro cutscene",
+	"12E\tBoss pop effect",
+	//130
+	"13B\tStomach juice",
+	//140
 	
 	
 	
@@ -5422,18 +5494,232 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"A brown Arrow Wheel platform.\r\nSprite ID: 11E",
 	"A blue Arrow Wheel platform.\r\nSprite ID: 11F",
 	//120
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	"A double ended arrow lift.\r\nSprite ID: 120",
+	"Explosion of Number Platform.\r\nSprite ID: 121",
+	"A ? bucket containing a Bandit.\r\nSprite ID: 122",
+	"A ? bucket containing 5 coins.\r\nSprite ID: 123",
+	"A Stretch, either green (YX:00), red (YX:01), yellow (YX:10), or pink (YX:11).\r\nSprite ID: 124",
+	"A Kamek, either from the ending cutscene (X:0) or flying and chasing (X:1).\r\nSprite ID: 125",
+	"A spike log on a chain.\r\nSprite ID: 126",
+	"Spike log on a chain wheel part.\r\nSprite ID: 127",
+	"Bowser's wave.\r\nSprite ID: 128",
+	"Fuzzy.\r\nSprite ID: 129",
+	"A Shy Guy which hides a Bandit, either green (YX:00), red (YX:01), yellow (YX:10), or pink (YX:11).\r\nSprite ID: 12A",
+	"A Fat Guy, either red (X:0) or green (X:1).\r\nSprite ID: 12B",
+	"A Fly Guy carrying a Red Coin (X:0) or a Whirly Fly Guy (X:1).\r\nSprite ID: 12C",
+	"Yoshi from intro cutscene.\r\nSprite ID: 12D",
+	"Boss pop effect.\r\nSprite ID: 12E",
+	"A Lava Drop moving horizontally.\r\nSprite ID: 12F",
+	//130
+	"A Lava Drop moving vertically.\r\nSprite ID: 130",
+	"A locked door. Make sure to set a screen exit!\r\nSprite ID: 131",
+	"A Lemon Drop.\r\nSprite ID: 132",
+	"A Lantern Ghost.\r\nSprite ID: 133",
+	"A Baby Bowser.\r\nSprite ID: 134",
+	"A Raven circling forever, either counterclockwise (X:0) or clockwise (X:1).\r\nSprite ID: 135",
+	"A Raven circling back and forth, either counterclockwise (X:0), or clockwise (X:1).\r\nSprite ID: 136",
+	"A 3x6 falling rock platform.\r\nSprite ID: 137",
+	"A 3x3 falling rock platform.\r\nSprite ID: 138",
+	"A 3x9 falling rock platform.\r\nSprite ID: 139",
+	"A 6x3 falling rock platform.\r\nSprite ID: 13A",
+	"Stomach juice from the Prince Froggy boss.\r\nSprite ID: 13B",
+	"A vertical flipper, either up (X:0) or down (X:1).\r\nSprite ID: 13C",
+	"A Fang hanging from the ceiling.\r\nSprite ID: 13D",
+	"A Fang flying.\r\nSprite ID: 13E",
+	"A Flopsy Fish swimming.\r\nSprite ID: 13F",
+	//140
+	"A Flopsy Fish swimming and jumping.\r\nSprite ID: 140",
+	"A Flopsy Fish jumping in an arc.\r\nSprite ID: 141",
+	"A Flopsy Fish jumping across, right (X:0) or left (X:1).\r\nSprite ID: 142",
+	"A Spray Fish.\r\nSprite ID: 143",
+	"A horizontal flipper, either right (X:0) or left (X:1).\r\nSprite ID: 144",
+	"A blue Sluggy, either falling down (X:0) or on ceiling (X:1).\r\nSprite ID: 145",
+	"A pink Sluggy, either falling down (X:0) or on ceiling (X:1).\r\nSprite ID: 146",
+	"A horizontal pipe exit left. Make sure to set a screen exit!\r\nSprite ID: 147",
+	"A large spring ball.\r\nSprite ID: 148",
+	"An arrow cloud pointing up.\r\nSprite ID: 149",
+	"An arrow cloud pointing up right.\r\nSprite ID: 14A",
+	"An arrow cloud pointing right.\r\nSprite ID: 14B",
+	"An arrow cloud pointing down right.\r\nSprite ID: 14C",
+	"An arrow cloud pointing down.\r\nSprite ID: 14D",
+	"An arrow cloud pointing down left.\r\nSprite ID: 14E",
+	"An arrow cloud pointing left.\r\nSprite ID: 14F",
+	//150
+	"An arrow cloud pointing up left.\r\nSprite ID: 150",
+	"An arrow cloud rotating.\r\nSprite ID: 151",
+	"A Flutter.\r\nSprite ID: 152",
+	"A Goonie with a Shy Guy.\r\nSprite ID: 153",
+	"A Shark Chomp.\r\nSprite ID: 154",
+	"A Very Goonie.\r\nSprite ID: 155",
+	"A Cactus Jack, either 1 (X:0) or 3 (X:1).\r\nSprite ID: 156",
+	"A Wall Lakitu.\r\nSprite ID: 157",
+	"A Bowling Goonie.\r\nSprite ID: 158",
+	"A Grunt walking.\r\nSprite ID: 159",
+	"A Grunt running.\r\nSprite ID: 15A",
+	"A Dancing Spear Guy.\r\nSprite ID: 15B",
+	"A green spiked platform switch.\r\nSprite ID: 15C",
+	"A red spiked platform switch.\r\nSprite ID: 15D",
+	"",
+	"",
+	//160
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//170
+	"An Aqua Lakitu.\r\nSprite ID: 170",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//180
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//190
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1A0
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1B0
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1C0
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1D0
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1E0
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//1F0
+	"A Lemon Drop generator.\r\nSprite ID: 1F0",
+	"A Lemon Drop generator ender.\r\nSprite ID: 1F1",
+	"A Fuzzy effect ender.\r\nSprite ID: 1F2",
+	"A Goonie generator ender.\r\nSprite ID: 1F3",
+	"A Fuzzy generator.\r\nSprite ID: 1F4",
 	"Index out of bounds, do not use.\r\nSprite ID: 1F5",
 	"Index out of bounds, do not use.\r\nSprite ID: 1F6",
 	"Index out of bounds, do not use.\r\nSprite ID: 1F7",
