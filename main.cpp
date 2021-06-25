@@ -804,6 +804,7 @@ void onOpenLevel() {
 			if(!promptSave()) return;
 		}
 		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
+			isRomSaved = true;
 			loadLevel();
 			updateDialogs();
 			updateEntireScreen();
@@ -817,6 +818,7 @@ void onNextLevel() {
 			if(!promptSave()) return;
 		}
 		if(curLevel!=0xDD) {
+			isRomSaved = true;
 			curLevel++;
 			loadLevel();
 			updateDialogs();
@@ -831,6 +833,7 @@ void onPrevLevel() {
 			if(!promptSave()) return;
 		}
 		if(curLevel) {
+			isRomSaved = true;
 			curLevel--;
 			loadLevel();
 			updateDialogs();
@@ -1422,6 +1425,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						moveSprites(dx,dy);
 						drawSprites();
 					}
+					isRomSaved = false;
 				} else {
 					int dx = 0;
 					int dy = 0;
@@ -1431,6 +1435,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						resizeObjects(dx,dy);
 						drawObjects();
 					}
+					isRomSaved = false;
 				}
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
@@ -1499,6 +1504,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				drawSprites();
 			}
 			isRomSaved = false;
+			selpCur = selpPrev = {levX,levY};
 			dragFlag = true;
 			selOp = 5;
 			SetCursor(LoadCursor(NULL,IDC_SIZEALL));

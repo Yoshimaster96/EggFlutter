@@ -4189,15 +4189,41 @@ void insertSprites(int x,int y) {
 	if(numSelectedSprites) {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
-		//TODO
+		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
 		//Paste selected sprites
-		//TODO
+		int origSize = spriteContexts[0].sprites.size();
+		for(int n=0; n<origSize; n++) {
+			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+			if(thisSprite->selected) {
+				thisSprite->selected = false;
+				int xpos = thisSprite->data[2];
+				int ypos = thisSprite->data[1]>>1;
+				xpos = x+(xpos-minX);
+				ypos = y+(ypos-minY);
+				sprite_t entry;
+				entry.data[0] = thisSprite->data[0];
+				entry.data[1] = (thisSprite->data[1]&1)|(ypos<<1);
+				entry.data[2] = xpos;
+				entry.dataSize = 3;
+				entry.selected = true;
+				spriteContexts[0].sprites.push_back(entry);
+			}
+		}
 	} else {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
-		//TODO
+		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
 		//Insert current sprite in selection dialog
-		//TODO
+		if(spriteContexts[1].sprites.size()) {
+			sprite_t * thisSprite = &spriteContexts[1].sprites[0];
+			sprite_t entry;
+			entry.data[0] = thisSprite->data[0];
+			entry.data[1] = (thisSprite->data[1]&1)|(y<<1);
+			entry.data[2] = x;
+			entry.dataSize = 3;
+			entry.selected = true;
+			spriteContexts[0].sprites.push_back(entry);
+		}
 	}
 }
 void deleteSprites() {
@@ -4289,7 +4315,7 @@ void moveSprites(int dx,int dy) {
 	if(numSelectedSprites) {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
-		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>=0x80)) return;
+		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
 		//Move selected sprites
 		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 			sprite_t * thisSprite = &spriteContexts[0].sprites[n];

@@ -9352,15 +9352,32 @@ void insertObjects(int x,int y) {
 	if(numSelectedObjects) {
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
-		//TODO
+		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
 		//Paste selected objects
-		//TODO
+		int origSize = objectContexts[0].objects.size();
+		for(int n=0; n<origSize; n++) {
+			object_t * thisObject = &objectContexts[0].objects[n];
+			if(thisObject->selected) {
+				BYTE hi = thisObject->data[1];
+				BYTE lo = thisObject->data[2];
+				int xpos = (lo&0xF)|((hi&0xF)<<4);
+				int ypos = ((lo&0xF0)>>4)|(hi&0xF0);
+				xpos = x+(xpos-minX);
+				ypos = y+(ypos-minY);
+				object_t entry;
+				//TODO
+			}
+		}
 	} else {
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
-		//TODO
+		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
 		//Insert current objects in selection dialog
-		//TODO
+		if(objectContexts[1].objects.size()) {
+			object_t * thisObject = &objectContexts[1].objects[0];
+			object_t entry;
+			//TODO
+		}
 	}
 }
 void deleteObjects() {
@@ -9403,7 +9420,7 @@ void moveObjects(int dx,int dy) {
 	if(numSelectedObjects) {
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
-		if((dx<0 && (minX+dx)<0) || (dx>0 && (maxX+dx)>=0x100) || (dy<0 && (minY+dy)<0) || (dy>0 && (maxY+dy)>=0x80)) return;
+		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
 		//Move selected objects
 		for(int n=0; n<objectContexts[0].objects.size(); n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
