@@ -6107,8 +6107,8 @@ void updateWindow_sprite() {
 //Main drawing code
 void updateEntireScreen_sp() {
 	memset(bmpDataSp,0x80,0x10000*sizeof(DWORD));
+	updateWindowSub_sprite();
 	int prevCtx = setSpriteContext(1);
-	drawSprites();
 	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
 	setSpriteContext(prevCtx);
 }
