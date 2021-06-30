@@ -1324,27 +1324,27 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			//Update visible region and invalidate
 			int yNewScroll = yCurScroll;
 			switch(LOWORD(wParam)) {
-				case SB_LEFT: {
+				case SB_TOP: {
 					yNewScroll = 0;
 					break;
 				}
-				case SB_RIGHT: {
+				case SB_BOTTOM: {
 					yNewScroll = yMaxScroll;
 					break;
 				}
-				case SB_PAGELEFT: {
+				case SB_PAGEUP: {
 					yNewScroll -= 0x100;
 					break;
 				}
-				case SB_PAGERIGHT: {
+				case SB_PAGEDOWN: {
 					yNewScroll += 0x100;
 					break;
 				}
-				case SB_LINELEFT: {
+				case SB_LINEUP: {
 					yNewScroll -= 0x10;
 					break;
 				}
-				case SB_LINERIGHT: {
+				case SB_LINEDOWN: {
 					yNewScroll += 0x10;
 					break;
 				}
@@ -1381,6 +1381,20 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			}
 			break;
 		}
+		case WM_KEYDOWN: {
+			if(wParam==VK_DELETE) {
+				if(eObj) {
+					deleteObjects();
+					drawObjects();
+				} else if(eSp) {
+					deleteSprites();
+					drawSprites();
+				}
+				updateEntireScreen();
+				isRomSaved = false;
+			}
+			break;
+		}
 		//Mouse input
 		case WM_MOUSEMOVE: {
 			int mouseX = GET_X_LPARAM(lParam);
@@ -1394,14 +1408,22 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				RECT clRect;
 				GetClientRect(hwnd,&clRect);
 				if(mouseX==0) {
-					//TODO
+					selpCur.x -= 0x10;
+					if(selpCur.x<0) selpCur.x = 0;
+					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINELEFT,0),NULL);
 				} else if(mouseX==(clRect.right-1)) {
-					//TODO
+					selpCur.x += 0x10;
+					if(selpCur.x>=0x10000) selpCur.x = 0xFFFF;
+					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINERIGHT,0),NULL);
 				}
 				if(mouseY==0) {
-					//TODO
+					selpCur.y -= 0x10;
+					if(selpCur.y<0) selpCur.y = 0;
+					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEUP,0),NULL);
 				} else if(mouseY==(clRect.bottom-1)) {
-					//TODO
+					selpCur.y += 0x10;
+					if(selpCur.y>=0x8000) selpCur.y = 0x7FFF;
+					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEDOWN,0),NULL);
 				}
 				//Handle selection modes
 				if(selOp==4) {
