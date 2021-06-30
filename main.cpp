@@ -817,13 +817,11 @@ void onNextLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		if(curLevel!=0xDD) {
-			isRomSaved = true;
-			curLevel++;
-			loadLevel();
-			updateDialogs();
-			updateEntireScreen();
-		}
+		if(curLevel!=0xDD) curLevel++;
+		isRomSaved = true;
+		loadLevel();
+		updateDialogs();
+		updateEntireScreen();
 	}
 }
 void onPrevLevel() {
@@ -832,13 +830,11 @@ void onPrevLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		if(curLevel) {
-			isRomSaved = true;
-			curLevel--;
-			loadLevel();
-			updateDialogs();
-			updateEntireScreen();
-		}
+		if(curLevel) curLevel--;
+		isRomSaved = true;
+		loadLevel();
+		updateDialogs();
+		updateEntireScreen();
 	}
 }
 //Edit
@@ -1401,6 +1397,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			int mouseY = GET_Y_LPARAM(lParam);
 			int levX = mouseX+xCurScroll;
 			int levY = mouseY+yCurScroll;
+			levX = std::max(0,levX);
+			levX = std::min(0xFFFF,levX);
+			levY = std::max(0,levY);
+			levY = std::min(0x7FFF,levY);
 			if(dragFlag) {
 				//Do fast edge scroll
 				if(selOp!=4) selpPrev = selpCur;
@@ -1408,22 +1408,18 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				RECT clRect;
 				GetClientRect(hwnd,&clRect);
 				if(mouseX==0) {
-					selpCur.x -= 0x10;
-					if(selpCur.x<0) selpCur.x = 0;
-					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINELEFT,0),NULL);
+					selpCur.x = std::max((long)0,selpCur.x-0x10);
+					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINELEFT,0),0);
 				} else if(mouseX==(clRect.right-1)) {
-					selpCur.x += 0x10;
-					if(selpCur.x>=0x10000) selpCur.x = 0xFFFF;
-					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINERIGHT,0),NULL);
+					selpCur.x = std::max((long)0xFFFF,selpCur.x+0x10);
+					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINERIGHT,0),0);
 				}
 				if(mouseY==0) {
-					selpCur.y -= 0x10;
-					if(selpCur.y<0) selpCur.y = 0;
-					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEUP,0),NULL);
+					selpCur.y = std::max((long)0,selpCur.y-0x10);
+					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEUP,0),0);
 				} else if(mouseY==(clRect.bottom-1)) {
-					selpCur.y += 0x10;
-					if(selpCur.y>=0x8000) selpCur.y = 0x7FFF;
-					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEDOWN,0),NULL);
+					selpCur.y = std::max((long)0x7FFF,selpCur.y+0x10);
+					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEDOWN,0),0);
 				}
 				//Handle selection modes
 				if(selOp==4) {
@@ -1438,7 +1434,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						selectSprites(selRect);
 					}
 				} else if(selOp==5) {
-					int dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
+					int dx = (selpCur.x&0xFFF0)-(selpPrev.x&0xFFF0);
 					int dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
 					if(eObj) {
 						moveObjects(dx,dy);
@@ -1451,7 +1447,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				} else {
 					int dx = 0;
 					int dy = 0;
-					if(selOp&1) dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
+					if(selOp&1) dx = (selpCur.x&0xFFF0)-(selpPrev.x&0xFFF0);
 					if(selOp&2) dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
 					if(eObj) {
 						resizeObjects(dx,dy);
@@ -1493,6 +1489,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			int mouseY = GET_Y_LPARAM(lParam);
 			int levX = mouseX+xCurScroll;
 			int levY = mouseY+yCurScroll;
+			levX = std::max(0,levX);
+			levX = std::min(0xFFFF,levX);
+			levY = std::max(0,levY);
+			levY = std::min(0x7FFF,levY);
 			if(selOp==5) {
 				if(eObj) {
 					selectTopObject(levX,levY);
@@ -1518,6 +1518,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			int mouseY = GET_Y_LPARAM(lParam);
 			int levX = mouseX+xCurScroll;
 			int levY = mouseY+yCurScroll;
+			levX = std::max(0,levX);
+			levX = std::min(0xFFFF,levX);
+			levY = std::max(0,levY);
+			levY = std::min(0x7FFF,levY);
 			if(eObj) {
 				insertObjects(levX,levY);
 				drawObjects();
