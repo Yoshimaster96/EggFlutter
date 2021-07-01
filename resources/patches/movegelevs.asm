@@ -1,11 +1,11 @@
 ;Allow sprite data to be located in extended region
-.org $01B09A
+org $01B09A
 	jml.l SetSpriteDataPointer
 
-.padbyte $FF
-.pad $01B0AD
+padbyte $FF
+pad $01B0AD
 
-.org $01EDB0
+org $01EDB0
 SetSpriteDataPointer:
 	lda.l $17F7C6,x
 	sta.l $702600
@@ -33,9 +33,10 @@ SetSpriteDataPointer_CopyData:
 	iny
 	bra SetSpriteDataPointer_CopyData
 SetSpriteDataPointer_EndCopy:
-	stz.l $702600
-	lda.w #$0071
-	sta.l $702602
+	lda.w #$0000
+	sta.l $702600
+	lda.w #$7100
+	sta.l $702601
 SetSpriteDataPointer_Return:
 	jml.l $01B0AD
 SetSpriteDataPointer_CODE_END:

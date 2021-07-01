@@ -20,6 +20,7 @@
 #define IDA_MENU_MAIN		450
 
 #define IDR_FONT_CHR		500
+#define IDR_PATCH_BPS		501
 
 #endif
 

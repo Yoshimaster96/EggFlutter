@@ -194,7 +194,7 @@ LPCTSTR actionMinigameStrings[23] = {
 "Mini 0A: Seed Spitting 2P",
 "Mini 0B: Throw Balloons 2P (4 Buttons)"};
 
-LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -235,7 +235,7 @@ LRESULT CALLBACK DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lP
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -294,7 +294,7 @@ LRESULT CALLBACK DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM 
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -338,7 +338,7 @@ LRESULT CALLBACK DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -430,7 +430,7 @@ LRESULT CALLBACK DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -463,7 +463,7 @@ LRESULT CALLBACK DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPa
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -496,7 +496,7 @@ LRESULT CALLBACK DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM l
 	}
 	return 0;
 }
-LRESULT CALLBACK DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
@@ -803,7 +803,7 @@ void onOpenLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,DlgProc_dOpenLevelId)) {
+		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
 			isRomSaved = true;
 			loadLevel();
 			updateDialogs();
@@ -921,35 +921,35 @@ void onViewSwB() {
 }
 //Tools
 void onChgEnt() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,DlgProc_dEditEntrances) && vEnt) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,(DLGPROC)DlgProc_dEditEntrances) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgEnt2() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,DlgProc_dEditEntrances2) && vEnt) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,(DLGPROC)DlgProc_dEditEntrances2) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgExit() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,DlgProc_dEditExits) && vExit) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,(DLGPROC)DlgProc_dEditExits) && vExit) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgHead() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,DlgProc_dEditHeader)) {
+	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,(DLGPROC)DlgProc_dEditHeader)) {
 		isRomSaved = false;
 		updateDialogs();
 		updateEntireScreen();
 	}
 }
 void onChgLevName() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,DlgProc_dEditLevNames);
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,(DLGPROC)DlgProc_dEditLevNames);
 }
 void onChgLevMsg() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,DlgProc_dEditLevMessages);
+	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,(DLGPROC)DlgProc_dEditLevMessages);
 }
 //Window
 void onSelObj() {
@@ -1564,8 +1564,13 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	//Load resources
 	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
 	hinstMain = hInstance;
-	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA)));
+	HRSRC fontRes = FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA);
+	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,fontRes));
 	unpackGfx2BPP(fontBuffer,fontData,0x80);
+	HRSRC patchRes = FindResource(NULL,MAKEINTRESOURCE(IDR_PATCH_BPS),RT_RCDATA);
+	BYTE * patchData = (BYTE*)LockResource(LoadResource(NULL,patchRes));
+	patchBufSize = SizeofResource(NULL,patchRes);
+	memcpy(patchBuf,patchData,patchBufSize);
 	
 	//Register main window class
 	WNDCLASSEX wc;

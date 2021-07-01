@@ -4034,6 +4034,10 @@ void drawSprites() {
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
+	//int minx = std::max((int)(rect.left&0xFFF0),0);
+	//int miny = std::max((int)(rect.top&0x7FF0),0);
+	//int maxx = std::min((int)((rect.right&0xFFF0)+0x10),0x1000);
+	//int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		int spX = thisSprite->data[2]<<4;

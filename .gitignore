@@ -1,6 +1,6 @@
 *.o
-resources/*.o
 Makefile
 Makefile.*
 Project2_private.*
 Project2.exe
+Project2.layout

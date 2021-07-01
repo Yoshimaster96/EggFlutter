@@ -24,12 +24,12 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
 CommandLine=
-Folders=resources
+Folders=resources,resources/patches
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=000000e000000000001000000
-UnitCount=31
+UnitCount=33
 
 [VersionInfo]
 Major=1
@@ -322,11 +322,11 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit32]
-FileName=patches\asardll.h
+FileName=resources\patches\patch.bps
 CompileCpp=1
-Folder=patches
-Compile=1
-Link=1
+Folder=resources/patches
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
@@ -354,6 +354,15 @@ FileName=resources\font.rc
 Folder=resources
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit33]
+FileName=resources\patches\patch.rc
+Folder=resources/patches
+Compile=1
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

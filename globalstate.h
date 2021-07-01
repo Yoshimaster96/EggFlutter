@@ -9,6 +9,8 @@ extern HICON hiconMain;
 extern HINSTANCE hinstMain;
 extern bool isRomOpen,isRomSaved;
 extern BYTE romBuf[0x800000];
+extern BYTE patchBuf[0x200000];
+extern DWORD patchBufSize;
 //Variables for levels
 extern BYTE curLevel;
 extern BYTE levelHeader[10];

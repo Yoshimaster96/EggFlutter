@@ -9053,9 +9053,9 @@ void drawObjects() {
 	}
 }
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
-	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int minx = std::max((int)(rect.left&0xFFF0),0);
 	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
+	int maxx = std::min((int)((rect.right&0xFFF0)+0x10),0x1000);
 	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	char obStr[256];
 	for(int j=miny; j<maxy; j+=0x10) {
@@ -9500,10 +9500,33 @@ void resizeObjects(int dx,int dy) {
 	}
 }
 void increaseObjectZ() {
-	//TODO
+	bool pastEnd = false;
+	int origSize = objectContexts[0].objects.size();
+	for(int n=(origSize-1); n>=0; n--) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			if(pastEnd) {
+				std::swap(objectContexts[0].objects[n],objectContexts[0].objects[n+1]);
+			}
+		} else {
+			pastEnd = true;
+		}
+	}
+	
 }
 void decreaseObjectZ() {
-	//TODO
+	bool pastEnd = false;
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			if(pastEnd) {
+				std::swap(objectContexts[0].objects[n],objectContexts[0].objects[n-1]);
+			}
+		} else {
+			pastEnd = true;
+		}
+	}
 }
 
 ///////////////////
