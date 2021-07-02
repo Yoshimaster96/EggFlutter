@@ -9250,11 +9250,6 @@ void initOtherObjectBuffers() {
 /////////////////////
 //OBJECT MANAGEMENT//
 /////////////////////
-//Predicate for deletion
-bool object_delPred(object_t & un) {
-	return un.selected;
-}
-
 //Load/save
 int loadObjects(BYTE * data) {
 	//Clear buffers
@@ -9397,7 +9392,13 @@ void insertObjects(int x,int y) {
 }
 void deleteObjects() {
 	//Delete selected objects
-	remove_if(objectContexts[0].objects.begin(),objectContexts[0].objects.end(),object_delPred);
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			objectContexts[0].objects.erase(objectContexts[0].objects.begin()+n);
+			n--;
+		}
+	}
 }
 void selectTopObject(int x,int y) {
 	//Select top object
@@ -9824,7 +9825,7 @@ BYTE objectDlgData_t0[] = {
 	0xF4,0x00,0x97,0xFD,0xFF,0xFF,
 	0xF5,0x00,0x66,0x03,0x03,0xFF,
 	0xF6,0x00,0x66,0x03,0x03,0xFF};
-LPCTSTR objectDlgNames_t0[] = {
+LPCSTR objectDlgNames_t0[] = {
 	//00
 	"01\tNormal ground",
 	"02\tNormal ground left edge with top",
@@ -10339,7 +10340,7 @@ BYTE objectDlgData_t1[] = {
 	0x00,0x00,0x74,0xFD,0xFF,0xFF,
 	0x00,0x00,0x74,0xFE,0xFF,0xFF,
 	0x00,0x00,0x76,0xFF,0xFF,0xFF};
-LPCTSTR objectDlgNames_t1[] = {
+LPCSTR objectDlgNames_t1[] = {
 	//00
 	"00\tJungle leaf large tall, left",
 	"01\tJungle leaf large tall, right",
@@ -10568,7 +10569,7 @@ LPCTSTR objectDlgNames_t1[] = {
 	"FD\tScreen Scroll Enable",
 	"FE\tScreen Scroll Disable",
 	"FF\tScreen Erase"};
-LPCTSTR whatsThisObjectExt[0x100] = {
+LPCSTR whatsThisObjectExt[0x100] = {
 	//00
 	"A large tall jungle leaf facing left.\r\nExtended Object ID: 00",
 	"A large tall jungle leaf facing right.\r\nExtended Object ID: 01",
@@ -10841,7 +10842,7 @@ LPCTSTR whatsThisObjectExt[0x100] = {
 	"A Screen Scroll Enable command.\r\nExtended Object ID: FD",
 	"A Screen Scroll Disable command.\r\nExtended Object ID: FE",
 	"A Screen Erase command.\r\nExtended Object ID: FF"};
-LPCTSTR whatsThisObject[0x100] = {
+LPCSTR whatsThisObject[0x100] = {
 	//00
 	"Extended object command. This description should not appear!\r\nObject ID: 00",
 	"A normal ground.\r\nObject ID: 01",
@@ -11115,7 +11116,7 @@ LPCTSTR whatsThisObject[0x100] = {
 	"Index out of bounds, do not use.\r\nObject ID: FE",
 	"End of object data command. This description should not appear!\r\nObject ID: FF"};
 
-int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
+int focusObject(int x,int y,UINT * cursor,char * text) {
 	//Get top object
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
 	int topIdx = objectContexts[0].assocObjects[tileIdx].size()-1;
@@ -11128,9 +11129,9 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 		int idExt = thisObject->data[3];
 		*cursor = 0x7F86; //IDC_SIZEALL
 		if(id) {
-			_tcscpy(text,whatsThisObject[id]);
+			strcpy(text,whatsThisObject[id]);
 		} else {
-			_tcscpy(text,whatsThisObjectExt[idExt]);
+			strcpy(text,whatsThisObjectExt[idExt]);
 		}
 		int retval = 5;
 		if(thisObject->selected) {
@@ -11219,8 +11220,8 @@ int focusObject(int x,int y,UINT * cursor,TCHAR * text) {
 //Control updaters
 void updateWindowSub_object() {
 	int prevCtx = setObjectContext(1);
-	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
-	int idx2 = SendMessage(hwndLbObject,LB_GETCURSEL,0,0);
+	int idx = SendMessageA(hwndCbObject,CB_GETCURSEL,0,0);
+	int idx2 = SendMessageA(hwndLbObject,LB_GETCURSEL,0,0);
 	if(idx==0) {
 		loadObjects(&objectDlgData_t0[idx2*6]);
 	} else if(idx==1) {
@@ -11231,24 +11232,24 @@ void updateWindowSub_object() {
 }
 void updateWindow_object() {
 	//Remove previous elements
-	int prevSize = SendMessage(hwndLbObject,LB_GETCOUNT,0,0);
+	int prevSize = SendMessageA(hwndLbObject,LB_GETCOUNT,0,0);
 	for(int i=0; i<prevSize; i++) {
-		SendMessage(hwndLbObject,LB_DELETESTRING,0,0);
+		SendMessageA(hwndLbObject,LB_DELETESTRING,0,0);
 	}
 	//Add new elements and select first
-	int idx = SendMessage(hwndCbObject,CB_GETCURSEL,0,0);
+	int idx = SendMessageA(hwndCbObject,CB_GETCURSEL,0,0);
 	if(idx==0) {
-		int arrSize = sizeof(objectDlgNames_t0)/sizeof(LPCTSTR);
+		int arrSize = sizeof(objectDlgNames_t0)/sizeof(LPCSTR);
 		for(int i=0; i<arrSize; i++) {
-			SendMessage(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t0[i]);
+			SendMessageA(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t0[i]);
 		}
 	} else if(idx==1) {
-		int arrSize = sizeof(objectDlgNames_t1)/sizeof(LPCTSTR);
+		int arrSize = sizeof(objectDlgNames_t1)/sizeof(LPCSTR);
 		for(int i=0; i<arrSize; i++) {
-			SendMessage(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t1[i]);
+			SendMessageA(hwndLbObject,LB_ADDSTRING,0,(LPARAM)objectDlgNames_t1[i]);
 		}
 	}
-	SendMessage(hwndLbObject,LB_SETCURSEL,0,0);
+	SendMessageA(hwndLbObject,LB_SETCURSEL,0,0);
 	updateWindowSub_object();
 }
 //Main drawing code
@@ -11265,10 +11266,10 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			hwndCbObject = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndCbObject = CreateWindowA(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,(HMENU)20,hinstMain,NULL);
-			hwndLbObject = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndLbObject = CreateWindowA(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
@@ -11286,17 +11287,17 @@ LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			//Setup font
 			int ppi = GetDeviceCaps(hdcObj,LOGPIXELSY);
 			int height = -ppi/9;
-			HFONT hfont = CreateFont(height,0,0,0,
+			HFONT hfont = CreateFontA(height,0,0,0,
 				FW_NORMAL,FALSE,FALSE,FALSE,
 				DEFAULT_CHARSET,
 				OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
 				DEFAULT_PITCH|FF_SWISS,"MS Shell Dlg");
-			SendMessage(hwndCbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
-			SendMessage(hwndLbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessageA(hwndCbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessageA(hwndLbObject,WM_SETFONT,(WPARAM)hfont,FALSE);
 			//Init combo boxes
-			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Standard Objects");
-			SendMessage(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Extended Objects");
-			SendMessage(hwndCbObject,CB_SETCURSEL,0,0);
+			SendMessageA(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Standard Objects");
+			SendMessageA(hwndCbObject,CB_ADDSTRING,0,(LPARAM)"Extended Objects");
+			SendMessageA(hwndCbObject,CB_SETCURSEL,0,0);
 			//Init control values
 			updateWindow_object();
 			break;

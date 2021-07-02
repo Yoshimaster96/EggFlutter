@@ -43,7 +43,7 @@ void deleteSprites();
 void selectTopSprite(int x,int y);
 void moveSprites(int dx,int dy);
 //Window
-int focusSprite(int x,int y,UINT * cursor,TCHAR * text);
+int focusSprite(int x,int y,UINT * cursor,char * text);
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif

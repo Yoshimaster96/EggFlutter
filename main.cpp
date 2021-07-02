@@ -93,25 +93,35 @@ void saveLevel() {
 ///////////
 //Helper functions for reading/writing hex values
 DWORD getHexVal_dlg(HWND hwnd,int control) {
-	TCHAR dlgStr[256];
-	GetDlgItemText(hwnd,control,dlgStr,256);
+	char dlgStr[256];
+	GetDlgItemTextA(hwnd,control,dlgStr,256);
 	DWORD ret;
-	_sntscanf(dlgStr,sizeof(dlgStr),"%X",&ret);
+	sscanf(dlgStr,"%X",&ret);
 	return ret;
 }
 void setHexVal_dlg(HWND hwnd,int control,DWORD val) {
-	TCHAR dlgStr[256];
-	_sntprintf(dlgStr,sizeof(dlgStr),"%X",val);
-	SetDlgItemText(hwnd,control,dlgStr);
+	char dlgStr[256];
+	snprintf(dlgStr,256,"%X",val);
+	SetDlgItemTextA(hwnd,control,dlgStr);
 }
 void enableItem_dlg(HWND hwnd,int control,BOOL enable) {
 	HWND hwndDlgItem = GetDlgItem(hwnd,control);
 	EnableWindow(hwndDlgItem,enable);
 }
 
+//Helper functions for reading/writing in-game text
+int readGameText(BYTE * data,char * str) {
+	//TODO
+	return 0;
+}
+int writeGameText(BYTE * data,char * str) {
+	//TODO
+	return 0;
+}
+
 //Dialog updaters
 void updateDialog_editEntrances(HWND hwnd) {
-	int tlevIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+	int tlevIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
 	setHexVal_dlg(hwnd,21,romBuf[0x0BF471+(tlevIdx<<2)]);
 	setHexVal_dlg(hwnd,23,romBuf[0x0BF472+(tlevIdx<<2)]);
 	setHexVal_dlg(hwnd,24,romBuf[0x0BF473+(tlevIdx<<2)]);
@@ -121,16 +131,16 @@ void updateDialog_editEntrances2(HWND hwnd) {
 	setHexVal_dlg(hwnd,24,romBuf[0x0BF552+(curLevel<<1)]);
 }
 void updateDialog_editExits(HWND hwnd) {
-	int tscrIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+	int tscrIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
 	tscrIdx <<= 2;
 	if(screenExits[tscrIdx]<=0xE9) {
-		SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)BST_CHECKED,0);
+		SendDlgItemMessageA(hwnd,25,BM_SETCHECK,(WPARAM)BST_CHECKED,0);
 		if(screenExits[tscrIdx]<=0xDD) {
 			setHexVal_dlg(hwnd,21,screenExits[tscrIdx]);
-			SendDlgItemMessage(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx+3],0);
+			SendDlgItemMessageA(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx+3],0);
 		} else {
 			setHexVal_dlg(hwnd,21,screenExits[tscrIdx+3]);
-			SendDlgItemMessage(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx]-0xD3,0);
+			SendDlgItemMessageA(hwnd,22,CB_SETCURSEL,screenExits[tscrIdx]-0xD3,0);
 		}
 		setHexVal_dlg(hwnd,23,screenExits[tscrIdx+1]);
 		setHexVal_dlg(hwnd,24,screenExits[tscrIdx+2]);
@@ -139,11 +149,11 @@ void updateDialog_editExits(HWND hwnd) {
 		enableItem_dlg(hwnd,23,TRUE);
 		enableItem_dlg(hwnd,24,TRUE);
 	} else {
-		SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)BST_UNCHECKED,0);
-		SetDlgItemText(hwnd,21,"");
-		SendDlgItemMessage(hwnd,22,CB_SETCURSEL,0,0);
-		SetDlgItemText(hwnd,23,"");
-		SetDlgItemText(hwnd,24,"");
+		SendDlgItemMessageA(hwnd,25,BM_SETCHECK,(WPARAM)BST_UNCHECKED,0);
+		SetDlgItemTextA(hwnd,21,"");
+		SendDlgItemMessageA(hwnd,22,CB_SETCURSEL,0,0);
+		SetDlgItemTextA(hwnd,23,"");
+		SetDlgItemTextA(hwnd,24,"");
 		enableItem_dlg(hwnd,21,FALSE);
 		enableItem_dlg(hwnd,22,FALSE);
 		enableItem_dlg(hwnd,23,FALSE);
@@ -151,7 +161,36 @@ void updateDialog_editExits(HWND hwnd) {
 	}
 }
 void updateDialog_editHeader(HWND hwnd) {
-	//TODO
+	int bgCol = levelHeader[0]>>3;
+	int bg1Ts = ((levelHeader[0]&7)<<1)|(levelHeader[1]>>7);
+	int bg1Pal = (levelHeader[1]&0x7C)>>2;
+	int bg2Ts = ((levelHeader[1]&3)<<3)|(levelHeader[2]>>5);
+	int bg2Pal = ((levelHeader[2]&0x1F)<<1)|(levelHeader[3]>>7);
+	int bg3Ts = (levelHeader[3]&0x7E)>>1;
+	int bg3Pal = ((levelHeader[3]&1)<<5)|(levelHeader[4]>>3);
+	int spTs = ((levelHeader[4]&7)<<4)|(levelHeader[5]>>4);
+	int spPal = levelHeader[5]&0xF;
+	int animTs = ((levelHeader[6]&7)<<3)|(levelHeader[7]>>5);
+	int animPal = levelHeader[7]&0x1F;
+	int levMode = levelHeader[6]>>3;
+	int bgScrl = levelHeader[8]>>3;
+	int music = ((levelHeader[8]&7)<<1)|(levelHeader[9]>>7);
+	int itemMem = (levelHeader[9]&0x60)>>5;
+	SendDlgItemMessageA(hwnd,20,CB_SETCURSEL,bgCol,0);
+	SendDlgItemMessageA(hwnd,40,CB_SETCURSEL,bg1Ts,0);
+	SendDlgItemMessageA(hwnd,41,CB_SETCURSEL,bg1Pal,0);
+	SendDlgItemMessageA(hwnd,42,CB_SETCURSEL,bg2Ts,0);
+	SendDlgItemMessageA(hwnd,43,CB_SETCURSEL,bg2Pal,0);
+	SendDlgItemMessageA(hwnd,44,CB_SETCURSEL,bg3Ts,0);
+	SendDlgItemMessageA(hwnd,45,CB_SETCURSEL,bg3Pal,0);
+	SendDlgItemMessageA(hwnd,46,CB_SETCURSEL,spTs,0);
+	SendDlgItemMessageA(hwnd,47,CB_SETCURSEL,spPal,0);
+	SendDlgItemMessageA(hwnd,48,CB_SETCURSEL,animTs,0);
+	SendDlgItemMessageA(hwnd,49,CB_SETCURSEL,animPal,0);
+	SendDlgItemMessageA(hwnd,21,CB_SETCURSEL,levMode,0);
+	SendDlgItemMessageA(hwnd,22,CB_SETCURSEL,bgScrl,0);
+	SendDlgItemMessageA(hwnd,23,CB_SETCURSEL,music,0);
+	SendDlgItemMessageA(hwnd,24,CB_SETCURSEL,itemMem,0);
 }
 void updateDialog_editLevNames(HWND hwnd) {
 	//TODO
@@ -161,7 +200,7 @@ void updateDialog_editLevMessages(HWND hwnd) {
 }
 
 //Dialog functions
-LPCTSTR worldLevelStrings[56] = {
+LPCSTR worldLevelStrings[56] = {
 "1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E",
 "2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E",
 "3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E",
@@ -169,7 +208,7 @@ LPCTSTR worldLevelStrings[56] = {
 "5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E",
 "6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E",
 "Intro","Tutorial"};
-LPCTSTR actionMinigameStrings[23] = {
+LPCSTR actionMinigameStrings[23] = {
 "Action 00: Do Nothing",
 "Action 01: Skiing",
 "Action 02: Horizontal Pipe Exit Right",
@@ -184,23 +223,188 @@ LPCTSTR actionMinigameStrings[23] = {
 "Mini 00: Throw Balloons (4 Buttons)",
 "Mini 01: Throw Balloons (5 Buttons)",
 "Mini 02: Throw Balloons (6 Buttons)",
-"Mini 03: Unused (Gather Coins Variant?)",
+"Mini 03: Unused",
 "Mini 04: Gather Coins",
 "Mini 05: Pop Balloons (Static Platforms)",
 "Mini 06: Pop Balloons (Moving Platforms)",
-"Mini 07: Unused (Bomb Minigame)",
-"Mini 08: Unused (Train Minigame)",
+"Mini 07: Unused",
+"Mini 08: Unused",
 "Mini 09: Seed Spitting",
 "Mini 0A: Seed Spitting 2P",
 "Mini 0B: Throw Balloons 2P (4 Buttons)"};
+LPCSTR headerBg1TilesetStrings[16] = {
+"00: Cave 1",
+"01: Forest 1",
+"02: Pond",
+"03: 3D Stone",
+"04: Snow",
+"05: Jungle",
+"06: Castle 1",
+"07: Grass 1",
+"08: Cave 2",
+"09: Forest 2",
+"0A: Castle 2",
+"0B: Sewer",
+"0C: Flower Garden",
+"0D: Sky",
+"0E: Castle 3",
+"0F: Grass 2"};
+LPCSTR headerBg2TilesetStrings[32] = {
+"00: Cave Waterfall",
+"01: Woods",
+"02: Pond",
+"03: 3D Stone & Lava",
+"04: Forest & Mountains",
+"05: Forest",
+"06: Castle Waterfalls & Candles",
+"07: Tropical Mountains",
+"08: Forest",
+"09: Jungle Mountains",
+"0A: Waterfall",
+"0B: Distant Ground",
+"0C: Boggy Woods",
+"0D: Night Sky",
+"0E: Grass",
+"0F: Volcano",
+"10: Jungle Mountains",
+"11: Unused",
+"12: Ocean",
+"13: Cave Crystals",
+"14: Castle Cobwebs",
+"15: Sky Mountains",
+"16: BG2 HDMA sprites",
+"17: Unused",
+"18: Eerie Cave Forest",
+"19: Castle Stones",
+"1A: Sky Mountains",
+"1B: Nothing",
+"1C: Smiley Mountains",
+"1D: Round Mountains",
+"1E: Forest",
+"1F: Baby Bowser's Room"};
+LPCSTR headerBg3TilesetStrings[64] = {
+"00: Nothing",
+"01: Pond Water",
+"02: BG3 HDMA sprites 1",
+"03: Clouds",
+"04: Clouds",
+"05: BG3 HDMA sprites 2",
+"06: BG3 HDMA sprites 3",
+"07: BG3 HDMA sprites 4",
+"08: Unused",
+"09: Unused",
+"0A: Cross Section",
+"0B: Unused",
+"0C: Shine",
+"0D: Clouds & Mountains",
+"0E: Boggy Woods",
+"0F: Sky & Mountains",
+"10: Sky Clouds",
+"11: Hookbill Koopa's room fog",
+"12: Night Sky & Raphael Raven's Moon",
+"13: Water Tide",
+"14: Jungle",
+"15: Cave Crystals",
+"16: Shark Chomp",
+"17: Rocks",
+"18: Castle Torches",
+"19: Snowstorm",
+"1A: Goonies",
+"1B: Flower Garden",
+"1C: Spotlight",
+"1D: Water Tide",
+"1E: Moon, Clouds & Mountains",
+"1F: Kamek's magic shower",
+"20: Bush & Palms",
+"21: Prince Froggy's throat",
+"22: Clouds & Mist",
+"23: Sun",
+"24: Starry Night",
+"25: Boss Room",
+"26: Boss pop effect",
+"27: Forest",
+"28: White Stars",
+"29: Clouds",
+"2A: Giant Moon",
+"2B: Clouds",
+"2C: Mist",
+"2D: Mist",
+"2E: Clouds",
+"2F: Sky Clouds",
+"30: Unused",
+"31: Unused",
+"32: Unused",
+"33: Unused",
+"34: Unused",
+"35: Unused",
+"36: Unused",
+"37: Unused",
+"38: Unused",
+"39: Unused",
+"3A: Unused",
+"3B: Unused",
+"3C: Unused",
+"3D: Unused",
+"3E: Unused",
+"3F: Unused"};
+LPCSTR headerAnimTilesetStrings[32] = {
+"00: Common",
+"01: BG3 Pond Water",
+"02: BG2 Clouds",
+"03: BG3 Smiley Clouds",
+"04: Nothing",
+"05: BG3 Water Tide",
+"06: BG3 Castle Torches & Clouds",
+"07: BG1 Castle Lava",
+"08: BG1 Icy Water",
+"09: BG3 Snowstorm",
+"0A: BG3 Goonies",
+"0B: BG2 Clouds, BG3 Butterflies",
+"0C: BG1 Water",
+"0D: BG1 Castle Lava, BG3 Castle Torches & Clouds",
+"0E: BG1 Water, BG3 Castle Torches & Clouds",
+"0F: BG3 Clouds",
+"10: Unused",
+"11: BG1 Water, BG3 Smiley Clouds",
+"12: Unused",
+"13: Unused",
+"14: Unused",
+"15: Unused",
+"16: Unused",
+"17: Unused",
+"18: Unused",
+"19: Unused",
+"1A: Unused",
+"1B: Unused",
+"1C: Unused",
+"1D: Unused",
+"1E: Unused",
+"1F: Unused"};
+LPCSTR headerMusicStrings[16] = {
+"00: Flower Garden",
+"01: Jungle",
+"02: Castle/Fortress",
+"03: Before Boss Room",
+"04: Underground",
+"05: Kamek's Theme, Mini Boss",
+"06: Bonus Game",
+"07: Before Boss Room",
+"08: Kamek's Theme, Big Boss",
+"09: Big Boss",
+"0A: Athletic",
+"0B: Super Baby Mario",
+"0C: Nothing",
+"0D: Before Boss Room",
+"0E: Unused",
+"0F: Unused"};
 
 INT_PTR DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Limit to 2 characters
-			SendDlgItemMessage(hwnd,20,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,20,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			setHexVal_dlg(hwnd,20,curLevel);
 			return TRUE;
@@ -214,7 +418,7 @@ INT_PTR DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			switch(LOWORD(wParam)) {
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
@@ -225,7 +429,7 @@ INT_PTR DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						EndDialog(hwnd,1);
 					} else {
 						//Have WM_CLOSE handle this
-						SendMessage(hwnd,WM_CLOSE,0,0);
+						SendMessageA(hwnd,WM_CLOSE,0,0);
 					}
 					break;
 				}
@@ -239,16 +443,16 @@ INT_PTR DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
 			for(int i=0; i<56; i++) {
-				SendDlgItemMessage(hwnd,20,CB_ADDSTRING,0,(LPARAM)worldLevelStrings[i]);
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)worldLevelStrings[i]);
 			}
-			SendDlgItemMessage(hwnd,20,CB_SETCURSEL,0,0);
+			SendDlgItemMessageA(hwnd,20,CB_SETCURSEL,0,0);
 			//Limit to 2 characters
-			SendDlgItemMessage(hwnd,21,EM_SETLIMITTEXT,2,0);
-			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
-			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,21,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,24,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			updateDialog_editEntrances(hwnd);
 			return TRUE;
@@ -268,11 +472,11 @@ INT_PTR DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
-					int tlevIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+					int tlevIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
 					BYTE lev = getHexVal_dlg(hwnd,21);
 					BYTE xpos = getHexVal_dlg(hwnd,23);
 					BYTE ypos = getHexVal_dlg(hwnd,24);
@@ -284,7 +488,7 @@ INT_PTR DlgProc_dEditEntrances(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						EndDialog(hwnd,1);
 					} else {
 						//Have WM_CLOSE handle this
-						SendMessage(hwnd,WM_CLOSE,0,0);
+						SendMessageA(hwnd,WM_CLOSE,0,0);
 					}
 					break;
 				}
@@ -298,10 +502,10 @@ INT_PTR DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Limit to 2 characters
-			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
-			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,24,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			updateDialog_editEntrances2(hwnd);
 			return TRUE;
@@ -315,7 +519,7 @@ INT_PTR DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			switch(LOWORD(wParam)) {
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
@@ -328,7 +532,7 @@ INT_PTR DlgProc_dEditEntrances2(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 						EndDialog(hwnd,1);
 					} else {
 						//Have WM_CLOSE handle this
-						SendMessage(hwnd,WM_CLOSE,0,0);
+						SendMessageA(hwnd,WM_CLOSE,0,0);
 					}
 					break;
 				}
@@ -342,21 +546,21 @@ INT_PTR DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
-			TCHAR dlgStr[256];
+			char dlgStr[256];
 			for(int i=0; i<128; i++) {
-				_sntprintf(dlgStr,sizeof(dlgStr),"%02X",i);
-				SendDlgItemMessage(hwnd,20,CB_ADDSTRING,0,(LPARAM)dlgStr);
+				snprintf(dlgStr,256,"%02X",i);
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)dlgStr);
 			}
-			SendDlgItemMessage(hwnd,20,CB_SETCURSEL,0,0);
+			SendDlgItemMessageA(hwnd,20,CB_SETCURSEL,0,0);
 			for(int i=0; i<23; i++) {
-				SendDlgItemMessage(hwnd,22,CB_ADDSTRING,0,(LPARAM)actionMinigameStrings[i]);
+				SendDlgItemMessageA(hwnd,22,CB_ADDSTRING,0,(LPARAM)actionMinigameStrings[i]);
 			}
 			//Limit to 2 characters
-			SendDlgItemMessage(hwnd,21,EM_SETLIMITTEXT,2,0);
-			SendDlgItemMessage(hwnd,23,EM_SETLIMITTEXT,2,0);
-			SendDlgItemMessage(hwnd,24,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,21,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,23,EM_SETLIMITTEXT,2,0);
+			SendDlgItemMessageA(hwnd,24,EM_SETLIMITTEXT,2,0);
 			//Init control values
 			updateDialog_editExits(hwnd);
 			return TRUE;
@@ -376,9 +580,9 @@ INT_PTR DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				}
 				case 25: {
 					if(HIWORD(wParam)==BN_CLICKED) {
-						bool enabled = SendDlgItemMessage(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
+						bool enabled = SendDlgItemMessageA(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
 						enabled = !enabled;
-						SendDlgItemMessage(hwnd,25,BM_SETCHECK,(WPARAM)(enabled?BST_CHECKED:BST_UNCHECKED),0);
+						SendDlgItemMessageA(hwnd,25,BM_SETCHECK,(WPARAM)(enabled?BST_CHECKED:BST_UNCHECKED),0);
 						enableItem_dlg(hwnd,21,enabled);
 						enableItem_dlg(hwnd,22,enabled);
 						enableItem_dlg(hwnd,23,enabled);
@@ -388,19 +592,19 @@ INT_PTR DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
-					int tscrIdx = SendDlgItemMessage(hwnd,20,CB_GETCURSEL,0,0);
+					int tscrIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
 					tscrIdx <<= 2;
-					bool enabled = SendDlgItemMessage(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
+					bool enabled = SendDlgItemMessageA(hwnd,25,BM_GETCHECK,0,0)==BST_CHECKED;
 					BYTE lev = getHexVal_dlg(hwnd,21);
-					int amIdx = SendDlgItemMessage(hwnd,22,CB_GETCURSEL,0,0);
+					int amIdx = SendDlgItemMessageA(hwnd,22,CB_GETCURSEL,0,0);
 					BYTE xpos = getHexVal_dlg(hwnd,23);
 					BYTE ypos = getHexVal_dlg(hwnd,24);
 					if(lev<=0xDD && ypos<=0x7F) {
-						//Set screen exit entrance info and exit with code 1 (entrances changed)
+						//Set screen exit info and exit with code 1 (exits changed)
 						if(enabled) {
 							if(amIdx<=10) {
 								screenExits[tscrIdx] = lev;
@@ -420,7 +624,7 @@ INT_PTR DlgProc_dEditExits(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 						EndDialog(hwnd,1);
 					} else {
 						//Have WM_CLOSE handle this
-						SendMessage(hwnd,WM_CLOSE,0,0);
+						SendMessageA(hwnd,WM_CLOSE,0,0);
 					}
 					break;
 				}
@@ -434,9 +638,58 @@ INT_PTR DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
-			//TODO
+			char dlgStr[256];
+			for(int i=0; i<16; i++) {
+				snprintf(dlgStr,256,"Color %02X",i);
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<16; i++) {
+				snprintf(dlgStr,256,"Gradient %02X",i);
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<16; i++) {
+				SendDlgItemMessageA(hwnd,40,CB_ADDSTRING,0,(LPARAM)headerBg1TilesetStrings[i]);
+			}
+			for(int i=0; i<32; i++) {
+				snprintf(dlgStr,256,"%02X",i);
+				SendDlgItemMessageA(hwnd,41,CB_ADDSTRING,0,(LPARAM)dlgStr);
+				SendDlgItemMessageA(hwnd,49,CB_ADDSTRING,0,(LPARAM)dlgStr);
+				SendDlgItemMessageA(hwnd,21,CB_ADDSTRING,0,(LPARAM)dlgStr);
+				SendDlgItemMessageA(hwnd,22,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<32; i++) {
+				SendDlgItemMessageA(hwnd,42,CB_ADDSTRING,0,(LPARAM)headerBg2TilesetStrings[i]);
+			}
+			for(int i=0; i<64; i++) {
+				snprintf(dlgStr,256,"%02X",i);
+				SendDlgItemMessageA(hwnd,43,CB_ADDSTRING,0,(LPARAM)dlgStr);
+				SendDlgItemMessageA(hwnd,45,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<64; i++) {
+				SendDlgItemMessageA(hwnd,44,CB_ADDSTRING,0,(LPARAM)headerBg3TilesetStrings[i]);
+			}
+			for(int i=0; i<128; i++) {
+				snprintf(dlgStr,256,"%02X: %02X,%02X,%02X,%02X,%02X,%02X",i,
+					romBuf[0x003039+(i*6)],romBuf[0x00303A+(i*6)],romBuf[0x00303B+(i*6)],
+					romBuf[0x00303C+(i*6)],romBuf[0x00303D+(i*6)],romBuf[0x00303E +(i*6)]);
+				SendDlgItemMessageA(hwnd,46,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<16; i++) {
+				snprintf(dlgStr,256,"%02X",i);
+				SendDlgItemMessageA(hwnd,47,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			for(int i=0; i<32; i++) {
+				SendDlgItemMessageA(hwnd,48,CB_ADDSTRING,0,(LPARAM)headerAnimTilesetStrings[i]);
+			}
+			for(int i=0; i<16; i++) {
+				SendDlgItemMessageA(hwnd,23,CB_ADDSTRING,0,(LPARAM)headerMusicStrings[i]);
+			}
+			for(int i=0; i<4; i++) {
+				snprintf(dlgStr,256,"%d",i);
+				SendDlgItemMessageA(hwnd,24,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
 			//Init control values
 			updateDialog_editHeader(hwnd);
 			return TRUE;
@@ -450,11 +703,37 @@ INT_PTR DlgProc_dEditHeader(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			switch(LOWORD(wParam)) {
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
-					//TODO
+					//Set level header info and exit with code 1 (header changed)
+					int bgCol = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
+					int bg1Ts = SendDlgItemMessageA(hwnd,40,CB_GETCURSEL,0,0);
+					int bg1Pal = SendDlgItemMessageA(hwnd,41,CB_GETCURSEL,0,0);
+					int bg2Ts = SendDlgItemMessageA(hwnd,42,CB_GETCURSEL,0,0);
+					int bg2Pal = SendDlgItemMessageA(hwnd,43,CB_GETCURSEL,0,0);
+					int bg3Ts = SendDlgItemMessageA(hwnd,44,CB_GETCURSEL,0,0);
+					int bg3Pal = SendDlgItemMessageA(hwnd,45,CB_GETCURSEL,0,0);
+					int spTs = SendDlgItemMessageA(hwnd,46,CB_GETCURSEL,0,0);
+					int spPal = SendDlgItemMessageA(hwnd,47,CB_GETCURSEL,0,0);
+					int animTs = SendDlgItemMessageA(hwnd,48,CB_GETCURSEL,0,0);
+					int animPal = SendDlgItemMessageA(hwnd,49,CB_GETCURSEL,0,0);
+					int levMode = SendDlgItemMessageA(hwnd,21,CB_GETCURSEL,0,0);
+					int bgScrl = SendDlgItemMessageA(hwnd,22,CB_GETCURSEL,0,0);
+					int music = SendDlgItemMessageA(hwnd,23,CB_GETCURSEL,0,0);
+					int itemMem = SendDlgItemMessageA(hwnd,24,CB_GETCURSEL,0,0);
+					levelHeader[0] = (bgCol<<3)|(bg1Ts>>1);
+					levelHeader[1] = (bg1Ts<<7)|(bg1Pal<<2)|(bg2Ts>>3);
+					levelHeader[2] = (bg2Ts<<5)|(bg2Pal>>1);
+					levelHeader[3] = (bg2Pal<<7)|(bg3Ts<<1)|(bg3Pal>>5);
+					levelHeader[4] = (bg3Pal<<3)|(spTs>>4);
+					levelHeader[5] = (spTs<<4)|spPal;
+					levelHeader[6] = (levMode<<3)|(animTs>>3);
+					levelHeader[7] = (animTs<<5)|animPal;
+					levelHeader[8] = (bgScrl<<3)|(music>>1);
+					levelHeader[9] = (music<<7)|(itemMem<<5);
+					EndDialog(hwnd,1);
 					break;
 				}
 			}
@@ -467,7 +746,7 @@ INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
 			//TODO
 			//Init control values
@@ -483,7 +762,7 @@ INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			switch(LOWORD(wParam)) {
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
@@ -500,7 +779,7 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 	switch(msg) {
 		case WM_INITDIALOG: {
 			//Add icon
-			SendMessage(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
+			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
 			//TODO
 			//Init control values
@@ -516,7 +795,7 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			switch(LOWORD(wParam)) {
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
-					SendMessage(hwnd,WM_CLOSE,0,0);
+					SendMessageA(hwnd,WM_CLOSE,0,0);
 					break;
 				}
 				case IDOK: {
@@ -534,7 +813,7 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 //MENU STUFF//
 //////////////
 bool hasSmcHeader;
-TCHAR romFilename[256];
+char romFilename[256];
 HWND hwndMain,hwndTooltip;
 HMENU hmenuMain;
 
@@ -605,10 +884,10 @@ void updateMenu() {
 	CheckMenuItem(hmenuMain,1222,vSwB?MF_CHECKED:0);
 }
 inline BOOL prompt(LPCSTR title,LPCSTR msg) {
-	return (MessageBox(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
+	return (MessageBoxA(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
 }
 inline BOOL promptSave() {
-	return (MessageBox(hwndMain,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
+	return (MessageBoxA(hwndMain,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
 }
 inline void updateEntireScreen() {
 	RECT rect = {xCurScroll,yCurScroll,xCurScroll+xCurSize,yCurScroll+yCurSize};
@@ -654,21 +933,21 @@ void onOpen() {
 	if(isRomOpen && !isRomSaved) {
 		if(!promptSave()) return;
 	}
-	OPENFILENAME ofn;
-	memset(&ofn,0,sizeof(OPENFILENAME));
+	OPENFILENAMEA ofn;
+	memset(&ofn,0,sizeof(OPENFILENAMEA));
 	memset(romFilename,0,sizeof(romFilename));
-	ofn.lStructSize	 = sizeof(OPENFILENAME);
+	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner	 = hwndMain;
 	ofn.lpstrFile	 = romFilename;
 	ofn.nMaxFile	 = sizeof(romFilename);
 	ofn.lpstrTitle	 = "Open ROM";
 	ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
 	ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
-	if(GetOpenFileName(&ofn)) {
+	if(GetOpenFileNameA(&ofn)) {
 		hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 		//Load ROM
 		memset(romBuf,0,0x800000);
-		FILE * fp = _tfopen(romFilename,"rb");
+		FILE * fp = fopen(romFilename,"rb");
 		fseek(fp,0,SEEK_END);
 		long fileSize = ftell(fp);
 		fseek(fp,(fileSize&0x200)?0x200:0,SEEK_SET);
@@ -715,7 +994,7 @@ void onSave() {
 		//Save level
 		saveLevel();
 		//Save ROM
-		FILE * fp = _tfopen(romFilename,"wb");
+		FILE * fp = fopen(romFilename,"wb");
 		if(hasSmcHeader) {
 			for(int i=0; i<0x200; i++) {
 				putc(0,fp);
@@ -728,21 +1007,21 @@ void onSave() {
 }
 void onSaveAs() {
 	if(isRomOpen) {
-		OPENFILENAME ofn;
-		memset(&ofn,0,sizeof(OPENFILENAME));
+		OPENFILENAMEA ofn;
+		memset(&ofn,0,sizeof(OPENFILENAMEA));
 		memset(romFilename,0,sizeof(romFilename));
-		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 		ofn.hwndOwner	 = hwndMain;
 		ofn.lpstrFile	 = romFilename;
 		ofn.nMaxFile	 = sizeof(romFilename);
 		ofn.lpstrTitle	 = "Save ROM";
 		ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
-		if(GetSaveFileName(&ofn)) {
+		if(GetSaveFileNameA(&ofn)) {
 			hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 			//Save level
 			saveLevel();
 			//Save ROM
-			FILE * fp = _tfopen(romFilename,"wb");
+			FILE * fp = fopen(romFilename,"wb");
 			if(hasSmcHeader) {
 				for(int i=0; i<0x200; i++) {
 					putc(0,fp);
@@ -756,7 +1035,7 @@ void onSaveAs() {
 }
 void onQuit() {
 	//Have WM_CLOSE handle this
-	SendMessage(hwndMain,WM_CLOSE,0,0);
+	SendMessageA(hwndMain,WM_CLOSE,0,0);
 }
 void onImportLevel() {
 	//Prompt save
@@ -764,35 +1043,35 @@ void onImportLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		OPENFILENAME ofn;
-		TCHAR lfStr[256];
-		memset(&ofn,0,sizeof(OPENFILENAME));
-		memset(lfStr,0,sizeof(lfStr));
-		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		OPENFILENAMEA ofn;
+		char lfStr[256];
+		memset(&ofn,0,sizeof(OPENFILENAMEA));
+		memset(lfStr,0,256);
+		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 		ofn.hwndOwner	 = hwndMain;
 		ofn.lpstrFile	 = lfStr;
-		ofn.nMaxFile	 = sizeof(lfStr);
+		ofn.nMaxFile	 = 256;
 		ofn.lpstrTitle	 = "Open Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
-		if(GetOpenFileName(&ofn)) {
+		if(GetOpenFileNameA(&ofn)) {
 			//TODO
 		}
 	}
 }
 void onExportLevel() {
 	if(isRomOpen) {
-		OPENFILENAME ofn;
-		TCHAR lfStr[256];
-		memset(&ofn,0,sizeof(OPENFILENAME));
-		memset(lfStr,0,sizeof(lfStr));
-		ofn.lStructSize	 = sizeof(OPENFILENAME);
+		OPENFILENAMEA ofn;
+		char lfStr[256];
+		memset(&ofn,0,sizeof(OPENFILENAMEA));
+		memset(lfStr,0,256);
+		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 		ofn.hwndOwner	 = hwndMain;
 		ofn.lpstrFile	 = lfStr;
-		ofn.nMaxFile	 = sizeof(lfStr);
+		ofn.nMaxFile	 = 256;
 		ofn.lpstrTitle	 = "Save Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
-		if(GetSaveFileName(&ofn)) {
+		if(GetSaveFileNameA(&ofn)) {
 			//TODO
 		}
 	}
@@ -803,7 +1082,7 @@ void onOpenLevel() {
 		if(!isRomSaved) {
 			if(!promptSave()) return;
 		}
-		if(DialogBox(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
+		if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
 			isRomSaved = true;
 			loadLevel();
 			updateDialogs();
@@ -921,35 +1200,43 @@ void onViewSwB() {
 }
 //Tools
 void onChgEnt() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,(DLGPROC)DlgProc_dEditEntrances) && vEnt) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,(DLGPROC)DlgProc_dEditEntrances) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgEnt2() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,(DLGPROC)DlgProc_dEditEntrances2) && vEnt) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,(DLGPROC)DlgProc_dEditEntrances2) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgExit() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,(DLGPROC)DlgProc_dEditExits) && vExit) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,(DLGPROC)DlgProc_dEditExits) && vExit) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgHead() {
-	if(DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,(DLGPROC)DlgProc_dEditHeader)) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,(DLGPROC)DlgProc_dEditHeader)) {
 		isRomSaved = false;
+		initOtherObjectBuffers();
+		initOtherSpriteBuffers();
+		drawObjects();
+		drawSprites();
+		loadMap8();
+		loadMap16();
+		loadPalette();
+		loadBackground();
 		updateDialogs();
 		updateEntireScreen();
 	}
 }
 void onChgLevName() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,(DLGPROC)DlgProc_dEditLevNames);
+	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,(DLGPROC)DlgProc_dEditLevNames);
 }
 void onChgLevMsg() {
-	DialogBox(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,(DLGPROC)DlgProc_dEditLevMessages);
+	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,(DLGPROC)DlgProc_dEditLevMessages);
 }
 //Window
 void onSelObj() {
@@ -1028,12 +1315,78 @@ bool dragFlag = false;
 int selOp = 4;
 POINT selpCur,selpPrev = {0,0};
 
+//Helper function for drawing Yoshi sprite
+WORD yoshiSpriteTileData[66] = {
+	0x614C,0x614D,0x613D,0x4328,0x4329,0x63D5,
+	0x6504,0x6524,0x6506,0x6526,0xFFFF,0xFFFF,
+	0x413F,0x404F,0x614C,0x614D,0x613D,0x6390,
+	0x013F,0x004F,0x214C,0x214D,0x213D,0x2390,
+	0x6357,0x4068,0x23DB,0x23DC,0x0068,0xFFFF,
+	0x6357,0x4068,0x23DB,0x23DC,0x0068,0xFFFF,
+	0x413F,0x404F,0x614C,0x614D,0x613D,0x6390,
+	0x013F,0x004F,0x214C,0x214D,0x213D,0x2390,
+	0x400F,0x6396,0x613D,0x614D,0x614C,0x400F,
+	0xE114,0xE104,0xE103,0x6390,0x405F,0x405F,
+	0x400C,0x413F,0x6174,0x6173,0x6164,0x63B6};
+int yoshiSpriteOffsXData[66] = {
+	 11,  3,  3,  9,  1,  0,
+	  8,  8, -8, -8,  0,  0,
+	  9, -1, 12,  4,  4,  0,
+	 -1,  9,-12, -4, -4,  0,
+	  0,  9, -4,  4,  0,  0,
+	  0,  9, -4,  4,  0,  0,
+	  9, -1, 12,  4,  4,  0,
+	 -1,  9,-12, -4, -4,  0,
+	  8,  0,  1,  1,  9, 13,
+	  3,  3, 11,  0, -2,  3,
+	  4, 15,  3, 11,  3,  0};
+int yoshiSpriteOffsYData[66] = {
+	  2,  2, -6, 24, 24, 16,
+	  4, 20,  4, 20,  0,  0,
+	 24, 24,  2,  2, -6, 15,
+	 24, 24,  2,  2, -6, 15,
+	  4, 22, 14, 14, 24,  0,
+	  4, 22, 14, 14, 24,  0,
+	 24, 24,  2,  2, -6, 15,
+	 24, 24,  2,  2, -6, 15,
+	 21, 12, -6,  2,  2, 21,
+	 -7,  1,  1, 15, 26, 26,
+	 18, 18,  2,  2, -6, 14};
+void dispYoshiSprite(int action,int x,int y) {
+	for(int n=5; n>=0; n--) {
+		int tp = yoshiSpriteTileData[(action*6)+n];
+		if(tp==0xFFFF) continue;
+		int tile = (tp&0x07FF)|0x2000;
+		int props = ((tp&0xC000)>>8)|((tp&0x2000)>>13)|(0xD<<2);
+		int xpos = x+yoshiSpriteOffsXData[(action*6)+n];
+		int ypos = y+yoshiSpriteOffsYData[(action*6)+n];
+		dispMap8Tile(bmpDataMain,0x1000,0x800,props,tile,{xpos,ypos},false);
+	}
+}
+
 //Extra UI drawing stuff
 void dispEntrances(RECT rect) {
+	char strBuf[256];
 	//Draw main entrances
-	//TODO
-	//Draw midway entrances
-	//TODO
+	for(int i=0; i<56; i++) {
+		if(romBuf[0x0BF471+(i<<2)]==curLevel) {
+			int xpos = romBuf[0x0BF472+(i<<2)]<<4;
+			int ypos = romBuf[0x0BF473+(i<<2)]<<4;
+			dispYoshiSprite(0,xpos,ypos);
+			snprintf(strBuf,256,"Main Entrance to %s",worldLevelStrings[i]);
+			for(int n=0; n<strlen(strBuf); n++) {
+				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},false);
+			}
+		}
+	}
+	//Draw midway entrance
+	int xpos = romBuf[0x0BF551+(curLevel<<1)]<<4;
+	int ypos = romBuf[0x0BF552+(curLevel<<1)]<<4;
+	dispYoshiSprite(0,xpos,ypos);
+	snprintf(strBuf,256,"Midway Entrance to Level %02X",curLevel);
+	for(int n=0; n<strlen(strBuf); n++) {
+		dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},false);
+	}
 }
 void dispExits(RECT rect) {
 	int minx = std::max((int)(rect.left&0x7F00),0);
@@ -1055,7 +1408,7 @@ void dispExits(RECT rect) {
 			}
 			//Highlight screens which have exits, and draw screen exit info text
 			int screen = (i>>8)|(j>>4);
-			CHAR strBuf[256];
+			char strBuf[256];
 			int screenDest = screenExits[screen<<2];
 			if(screenDest<0xE9) {
 				for(int l=0x02; l<0xFE; l++) {
@@ -1171,22 +1524,22 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Setup tooltip
-			hwndTooltip = CreateWindow(TOOLTIPS_CLASS,NULL,TTS_NOPREFIX|TTS_ALWAYSTIP,
+			hwndTooltip = CreateWindowA(TOOLTIPS_CLASS,NULL,TTS_NOPREFIX|TTS_ALWAYSTIP,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				hwnd,NULL,hinstMain,NULL);
-			TOOLINFO ti;
-			memset(&ti,0,sizeof(TOOLINFO));
-			ti.cbSize		= sizeof(TOOLINFO);
+			TOOLINFOA ti;
+			memset(&ti,0,sizeof(TOOLINFOA));
+			ti.cbSize		= sizeof(TOOLINFOA);
 			ti.uFlags		= TTF_SUBCLASS;
 			ti.hwnd			= hwnd;
 			ti.uId			= 600;
 			ti.rect			= {0,0,640,480};
 			ti.hinst		= hinstMain;
-			SendMessage(hwndTooltip,TTM_SETMAXTIPWIDTH,0,320);
-			SendMessage(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&ti);
+			SendMessageA(hwndTooltip,TTM_SETMAXTIPWIDTH,0,320);
+			SendMessageA(hwndTooltip,TTM_ADDTOOL,0,(LPARAM)&ti);
 			//Create objects
 			hdcMain = GetDC(hwnd);
 			BITMAPINFO bmi;
@@ -1409,17 +1762,17 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				GetClientRect(hwnd,&clRect);
 				if(mouseX==0) {
 					selpCur.x = std::max((long)0,selpCur.x-0x10);
-					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINELEFT,0),0);
+					SendMessageA(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINELEFT,0),0);
 				} else if(mouseX==(clRect.right-1)) {
 					selpCur.x = std::max((long)0xFFFF,selpCur.x+0x10);
-					SendMessage(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINERIGHT,0),0);
+					SendMessageA(hwnd,WM_HSCROLL,MAKEWPARAM(SB_LINERIGHT,0),0);
 				}
 				if(mouseY==0) {
 					selpCur.y = std::max((long)0,selpCur.y-0x10);
-					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEUP,0),0);
+					SendMessageA(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEUP,0),0);
 				} else if(mouseY==(clRect.bottom-1)) {
 					selpCur.y = std::max((long)0x7FFF,selpCur.y+0x10);
-					SendMessage(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEDOWN,0),0);
+					SendMessageA(hwnd,WM_VSCROLL,MAKEWPARAM(SB_LINEDOWN,0),0);
 				}
 				//Handle selection modes
 				if(selOp==4) {
@@ -1458,26 +1811,26 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
 				UINT cursor = 0x7F00; //IDC_ARROW
-				TCHAR tipText[256] = "";
+				char tipText[256] = "";
 				if(eObj) {
 					selOp = focusObject(levX,levY,&cursor,tipText);
 				} else if(eSp) {
 					selOp = focusSprite(levX,levY,&cursor,tipText);
 				}
-				SetCursor(LoadCursor(NULL,(LPCTSTR)cursor));
+				SetCursor(LoadCursorA(NULL,(LPCSTR)cursor));
 				//Setup tooltip for top object/sprite
-				TOOLINFO ti;
-				memset(&ti,0,sizeof(TOOLINFO));
-				ti.cbSize		= sizeof(TOOLINFO);
+				TOOLINFOA ti;
+				memset(&ti,0,sizeof(TOOLINFOA));
+				ti.cbSize		= sizeof(TOOLINFOA);
 				ti.uFlags		= TTF_SUBCLASS;
 				ti.hwnd			= hwnd;
 				ti.uId			= 600;
 				ti.rect			= {mouseX,mouseY,mouseX+2,mouseY+2};
 				ti.hinst		= hinstMain;
 				ti.lpszText		= tipText;
-				SendMessage(hwndTooltip,TTM_NEWTOOLRECT,0,(LPARAM)&ti);
-				SendMessage(hwndTooltip,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
-				SendMessage(hwndTooltip,TTM_ACTIVATE,tipText[0]!='\0',0);
+				SendMessageA(hwndTooltip,TTM_NEWTOOLRECT,0,(LPARAM)&ti);
+				SendMessageA(hwndTooltip,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
+				SendMessageA(hwndTooltip,TTM_ACTIVATE,tipText[0]!='\0',0);
 			}
 			
 			updateEntireScreen();
@@ -1533,7 +1886,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			selpCur = selpPrev = {levX,levY};
 			dragFlag = true;
 			selOp = 5;
-			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
+			SetCursor(LoadCursorA(NULL,IDC_SIZEALL));
 			//Clip cursor
 			RECT clipRect;
 			GetClientRect(hwnd,&clipRect);
@@ -1562,101 +1915,101 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 //Main entry point
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
 	//Load resources
-	hiconMain = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
+	hiconMain = LoadIconA(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
 	hinstMain = hInstance;
-	HRSRC fontRes = FindResource(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA);
+	HRSRC fontRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA);
 	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,fontRes));
 	unpackGfx2BPP(fontBuffer,fontData,0x80);
-	HRSRC patchRes = FindResource(NULL,MAKEINTRESOURCE(IDR_PATCH_BPS),RT_RCDATA);
+	HRSRC patchRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_PATCH_BPS),RT_RCDATA);
 	BYTE * patchData = (BYTE*)LockResource(LoadResource(NULL,patchRes));
 	patchBufSize = SizeofResource(NULL,patchRes);
 	memcpy(patchBuf,patchData,patchBufSize);
 	
 	//Register main window class
-	WNDCLASSEX wc;
-	memset(&wc,0,sizeof(WNDCLASSEX));
-	wc.cbSize			= sizeof(WNDCLASSEX);
+	WNDCLASSEXA wc;
+	memset(&wc,0,sizeof(WNDCLASSEXA));
+	wc.cbSize			= sizeof(WNDCLASSEXA);
 	wc.lpfnWndProc		= WndProc;
 	wc.hInstance		= hInstance;
-	wc.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wc.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wc.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
 	wc.lpszClassName	= "NewYILevelEditor";
 	wc.hIcon			= hiconMain;
 	wc.hIconSm			= hiconMain;
 	if(!RegisterClassEx(&wc)) {
-		MessageBox(NULL,"Main window registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBoxA(NULL,"Main window registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	//Register children window classes
-	WNDCLASSEX wcObj,wcSp,wcMap8,wcMap16,wcPal,wcBg;
-	memset(&wcObj,0,sizeof(WNDCLASSEX));
-	wcObj.cbSize			= sizeof(WNDCLASSEX);
+	WNDCLASSEXA wcObj,wcSp,wcMap8,wcMap16,wcPal,wcBg;
+	memset(&wcObj,0,sizeof(WNDCLASSEXA));
+	wcObj.cbSize			= sizeof(WNDCLASSEXA);
 	wcObj.lpfnWndProc		= WndProc_Object;
 	wcObj.hInstance			= hInstance;
-	wcObj.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcObj.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcObj.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
 	wcObj.lpszClassName		= "NewYILevelEditor_Object";
 	wcObj.hIcon				= hiconMain;
 	wcObj.hIconSm			= hiconMain;
-	memset(&wcSp,0,sizeof(WNDCLASSEX));
-	wcSp.cbSize				= sizeof(WNDCLASSEX);
+	memset(&wcSp,0,sizeof(WNDCLASSEXA));
+	wcSp.cbSize				= sizeof(WNDCLASSEXA);
 	wcSp.lpfnWndProc		= WndProc_Sprite;
 	wcSp.hInstance			= hInstance;
-	wcSp.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcSp.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcSp.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
 	wcSp.lpszClassName		= "NewYILevelEditor_Sprite";
 	wcSp.hIcon				= hiconMain;
 	wcSp.hIconSm			= hiconMain;
-	memset(&wcMap8,0,sizeof(WNDCLASSEX));
-	wcMap8.cbSize			= sizeof(WNDCLASSEX);
+	memset(&wcMap8,0,sizeof(WNDCLASSEXA));
+	wcMap8.cbSize			= sizeof(WNDCLASSEXA);
 	wcMap8.lpfnWndProc		= WndProc_Map8;
 	wcMap8.hInstance		= hInstance;
-	wcMap8.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcMap8.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcMap8.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
 	wcMap8.lpszClassName	= "NewYILevelEditor_Map8";
 	wcMap8.hIcon			= hiconMain;
 	wcMap8.hIconSm			= hiconMain;
-	memset(&wcMap16,0,sizeof(WNDCLASSEX));
-	wcMap16.cbSize			= sizeof(WNDCLASSEX);
+	memset(&wcMap16,0,sizeof(WNDCLASSEXA));
+	wcMap16.cbSize			= sizeof(WNDCLASSEXA);
 	wcMap16.lpfnWndProc		= WndProc_Map16;
 	wcMap16.hInstance		= hInstance;
-	wcMap16.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcMap16.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcMap16.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
 	wcMap16.lpszClassName	= "NewYILevelEditor_Map16";
 	wcMap16.hIcon			= hiconMain;
 	wcMap16.hIconSm			= hiconMain;
-	memset(&wcPal,0,sizeof(WNDCLASSEX));
-	wcPal.cbSize			= sizeof(WNDCLASSEX);
+	memset(&wcPal,0,sizeof(WNDCLASSEXA));
+	wcPal.cbSize			= sizeof(WNDCLASSEXA);
 	wcPal.lpfnWndProc		= WndProc_Palette;
 	wcPal.hInstance			= hInstance;
-	wcPal.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcPal.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcPal.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
 	wcPal.lpszClassName		= "NewYILevelEditor_Palette";
 	wcPal.hIcon				= hiconMain;
 	wcPal.hIconSm			= hiconMain;
-	memset(&wcBg,0,sizeof(WNDCLASSEX));
-	wcBg.cbSize				= sizeof(WNDCLASSEX);
+	memset(&wcBg,0,sizeof(WNDCLASSEXA));
+	wcBg.cbSize				= sizeof(WNDCLASSEXA);
 	wcBg.lpfnWndProc		= WndProc_Background;
 	wcBg.hInstance			= hInstance;
-	wcBg.hCursor			= LoadCursor(NULL,IDC_ARROW);
+	wcBg.hCursor			= LoadCursorA(NULL,IDC_ARROW);
 	wcBg.hbrBackground		= (HBRUSH)(COLOR_BTNFACE+1);
 	wcBg.lpszClassName		= "NewYILevelEditor_Background";
 	wcBg.hIcon				= hiconMain;
 	wcBg.hIconSm			= hiconMain;
 	if(!RegisterClassEx(&wcObj) || !RegisterClassEx(&wcSp) || !RegisterClassEx(&wcMap8) || !RegisterClassEx(&wcMap16) || !RegisterClassEx(&wcPal) || !RegisterClassEx(&wcBg)) {
-		MessageBox(NULL,"Children windows registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBoxA(NULL,"Children windows registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	
 	//Create main window
-	hwndMain = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor","EggFlutter",WS_VISIBLE|WS_OVERLAPPEDWINDOW|WS_HSCROLL|WS_VSCROLL,
+	hwndMain = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor","EggFlutter",WS_VISIBLE|WS_OVERLAPPEDWINDOW|WS_HSCROLL|WS_VSCROLL,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		640,
 		480,
 		NULL,NULL,hInstance,NULL);
 	if(hwndMain==NULL) {
-		MessageBox(NULL,"Main window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBoxA(NULL,"Main window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	SetTimer(hwndMain,800,33,NULL);
@@ -1665,13 +2018,13 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	int refWidth = refSize.right-refSize.left;
 	int refHeight = refSize.bottom-refSize.top;
-	hwndObject = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Object","Select Object",WS_POPUPWINDOW|WS_CAPTION,
+	hwndObject = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Object","Select Object",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
 		hwndMain,NULL,hInstance,NULL);
-	hwndSprite = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Sprite","Select Sprite",WS_POPUPWINDOW|WS_CAPTION,
+	hwndSprite = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Sprite","Select Sprite",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
@@ -1681,13 +2034,13 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndMap8 = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+	hwndMap8 = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
 		hwndMain,NULL,hInstance,NULL);
-	hwndPalette = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Palette","View Palette",WS_POPUPWINDOW|WS_CAPTION,
+	hwndPalette = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Palette","View Palette",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
@@ -1697,7 +2050,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndMap16 = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map16","View 16x16 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+	hwndMap16 = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map16","View 16x16 Tiles",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
@@ -1707,26 +2060,26 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndBackground = CreateWindowEx(WS_EX_CLIENTEDGE,"NewYILevelEditor_Background","View Background",WS_POPUPWINDOW|WS_CAPTION,
+	hwndBackground = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Background","View Background",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
 		hwndMain,NULL,hInstance,NULL);
 	if(hwndObject==NULL || hwndSprite==NULL || hwndMap8==NULL || hwndMap16==NULL || hwndPalette==NULL || hwndBackground==NULL) {
-		MessageBox(NULL,"Children windows creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBoxA(NULL,"Children windows creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	
 	//Setup menus
-	hmenuMain = LoadMenu(hInstance,MAKEINTRESOURCE(IDM_MENU_MAIN));
+	hmenuMain = LoadMenuA(hInstance,MAKEINTRESOURCE(IDM_MENU_MAIN));
 	SetMenu(hwndMain,hmenuMain);
 	//Setup accelerators
-	HACCEL haccel = LoadAccelerators(hInstance,MAKEINTRESOURCE(IDA_MENU_MAIN));
+	HACCEL haccel = LoadAcceleratorsA(hInstance,MAKEINTRESOURCE(IDA_MENU_MAIN));
 	//Message loop
 	MSG msg;
 	while(GetMessage(&msg,NULL,0,0)>0) {
-		if(!TranslateAccelerator(hwndMain,haccel,&msg)) {
+		if(!TranslateAcceleratorA(hwndMain,haccel,&msg)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}

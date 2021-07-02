@@ -41,7 +41,7 @@ void resizeObjects(int dx,int dy);
 void increaseObjectZ();
 void decreaseObjectZ();
 //Window
-int focusObject(int x,int y,UINT * cursor,TCHAR * text);
+int focusObject(int x,int y,UINT * cursor,char * text);
 LRESULT CALLBACK WndProc_Object(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 #endif

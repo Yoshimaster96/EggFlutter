@@ -4034,10 +4034,6 @@ void drawSprites() {
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
-	//int minx = std::max((int)(rect.left&0xFFF0),0);
-	//int miny = std::max((int)(rect.top&0x7FF0),0);
-	//int maxx = std::min((int)((rect.right&0xFFF0)+0x10),0x1000);
-	//int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		int spX = thisSprite->data[2]<<4;
@@ -4080,11 +4076,6 @@ void initOtherSpriteBuffers() {
 /////////////////////
 //SPRITE MANAGEMENT//
 /////////////////////
-//Predicate for deletion
-bool sprite_delPred(sprite_t & un) {
-	return un.selected;
-}
-
 //Load/save
 void loadSprites(BYTE * data) {
 	//Clear buffers
@@ -4232,7 +4223,13 @@ void insertSprites(int x,int y) {
 }
 void deleteSprites() {
 	//Delete selected sprites
-	remove_if(spriteContexts[0].sprites.begin(),spriteContexts[0].sprites.end(),sprite_delPred);
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		if(thisSprite->selected) {
+			spriteContexts[0].sprites.erase(spriteContexts[0].sprites.begin()+n);
+			n--;
+		}
+	}
 }
 void selectTopSprite(int x,int y) {
 	//Select top sprite
@@ -4712,7 +4709,7 @@ BYTE spriteDlgData_t0[] = {
 	0xAC,0x0F,0x07,0xFF,0xFF,0xFF,
 	0xAD,0x0F,0x07,0xFF,0xFF,0xFF,
 	0xAF,0x0F,0x07,0xFF,0xFF,0xFF};
-LPCTSTR spriteDlgNames_t0[] = {
+LPCSTR spriteDlgNames_t0[] = {
 	//000
 	"000\tLog, lava/water (X)",
 	"001\tClosed door",
@@ -5208,7 +5205,7 @@ BYTE spriteDlgData_t1[] = {
 	0xB7,0x0F,0x07,0xFF,0xFF,0xFF,
 	0xB8,0x0F,0x05,0xFF,0xFF,0xFF,
 	0xB9,0x0F,0x07,0xFF,0xFF,0xFF};
-LPCTSTR spriteDlgNames_t1[] = {
+LPCSTR spriteDlgNames_t1[] = {
 	//000
 	"002\tNaval Piranha's stalk",
 	"004\tItem from Star Mario block",
@@ -5397,7 +5394,7 @@ BYTE spriteDlgData_t2[] = {
 	0xF2,0x0F,0x05,0xFF,0xFF,0xFF,
 	0xF3,0x0F,0x06,0xFF,0xFF,0xFF,
 	0xF4,0x0F,0x06,0xFF,0xFF,0xFF};
-LPCTSTR spriteDlgNames_t2[] = {
+LPCSTR spriteDlgNames_t2[] = {
 	//1B0
 	"1BA\tGraphics/Palette Changer 00",
 	"1BB\tGraphics/Palette Changer 01",
@@ -5462,7 +5459,7 @@ LPCTSTR spriteDlgNames_t2[] = {
 	"1F2\tFuzzy Effect End",
 	"1F3\tGoonie End",
 	"1F4\tFuzzy Generator"};
-LPCTSTR whatsThisSprite[0x200] = {
+LPCSTR whatsThisSprite[0x200] = {
 	//000
 	"A log, either floats on lava (X:0) or water (X:1).\r\nSprite ID: 000",
 	"A closed door.\r\nSprite ID: 001",
@@ -6008,7 +6005,7 @@ LPCTSTR whatsThisSprite[0x200] = {
 	"Index out of bounds, do not use.\r\nSprite ID: 1FE",
 	"Index out of bounds, do not use.\r\nSprite ID: 1FF"};
 
-int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
+int focusSprite(int x,int y,UINT * cursor,char * text) {
 	//Check each sprite
 	for(int n=(spriteContexts[0].sprites.size()-1); n>=0; n--) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
@@ -6027,7 +6024,7 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
-						_tcscpy(text,whatsThisSprite[id]);
+						strcpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -6036,7 +6033,7 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
-						_tcscpy(text,whatsThisSprite[id]);
+						strcpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -6045,7 +6042,7 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
-						_tcscpy(text,whatsThisSprite[id]);
+						strcpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -6054,7 +6051,7 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
 					if(PtInRect(&tileRect,{x,y})) {
 						*cursor = 0x7F86; //IDC_SIZEALL
-						_tcscpy(text,whatsThisSprite[id]);
+						strcpy(text,whatsThisSprite[id]);
 						return 5;
 					}
 					break;
@@ -6069,8 +6066,8 @@ int focusSprite(int x,int y,UINT * cursor,TCHAR * text) {
 //Control updaters
 void updateWindowSub_sprite() {
 	int prevCtx = setSpriteContext(1);
-	int idx = SendMessage(hwndCbSprite,CB_GETCURSEL,0,0);
-	int idx2 = SendMessage(hwndLbSprite,LB_GETCURSEL,0,0);
+	int idx = SendMessageA(hwndCbSprite,CB_GETCURSEL,0,0);
+	int idx2 = SendMessageA(hwndLbSprite,LB_GETCURSEL,0,0);
 	if(idx==0) {
 		loadSprites(&spriteDlgData_t0[idx2*6]);
 	} else if(idx==1) {
@@ -6083,29 +6080,29 @@ void updateWindowSub_sprite() {
 }
 void updateWindow_sprite() {
 	//Remove previous elements
-	int prevSize = SendMessage(hwndLbSprite,LB_GETCOUNT,0,0);
+	int prevSize = SendMessageA(hwndLbSprite,LB_GETCOUNT,0,0);
 	for(int i=0; i<prevSize; i++) {
-		SendMessage(hwndLbSprite,LB_DELETESTRING,0,0);
+		SendMessageA(hwndLbSprite,LB_DELETESTRING,0,0);
 	}
 	//Add new elements and select first
-	int idx = SendMessage(hwndCbSprite,CB_GETCURSEL,0,0);
+	int idx = SendMessageA(hwndCbSprite,CB_GETCURSEL,0,0);
 	if(idx==0) {
-		int arrSize = sizeof(spriteDlgNames_t0)/sizeof(LPCTSTR);
+		int arrSize = sizeof(spriteDlgNames_t0)/sizeof(LPCSTR);
 		for(int i=0; i<arrSize; i++) {
-			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t0[i]);
+			SendMessageA(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t0[i]);
 		}
 	} else if(idx==1) {
-		int arrSize = sizeof(spriteDlgNames_t1)/sizeof(LPCTSTR);
+		int arrSize = sizeof(spriteDlgNames_t1)/sizeof(LPCSTR);
 		for(int i=0; i<arrSize; i++) {
-			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t1[i]);
+			SendMessageA(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t1[i]);
 		}
 	} else if(idx==2) {
-		int arrSize = sizeof(spriteDlgNames_t2)/sizeof(LPCTSTR);
+		int arrSize = sizeof(spriteDlgNames_t2)/sizeof(LPCSTR);
 		for(int i=0; i<arrSize; i++) {
-			SendMessage(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t2[i]);
+			SendMessageA(hwndLbSprite,LB_ADDSTRING,0,(LPARAM)spriteDlgNames_t2[i]);
 		}
 	}
-	SendMessage(hwndLbSprite,LB_SETCURSEL,0,0);
+	SendMessageA(hwndLbSprite,LB_SETCURSEL,0,0);
 	updateWindowSub_sprite();
 }
 //Main drawing code
@@ -6122,10 +6119,10 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
 			//Add controls
-			hwndCbSprite = CreateWindow(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndCbSprite = CreateWindowA(WC_COMBOBOX,NULL,CBS_DROPDOWNLIST|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,256,256,100,
 				hwnd,(HMENU)20,hinstMain,NULL);
-			hwndLbSprite = CreateWindow(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
+			hwndLbSprite = CreateWindowA(WC_LISTBOX,NULL,LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_USETABSTOPS|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL,
 				0,282,256,102,
 				hwnd,(HMENU)25,hinstMain,NULL);
 			//Create objects
@@ -6143,18 +6140,18 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			//Setup font
 			int ppi = GetDeviceCaps(hdcSp,LOGPIXELSY);
 			int height = -ppi/9;
-			HFONT hfont = CreateFont(height,0,0,0,
+			HFONT hfont = CreateFontA(height,0,0,0,
 				FW_NORMAL,FALSE,FALSE,FALSE,
 				DEFAULT_CHARSET,
 				OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,
 				DEFAULT_PITCH|FF_SWISS,"MS Shell Dlg");
-			SendMessage(hwndCbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
-			SendMessage(hwndLbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessageA(hwndCbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
+			SendMessageA(hwndLbSprite,WM_SETFONT,(WPARAM)hfont,FALSE);
 			//Init combo boxes
-			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Standard Sprites");
-			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Special & Misc. Sprites");
-			SendMessage(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Commands & Generators");
-			SendMessage(hwndCbSprite,CB_SETCURSEL,0,0);
+			SendMessageA(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Standard Sprites");
+			SendMessageA(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Special & Misc. Sprites");
+			SendMessageA(hwndCbSprite,CB_ADDSTRING,0,(LPARAM)"Commands & Generators");
+			SendMessageA(hwndCbSprite,CB_SETCURSEL,0,0);
 			//Init control values
 			updateWindow_sprite();
 			break;

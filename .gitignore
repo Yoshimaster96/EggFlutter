@@ -1,6 +1,10 @@
 *.o
+resources/*.o
+resources/patches/*.o
 Makefile
 Makefile.*
 Project2_private.*
 Project2.exe
 Project2.layout
+resources/patches/*.smc
+resources/patches/*.sfc
