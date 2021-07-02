@@ -90,6 +90,7 @@ DWORD findFreespace(DWORD size) {
 	DWORD smallestRegionSize = 0x800000;
 	DWORD prevRatsEnd = 0x200000;
 	for(DWORD i=0x200000; i<0x800000; i++) {
+		//Search for next RATS tag
 		if(romBuf[i]=='S') {
 			DWORD ratsBegin = i;
 			i++;
@@ -103,10 +104,20 @@ DWORD findFreespace(DWORD size) {
 						DWORD ratsSizeCmp = romBuf[i+2]|(romBuf[i+3]<<8);
 						if((ratsSize^ratsSizeCmp)==0xFFFF) {
 							i += ratsSize+5;
-							int thisRegionSize = ratsBegin-prevRatsEnd;
-							if(thisRegionSize<smallestRegionSize && thisRegionSize>=(size+8)) {
-								smallestRegionSize = ratsBegin-prevRatsEnd;
-								smallestRegionOffset = prevRatsEnd;
+							//TODO: Make sure region does not cross bank boundary!
+							if((ratsBegin&0x7F8000)==(prevRatsEnd&0x7F8000)) {
+								int thisRegionSize = ratsBegin-prevRatsEnd;
+								if(thisRegionSize<smallestRegionSize && thisRegionSize>=(size+8)) {
+									smallestRegionSize = thisRegionSize;
+									smallestRegionOffset = prevRatsEnd;
+								}
+							} else {
+								//Check end bit after previous RATS
+								//TODO
+								//Check beginning bit before current RATS
+								//TODO
+								//If an empty bank exists between the two, check it
+								//TODO
 							}
 							prevRatsEnd = i;
 						}
@@ -114,6 +125,13 @@ DWORD findFreespace(DWORD size) {
 				}
 			}
 		}
+	}
+	//Check region at end of ROM
+	//TODO: Make sure region does not cross bank boundary!
+	int endRegionSize = 0x800000-prevRatsEnd;
+	if(endRegionSize<smallestRegionSize && endRegionSize>=(size+8)) {
+		smallestRegionSize = endRegionSize;
+		smallestRegionOffset = prevRatsEnd;
 	}
 	//Create RATS tag and return pointer
 	romBuf[smallestRegionOffset] = 'S';

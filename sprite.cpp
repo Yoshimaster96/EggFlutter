@@ -4103,14 +4103,11 @@ int saveSprites(BYTE * data) {
 	int curSz = 0;
 	//Save sprite data
 	for(int n=0; n<spriteContexts[curSpCtx].sprites.size(); n++) {
-		//Shorten the names of these for convenience
-		BYTE * thisData = spriteContexts[curSpCtx].sprites[n].data;
-		int thisDataSz = spriteContexts[curSpCtx].sprites[n].dataSize;
-		//Copy data
-		memcpy(&data[curSz],thisData,thisDataSz);
-		//Increment stuff
-		curSz += thisDataSz;
+		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
+		memcpy(&data[curSz],thisSprite->data,thisSprite->dataSize);
+		curSz += thisSprite->dataSize;
 	}
+	return curSz;
 }
 
 //Manipulation

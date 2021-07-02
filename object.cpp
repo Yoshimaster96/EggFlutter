@@ -9286,14 +9286,11 @@ int saveObjects(BYTE * data) {
 	int curSz = 0;
 	//Save sprite data
 	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
-		//Shorten the names of these for convenience
-		BYTE * thisData = objectContexts[curObjCtx].objects[n].data;
-		int thisDataSz = objectContexts[curObjCtx].objects[n].dataSize;
-		//Copy data
-		memcpy(&data[curSz],thisData,thisDataSz);
-		//Increment stuff
-		curSz += thisDataSz;
+		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
+		memcpy(&data[curSz],thisObject->data,thisObject->dataSize);
+		curSz += thisObject->dataSize;
 	}
+	return curSz;
 }
 
 //Manipulation

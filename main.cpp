@@ -43,10 +43,13 @@ void loadLevel() {
 void saveLevel() {
 	//Determine level size
 	BYTE tempBufObj[0x8000],tempBufSp[0x8000];
-	memcpy(tempBufObj,levelHeader,10);
-	int objectSize = saveObjects(&tempBufObj[10]);
-	tempBufObj[10+objectSize] = 0xFF;
-	objectSize += 11;
+	int objectSize = 0;
+	if(curLevel!=0x38) {
+		memcpy(tempBufObj,levelHeader,10);
+		objectSize = 10;
+	}
+	objectSize += saveObjects(&tempBufObj[objectSize]);
+	tempBufObj[objectSize++] = 0xFF;
 	for(int i=0; i<0x200; i+=4) {
 		if(screenExits[i]!=0xFF) {
 			tempBufObj[objectSize++] = i>>2;
@@ -939,7 +942,7 @@ void onOpen() {
 	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner	 = hwndMain;
 	ofn.lpstrFile	 = romFilename;
-	ofn.nMaxFile	 = sizeof(romFilename);
+	ofn.nMaxFile	 = 256;
 	ofn.lpstrTitle	 = "Open ROM";
 	ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
 	ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
@@ -1013,7 +1016,7 @@ void onSaveAs() {
 		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
 		ofn.hwndOwner	 = hwndMain;
 		ofn.lpstrFile	 = romFilename;
-		ofn.nMaxFile	 = sizeof(romFilename);
+		ofn.nMaxFile	 = 256;
 		ofn.lpstrTitle	 = "Save ROM";
 		ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
 		if(GetSaveFileNameA(&ofn)) {
@@ -1055,7 +1058,42 @@ void onImportLevel() {
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
 		if(GetOpenFileNameA(&ofn)) {
-			//TODO
+			//Load level file
+			BYTE levelFile[0x8000];
+			FILE * fp = fopen(lfStr,"rb");
+			fseek(fp,0,SEEK_END);
+			long fileSize = ftell(fp);
+			rewind(fp);
+			fread(levelFile,1,fileSize,fp);
+			fclose(fp);
+			//Read data
+			memcpy(levelHeader,levelFile,10);
+			int srcOff = 10;
+			initOtherObjectBuffers();
+			initOtherSpriteBuffers();
+			srcOff += loadObjects(&levelFile[10]);
+			drawObjects();
+			srcOff++;
+			memset(screenExits,0xFF,0x200);
+			while(true) {
+				int page = levelFile[srcOff++];
+				if(page==0xFF) break;
+				page <<= 2;
+				screenExits[page] = levelFile[srcOff++];
+				screenExits[page+1] = levelFile[srcOff++];
+				screenExits[page+2] = levelFile[srcOff++];
+				screenExits[page+3] = levelFile[srcOff++];
+			}
+			loadSprites(&levelFile[srcOff]);
+			drawSprites();
+			//Load other stuff
+			isRomSaved = false;
+			loadMap8();
+			loadMap16();
+			loadPalette();
+			loadBackground();
+			updateDialogs();
+			updateEntireScreen();
 		}
 	}
 }
@@ -1072,7 +1110,27 @@ void onExportLevel() {
 		ofn.lpstrTitle	 = "Save Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		if(GetSaveFileNameA(&ofn)) {
-			//TODO
+			//Write level file data
+			BYTE tempBuf[0x8000];
+			FILE * fp = fopen(lfStr,"wb");
+			fwrite(levelHeader,1,10,fp);
+			int dstOff = saveObjects(tempBuf);
+			fwrite(tempBuf,1,dstOff,fp);
+			putc(0xFF,fp);
+			for(int i=0; i<0x200; i+=4) {
+				if(screenExits[i]!=0xFF) {
+					putc(i>>2,fp);
+					for(int j=0; j<4; j++) {
+						putc(screenExits[i++],fp);
+					}
+				}
+			}
+			putc(0xFF,fp);
+			dstOff = saveSprites(tempBuf);
+			fwrite(tempBuf,1,dstOff,fp);
+			putc(0xFF,fp);
+			putc(0xFF,fp);
+			fclose(fp);
 		}
 	}
 }
