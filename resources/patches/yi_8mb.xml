@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<cartridge region='NTSC'>
+	<superfx revision='2'>
+		<rom size='800000'>
+			<map mode='linear' address='00-3f:8000-ffff'/>
+			<map mode='linear' address='40-5f:0000-ffff'/>
+			<map mode='linear' address='80-bf:8000-ffff' offset='200000'/>
+			<map mode='linear' address='c0-ff:0000-ffff' offset='400000'/>
+		</rom>
+		<ram size='20000'>
+			<map mode='linear' address='00-3f:6000-7fff' size='2000'/>
+			<map mode='linear' address='80-bf:6000-7fff' size='2000'/>
+			<map mode='linear' address='70-71:0000-ffff'/>
+		</ram>
+		<mmio>
+			<map address='00-3f:3000-34ff'/>
+			<map address='80-bf:3000-34ff'/>
+		</mmio>
+	</superfx>
+</cartridge>

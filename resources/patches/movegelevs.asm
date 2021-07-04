@@ -5,6 +5,13 @@ org $01B09A
 padbyte $FF
 pad $01B0AD
 
+;Allow level names to be located in extended region
+;TODO
+
+;Allow level messages to be located in extended region
+;TODO
+
+;Extra code
 org $01EDB0
 SetSpriteDataPointer:
 	lda.l $17F7C6,x
@@ -20,13 +27,13 @@ SetSpriteDataPointer:
 	ldy.w #$0000
 SetSpriteDataPointer_CopyData:
 	lda.b [$02],y
-	sta.l $710000,x
+	sta.l $704000,x
 	cmp.w #$FFFF
 	beq SetSpriteDataPointer_EndCopy
 	inx
 	iny
 	lda.b [$02],y
-	sta.l $710000,x
+	sta.l $704000,x
 	inx
 	inx
 	iny
@@ -35,7 +42,7 @@ SetSpriteDataPointer_CopyData:
 SetSpriteDataPointer_EndCopy:
 	lda.w #$0000
 	sta.l $702600
-	lda.w #$7100
+	lda.w #$7040
 	sta.l $702601
 SetSpriteDataPointer_Return:
 	jml.l $01B0AD

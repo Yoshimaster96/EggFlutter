@@ -54,9 +54,8 @@ void saveLevel() {
 		if(screenExits[i]!=0xFF) {
 			tempBufObj[objectSize++] = i>>2;
 			for(int j=0; j<4; j++) {
-				tempBufObj[objectSize++] = screenExits[i++];
+				tempBufObj[objectSize++] = screenExits[i+j];
 			}
-			objectSize += 5;
 		}
 	}
 	tempBufObj[objectSize++] = 0xFF;
@@ -113,13 +112,150 @@ void enableItem_dlg(HWND hwnd,int control,BOOL enable) {
 }
 
 //Helper functions for reading/writing in-game text
+char YIToANSITable[0x100] = {
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,':',';',  0,  0,  0,'\'',  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,'=',  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,
+	'0','1','2','3','4','5','6','7','8','9','A', 'B','C','D','E','F',
+	'G','H','I','J','K','L','M','N','O','P','Q', 'R','S','T','U','V',
+	'W','X','Y','Z',  0,  0,'?','!',  0,'-',  0,   0,  0,  0,'~',',',
+	' ',  0,  0,  0,  0,  0,  0,  0,'a','b','c', 'd','e','f','g','h',
+	'i','j','k','l','m','n','o','p','q','r','s', 't','u','v','w','x',
+	'y','z',  0,'.',  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0};
+BYTE ANSIToYITable[0x80] = {
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xD0,0xC7,0xFF,0xFF,0xFF,0xFF,0xFF,0x2B,0xFF,0xFF,0xFF,0xFF,0xCF,0xC9,0xD3,0xFF,
+	0xA0,0xA1,0xA2,0xA3,0xA4,0xA5,0xA6,0xA7,0xA8,0xA9,0x26,0x27,0xFF,0x36,0xFF,0xC6,
+	0xFF,0xAA,0xAB,0xAC,0xAD,0xAE,0xAF,0xB0,0xB1,0xB2,0xB3,0xB4,0xB5,0xB6,0xB7,0xB8,
+	0xB9,0xBA,0xBB,0xBC,0xBD,0xBE,0xBF,0xC0,0xC1,0xC2,0xC3,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xD8,0xD9,0xDA,0xDB,0xDC,0xDD,0xDE,0xDF,0xE0,0xE1,0xE2,0xE3,0xE4,0xE5,0xE6,
+	0xE7,0xE8,0xE9,0xEA,0xEB,0xEC,0xED,0xEE,0xEF,0xF0,0xF1,0xFF,0xFF,0xFF,0xCE,0xFF};
+
 int readGameText(BYTE * data,char * str) {
-	//TODO
-	return 0;
+	char strBuf[256];
+	int srcOff = 0, dstOff = 0;
+	int lineType = 0;
+	while(true) {
+		BYTE code = data[srcOff++];
+		if(code==0xFD) break;
+		if(code==0xFE) {
+			if(lineType==1) {
+				str[dstOff++] = '\r';
+				str[dstOff++] = '\n';
+			}
+			str[dstOff++] = '\\';
+			str[dstOff++] = 'l';
+			BYTE param = data[srcOff++];
+			snprintf(strBuf,256,"%02X",param);
+			str[dstOff++] = strBuf[0];
+			str[dstOff++] = strBuf[1];
+			param = data[srcOff++];
+			snprintf(strBuf,256,"%02X",param);
+			str[dstOff++] = strBuf[0];
+			str[dstOff++] = strBuf[1];
+			lineType = 2;
+		} else if(code==0xFF) {
+			BYTE ctrlCode = data[srcOff++];
+			if(ctrlCode==0xFF) break;
+			if(lineType==1) {
+				str[dstOff++] = '\r';
+				str[dstOff++] = '\n';
+			}
+			str[dstOff++] = '\\';
+			str[dstOff++] = 'm';
+			snprintf(strBuf,256,"%02X",ctrlCode);
+			str[dstOff++] = strBuf[0];
+			str[dstOff++] = strBuf[1];
+			if(ctrlCode==0x60) {
+				for(int i=0; i<7; i++) {
+					BYTE param = data[srcOff++];
+					snprintf(strBuf,256,"%02X",param);
+					str[dstOff++] = strBuf[0];
+					str[dstOff++] = strBuf[1];
+				}
+			}
+			lineType = 2;
+		} else {
+			if(lineType==2) {
+				str[dstOff++] = '\r';
+				str[dstOff++] = '\n';
+			}
+			char cnv = YIToANSITable[code];
+			if(cnv) {
+				str[dstOff++] = cnv;
+			} else {
+				str[dstOff++] = '\\';
+				str[dstOff++] = 'x';
+				snprintf(strBuf,256,"%02X",code);
+				str[dstOff++] = strBuf[0];
+				str[dstOff++] = strBuf[1];
+			}
+			lineType = 1;
+		}
+	}
+	return dstOff;
 }
 int writeGameText(BYTE * data,char * str) {
-	//TODO
-	return 0;
+	char strBuf[256];
+	int srcOff = 0, dstOff = 0;
+	while(true) {
+		char code = str[srcOff++];
+		if(code==0) break;
+		if(code=='\\') {
+			char ctrlCode = str[srcOff++];
+			if(ctrlCode=='x' || ctrlCode=='X') {
+				strBuf[0] = str[srcOff++];
+				strBuf[1] = str[srcOff++];
+				strBuf[2] = 0;
+				int param;
+				sscanf(strBuf,"%X",&param);
+				data[dstOff++] = param;
+			} else if(ctrlCode=='l' || ctrlCode=='L') {
+				data[dstOff++] = 0xFE;
+				int param;
+				for(int i=0; i<2; i++) {
+					strBuf[0] = str[srcOff++];
+					strBuf[1] = str[srcOff++];
+					strBuf[2] = 0;
+					sscanf(strBuf,"%X",&param);
+					data[dstOff++] = param;
+				}
+			} else if(ctrlCode=='m' || ctrlCode=='M') {
+				data[dstOff++] = 0xFF;
+				strBuf[0] = str[srcOff++];
+				strBuf[1] = str[srcOff++];
+				strBuf[2] = 0;
+				int param;
+				sscanf(strBuf,"%X",&param);
+				data[dstOff++] = param;
+				if(param==0x60) {
+					for(int i=0; i<7; i++) {
+						strBuf[0] = str[srcOff++];
+						strBuf[1] = str[srcOff++];
+						strBuf[2] = 0;
+						sscanf(strBuf,"%X",&param);
+						data[dstOff++] = param;
+					}
+				}
+			} else {
+				srcOff--;
+			}
+		} else {
+			BYTE cnv = ANSIToYITable[code&0x7F];
+			if(cnv!=0xFF) {
+				data[dstOff++] = cnv;
+			}
+		}
+	}
+	return dstOff;
 }
 
 //Dialog updaters
@@ -196,10 +332,30 @@ void updateDialog_editHeader(HWND hwnd) {
 	SendDlgItemMessageA(hwnd,24,CB_SETCURSEL,itemMem,0);
 }
 void updateDialog_editLevNames(HWND hwnd) {
-	//TODO
+	char textBuf[0x8000];
+	int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
+	int messageOffset = romBuf[0x1149BC+(tMsgIdx<<1)]|(romBuf[0x1149BD+(tMsgIdx<<1)]<<8);
+	if(messageOffset) {
+		int messageLen = readGameText(&romBuf[0x110000+messageOffset],textBuf);
+		textBuf[messageLen] = 0;
+	} else {
+		textBuf[0] = 0;
+	}
+	SetDlgItemTextA(hwnd,25,textBuf);
 }
 void updateDialog_editLevMessages(HWND hwnd) {
-	//TODO
+	char textBuf[0x8000];
+	int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
+	int tMsgIdx2 = SendDlgItemMessageA(hwnd,21,CB_GETCURSEL,0,0);
+	tMsgIdx = (tMsgIdx<<2)|tMsgIdx2;
+	int messageOffset = romBuf[0x1110DB+(tMsgIdx<<1)]|(romBuf[0x1110DC+(tMsgIdx<<1)]<<8);
+	if(messageOffset) {
+		int messageLen = readGameText(&romBuf[0x110000+messageOffset],textBuf);
+		textBuf[messageLen] = 0;
+	} else {
+		textBuf[0] = 0;
+	}
+	SetDlgItemTextA(hwnd,25,textBuf);
 }
 
 //Dialog functions
@@ -400,6 +556,21 @@ LPCSTR headerMusicStrings[16] = {
 "0D: Before Boss Room",
 "0E: Unused",
 "0F: Unused"};
+LPCSTR levelNameStrings[72] = {
+"1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-E","Unused","Unused","Tutorial",
+"2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-E","Unused","Unused","Unused",
+"3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-E","Unused","Unused","Unused",
+"4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-E","Unused","Unused","Unused",
+"5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-E","Unused","Unused","Unused",
+"6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-E","Unused","Unused","Unused"};
+LPCSTR levelMessageStrings[75] = {
+"1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","World 1 Misc. 1","World 1 Misc. 2","World 1 Misc. 3","World 1 Misc. 4",
+"2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","World 2 Misc. 1","World 2 Misc. 2","World 2 Misc. 3","World 2 Misc. 4",
+"3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","World 3 Misc. 1","World 3 Misc. 2","World 3 Misc. 3","World 3 Misc. 4",
+"4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","World 4 Misc. 1","World 4 Misc. 2","World 4 Misc. 3","World 4 Misc. 4",
+"5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","World 5 Misc. 1","World 5 Misc. 2","World 5 Misc. 3","World 5 Misc. 4",
+"6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","World 6 Misc. 1","World 6 Misc. 2","World 6 Misc. 3","World 6 Misc. 4",
+"Minigames 1","Minigames 2","Minigames 3"};
 
 INT_PTR DlgProc_dOpenLevelId(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
@@ -751,7 +922,10 @@ INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			//Add icon
 			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
-			//TODO
+			for(int i=0; i<72; i++) {
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)levelNameStrings[i]);
+			}
+			SendDlgItemMessageA(hwnd,20,CB_SETCURSEL,0,0);
 			//Init control values
 			updateDialog_editLevNames(hwnd);
 			return TRUE;
@@ -763,6 +937,12 @@ INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		case WM_COMMAND: {
 			switch(LOWORD(wParam)) {
+				case 20: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateDialog_editLevNames(hwnd);
+					}
+					break;
+				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
 					SendMessageA(hwnd,WM_CLOSE,0,0);
@@ -784,7 +964,16 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			//Add icon
 			SendMessageA(hwnd,WM_SETICON,ICON_SMALL,(LPARAM)hiconMain);
 			//Init combo boxes
-			//TODO
+			char dlgStr[256];
+			for(int i=0; i<75; i++) {
+				SendDlgItemMessageA(hwnd,20,CB_ADDSTRING,0,(LPARAM)levelMessageStrings[i]);
+			}
+			SendDlgItemMessageA(hwnd,20,CB_SETCURSEL,0,0);
+			for(int i=0; i<4; i++) {
+				snprintf(dlgStr,256,"Message %02X",i);
+				SendDlgItemMessageA(hwnd,21,CB_ADDSTRING,0,(LPARAM)dlgStr);
+			}
+			SendDlgItemMessageA(hwnd,21,CB_SETCURSEL,0,0);
 			//Init control values
 			updateDialog_editLevMessages(hwnd);
 			return TRUE;
@@ -796,6 +985,13 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 		}
 		case WM_COMMAND: {
 			switch(LOWORD(wParam)) {
+				case 20: 
+				case 21: {
+					if(HIWORD(wParam)==CBN_SELCHANGE) {
+						updateDialog_editLevMessages(hwnd);
+					}
+					break;
+				}
 				case IDCANCEL: {
 					//Have WM_CLOSE handle this
 					SendMessageA(hwnd,WM_CLOSE,0,0);
@@ -1059,32 +1255,34 @@ void onImportLevel() {
 		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
 		if(GetOpenFileNameA(&ofn)) {
 			//Load level file
-			BYTE levelFile[0x8000];
+			BYTE levelFile[0x10000];
 			FILE * fp = fopen(lfStr,"rb");
 			fseek(fp,0,SEEK_END);
 			long fileSize = ftell(fp);
 			rewind(fp);
 			fread(levelFile,1,fileSize,fp);
 			fclose(fp);
-			//Read data
-			memcpy(levelHeader,levelFile,10);
-			int srcOff = 10;
+			//Get level pointer and load data
+			DWORD objectAddr = levelFile[0]|(levelFile[1]<<8)|(levelFile[2]<<16)|(levelFile[3]<<24);
+			DWORD spriteAddr = levelFile[8]|(levelFile[9]<<8)|(levelFile[10]<<16)|(levelFile[11]<<24);
+			memcpy(levelHeader,&levelFile[objectAddr],10);
+			objectAddr += 10;
 			initOtherObjectBuffers();
 			initOtherSpriteBuffers();
-			srcOff += loadObjects(&levelFile[10]);
+			objectAddr += loadObjects(&levelFile[objectAddr]);
 			drawObjects();
-			srcOff++;
+			objectAddr++;
 			memset(screenExits,0xFF,0x200);
 			while(true) {
-				int page = levelFile[srcOff++];
+				int page = levelFile[objectAddr++];
 				if(page==0xFF) break;
 				page <<= 2;
-				screenExits[page] = levelFile[srcOff++];
-				screenExits[page+1] = levelFile[srcOff++];
-				screenExits[page+2] = levelFile[srcOff++];
-				screenExits[page+3] = levelFile[srcOff++];
+				screenExits[page] = levelFile[objectAddr++];
+				screenExits[page+1] = levelFile[objectAddr++];
+				screenExits[page+2] = levelFile[objectAddr++];
+				screenExits[page+3] = levelFile[objectAddr++];
 			}
-			loadSprites(&levelFile[srcOff]);
+			loadSprites(&levelFile[spriteAddr]);
 			drawSprites();
 			//Load other stuff
 			isRomSaved = false;
@@ -1110,26 +1308,49 @@ void onExportLevel() {
 		ofn.lpstrTitle	 = "Save Level File";
 		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
 		if(GetSaveFileNameA(&ofn)) {
-			//Write level file data
-			BYTE tempBuf[0x8000];
-			FILE * fp = fopen(lfStr,"wb");
-			fwrite(levelHeader,1,10,fp);
-			int dstOff = saveObjects(tempBuf);
-			fwrite(tempBuf,1,dstOff,fp);
-			putc(0xFF,fp);
+			//Determine level size
+			BYTE tempBufObj[0x8000],tempBufSp[0x8000];
+			memcpy(tempBufObj,levelHeader,10);
+			int objectSize = 10;
+			objectSize += saveObjects(&tempBufObj[10]);
+			tempBufObj[objectSize++] = 0xFF;
 			for(int i=0; i<0x200; i+=4) {
 				if(screenExits[i]!=0xFF) {
-					putc(i>>2,fp);
+					tempBufObj[objectSize++] = i>>2;
 					for(int j=0; j<4; j++) {
-						putc(screenExits[i++],fp);
+						tempBufObj[objectSize++] = screenExits[i+j];
 					}
 				}
 			}
-			putc(0xFF,fp);
-			dstOff = saveSprites(tempBuf);
-			fwrite(tempBuf,1,dstOff,fp);
-			putc(0xFF,fp);
-			putc(0xFF,fp);
+			tempBufObj[objectSize++] = 0xFF;
+			int spriteSize = saveSprites(tempBufSp);
+			tempBufSp[spriteSize++] = 0xFF;
+			tempBufSp[spriteSize++] = 0xFF;
+			//Write level file data
+			int objectOffset = 0x80;
+			int spriteOffset = objectOffset+objectSize;
+			FILE * fp = fopen(lfStr,"wb");
+			putc(objectOffset,fp);
+			putc(objectOffset>>8,fp);
+			putc(objectOffset>>16,fp);
+			putc(objectOffset>>24,fp);
+			putc(objectSize,fp);
+			putc(objectSize>>8,fp);
+			putc(objectSize>>16,fp);
+			putc(objectSize>>24,fp);
+			putc(spriteOffset,fp);
+			putc(spriteOffset>>8,fp);
+			putc(spriteOffset>>16,fp);
+			putc(spriteOffset>>24,fp);
+			putc(spriteSize,fp);
+			putc(spriteSize>>8,fp);
+			putc(spriteSize>>16,fp);
+			putc(spriteSize>>24,fp);
+			for(int i=0; i<0x70; i++) {
+				putc(0,fp);
+			}
+			fwrite(tempBufObj,1,objectSize,fp);
+			fwrite(tempBufSp,1,spriteSize,fp);
 			fclose(fp);
 		}
 	}

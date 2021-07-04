@@ -294,7 +294,7 @@ bool paletteSorter_opLt(palette_sorter_t & lhs,palette_sorter_t & rhs) {
 }
 
 //Compression/decompression
-DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
+/*DWORD compressLZ1(BYTE * dst,BYTE * src,DWORD size) {
 	int srcOff = 0,dstOff = 0;
 	int directStart = 0,directLen = 0;
 	while(srcOff<size) {
@@ -648,7 +648,7 @@ DWORD compressLZ16(BYTE * dst,BYTE * src,DWORD numLines) {
 		}
 	}
 	return dstBitOff?(dstOff+1):dstOff;
-}
+}*/
 DWORD decompressLZ1(BYTE * dst,BYTE * src) {
 	int srcOff = 0,dstOff = 0;
 	while(true) {

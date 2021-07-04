@@ -31,6 +31,7 @@ void patchRom() {
 	//Patch ROM
 	memcpy(oldRomBuf,romBuf,0x800000);
 	int srcOff = 4,dstOff = 0;
+	int srcReadOff = 0,dstReadOff = 0;
 	//Skip magic/input/output/manifest stuff
 	readVariableSizeFromPatch(&srcOff);
 	readVariableSizeFromPatch(&srcOff);
@@ -58,7 +59,9 @@ void patchRom() {
 				int sOff = readVariableSizeFromPatch(&srcOff);
 				int off = sOff>>1;
 				if(sOff&1) off = -off;
-				memcpy(&romBuf[dstOff],&oldRomBuf[dstOff+off],len);
+				srcReadOff += off;
+				memcpy(&romBuf[dstOff],&oldRomBuf[srcReadOff],len);
+				srcReadOff += len;
 				dstOff += len;
 				break;
 			}
@@ -66,9 +69,11 @@ void patchRom() {
 				int sOff = readVariableSizeFromPatch(&srcOff);
 				int off = sOff>>1;
 				if(sOff&1) off = -off;
+				dstReadOff += off;
 				for(int i=0; i<len; i++) {
-					romBuf[dstOff+i] = romBuf[dstOff+off+i];
+					romBuf[dstOff+i] = romBuf[dstReadOff+i];
 				}
+				dstReadOff += len;
 				dstOff += len;
 				break;
 			}
@@ -104,20 +109,35 @@ DWORD findFreespace(DWORD size) {
 						DWORD ratsSizeCmp = romBuf[i+2]|(romBuf[i+3]<<8);
 						if((ratsSize^ratsSizeCmp)==0xFFFF) {
 							i += ratsSize+5;
-							//TODO: Make sure region does not cross bank boundary!
-							if((ratsBegin&0x7F8000)==(prevRatsEnd&0x7F8000)) {
-								int thisRegionSize = ratsBegin-prevRatsEnd;
-								if(thisRegionSize<smallestRegionSize && thisRegionSize>=(size+8)) {
-									smallestRegionSize = thisRegionSize;
-									smallestRegionOffset = prevRatsEnd;
+							if(ratsBegin!=prevRatsEnd) {
+								//Make sure region does not cross bank boundary!
+								if(((ratsBegin-1)&0x7F8000)==(prevRatsEnd&0x7F8000)) {
+									int thisRegionSize = ratsBegin-prevRatsEnd;
+									if(thisRegionSize<smallestRegionSize && thisRegionSize>=(size+8)) {
+										smallestRegionSize = thisRegionSize;
+										smallestRegionOffset = prevRatsEnd;
+									}
+								} else {
+									//Check end bit after previous RATS
+									int endBitRegionSize = ((prevRatsEnd+0x8000)&0x7F8000)-prevRatsEnd;
+									if(endBitRegionSize<smallestRegionSize && endBitRegionSize>=(size+8)) {
+										smallestRegionSize = endBitRegionSize;
+										smallestRegionOffset = prevRatsEnd;
+									}
+									//Check beginning bit before current RATS
+									int beginBitRegionSize = ratsBegin-(ratsBegin&0x7F8000);
+									if(beginBitRegionSize<smallestRegionSize && endBitRegionSize>=(size+8)) {
+										smallestRegionSize = beginBitRegionSize;
+										smallestRegionOffset = prevRatsEnd;
+									}
+									//If an empty bank exists between the two, check it
+									if(((ratsBegin-1)&0x7F8000)-(prevRatsEnd&0x7F8000)>=0x10000) {
+										if(0x8000<smallestRegionSize && 0x8000>=(size+8)) {
+											smallestRegionSize = 0x8000;
+											smallestRegionOffset = (prevRatsEnd+0x8000)&0x7F8000;
+										}
+									}
 								}
-							} else {
-								//Check end bit after previous RATS
-								//TODO
-								//Check beginning bit before current RATS
-								//TODO
-								//If an empty bank exists between the two, check it
-								//TODO
 							}
 							prevRatsEnd = i;
 						}
@@ -127,21 +147,29 @@ DWORD findFreespace(DWORD size) {
 		}
 	}
 	//Check region at end of ROM
-	//TODO: Make sure region does not cross bank boundary!
-	int endRegionSize = 0x800000-prevRatsEnd;
+	//Make sure region does not cross bank boundary!
+	//Check end bit after last RATS
+	int endRegionSize = ((prevRatsEnd+0x8000)&0x7F8000)-prevRatsEnd;
 	if(endRegionSize<smallestRegionSize && endRegionSize>=(size+8)) {
 		smallestRegionSize = endRegionSize;
 		smallestRegionOffset = prevRatsEnd;
+	}
+	//If an empty bank exists at the end, check it
+	if(((prevRatsEnd+0x8000)&0x7F8000)!=0x800000) {
+		if(0x8000<smallestRegionSize && 0x8000>=(size+8)) {
+			smallestRegionSize = 0x8000;
+			smallestRegionOffset = (prevRatsEnd+0x8000)&0x7F8000;
+		}
 	}
 	//Create RATS tag and return pointer
 	romBuf[smallestRegionOffset] = 'S';
 	romBuf[smallestRegionOffset+1] = 'T';
 	romBuf[smallestRegionOffset+2] = 'A';
 	romBuf[smallestRegionOffset+3] = 'R';
-	romBuf[smallestRegionOffset+4] = size&0xFF;
-	romBuf[smallestRegionOffset+5] = (size>>8)&0xFF;
-	romBuf[smallestRegionOffset+6] = (size&0xFF)^0xFF;
-	romBuf[smallestRegionOffset+7] = ((size>>8)&0xFF)^0xFF;
+	romBuf[smallestRegionOffset+4] = (size-1)&0xFF;
+	romBuf[smallestRegionOffset+5] = ((size-1)>>8)&0xFF;
+	romBuf[smallestRegionOffset+6] = ((size-1)&0xFF)^0xFF;
+	romBuf[smallestRegionOffset+7] = (((size-1)>>8)&0xFF)^0xFF;
 	return smallestRegionOffset+8;
 }
 
