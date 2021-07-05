@@ -108,7 +108,7 @@ DWORD findFreespace(DWORD size) {
 						DWORD ratsSize = romBuf[i]|(romBuf[i+1]<<8);
 						DWORD ratsSizeCmp = romBuf[i+2]|(romBuf[i+3]<<8);
 						if((ratsSize^ratsSizeCmp)==0xFFFF) {
-							i += ratsSize+5;
+							i += ratsSize+4;
 							if(ratsBegin!=prevRatsEnd) {
 								//Make sure region does not cross bank boundary!
 								if(((ratsBegin-1)&0x7F8000)==(prevRatsEnd&0x7F8000)) {
@@ -139,7 +139,7 @@ DWORD findFreespace(DWORD size) {
 									}
 								}
 							}
-							prevRatsEnd = i;
+							prevRatsEnd = i+1;
 						}
 					}
 				}

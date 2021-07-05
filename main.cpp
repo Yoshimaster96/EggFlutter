@@ -334,9 +334,10 @@ void updateDialog_editHeader(HWND hwnd) {
 void updateDialog_editLevNames(HWND hwnd) {
 	char textBuf[0x8000];
 	int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
-	int messageOffset = romBuf[0x1149BC+(tMsgIdx<<1)]|(romBuf[0x1149BD+(tMsgIdx<<1)]<<8);
-	if(messageOffset) {
-		int messageLen = readGameText(&romBuf[0x110000+messageOffset],textBuf);
+	DWORD messageOffset = romBuf[0x1149BC+(tMsgIdx<<1)]|(romBuf[0x1149BD+(tMsgIdx<<1)]<<8)|(romBuf[0x115348+tMsgIdx]<<16);
+	messageOffset = convAddr_SNEStoPC_YI(messageOffset);
+	if(messageOffset!=0x110000) {
+		int messageLen = readGameText(&romBuf[messageOffset],textBuf);
 		textBuf[messageLen] = 0;
 	} else {
 		textBuf[0] = 0;
@@ -348,9 +349,10 @@ void updateDialog_editLevMessages(HWND hwnd) {
 	int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
 	int tMsgIdx2 = SendDlgItemMessageA(hwnd,21,CB_GETCURSEL,0,0);
 	tMsgIdx = (tMsgIdx<<2)|tMsgIdx2;
-	int messageOffset = romBuf[0x1110DB+(tMsgIdx<<1)]|(romBuf[0x1110DC+(tMsgIdx<<1)]<<8);
-	if(messageOffset) {
-		int messageLen = readGameText(&romBuf[0x110000+messageOffset],textBuf);
+	DWORD messageOffset = romBuf[0x1110DB+(tMsgIdx<<1)]|(romBuf[0x1110DC+(tMsgIdx<<1)]<<8)|(romBuf[0x115390+tMsgIdx]<<16);
+	messageOffset = convAddr_SNEStoPC_YI(messageOffset);
+	if(messageOffset!=0x110000) {
+		int messageLen = readGameText(&romBuf[messageOffset],textBuf);
 		textBuf[messageLen] = 0;
 	} else {
 		textBuf[0] = 0;
@@ -949,7 +951,28 @@ INT_PTR DlgProc_dEditLevNames(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					break;
 				}
 				case IDOK: {
-					//TODO
+					//Convert message data
+					BYTE tempBufMsgData[0x8000];
+					char tempBufMsgStr[0x8000];
+					GetDlgItemTextA(hwnd,25,tempBufMsgStr,0x8000);
+					int messageLen = writeGameText(tempBufMsgData,tempBufMsgStr);
+					tempBufMsgData[messageLen++] = 0xFD;
+					//Clear old message data
+					int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
+					DWORD oldMessageOffset = romBuf[0x1149BC+(tMsgIdx<<1)]|(romBuf[0x1149BD+(tMsgIdx<<1)]<<8)|(romBuf[0x115348+tMsgIdx]<<16);
+					if(oldMessageOffset&0x800000) {
+						oldMessageOffset = convAddr_SNEStoPC_YI(oldMessageOffset);
+						int oldMessageSize = romBuf[oldMessageOffset-4]|(romBuf[oldMessageOffset-3]<<8);
+						memset(&romBuf[oldMessageOffset-8],0,oldMessageSize+9);
+					}
+					//Write message data to ROM and exit with code 1 (message changed)
+					DWORD messageOffset = findFreespace(messageLen);
+					memcpy(&romBuf[messageOffset],tempBufMsgData,messageLen);
+					messageOffset = convAddr_PCtoSNES_YI(messageOffset);
+					romBuf[0x1149BC+(tMsgIdx<<1)] = messageOffset&0xFF;
+					romBuf[0x1149BD+(tMsgIdx<<1)] = (messageOffset>>8)&0xFF;
+					romBuf[0x115348+tMsgIdx] = (messageOffset>>16)&0xFF;
+					EndDialog(hwnd,1);
 					break;
 				}
 			}
@@ -998,7 +1021,30 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 					break;
 				}
 				case IDOK: {
-					//TODO
+					//Convert message data
+					BYTE tempBufMsgData[0x8000];
+					char tempBufMsgStr[0x8000];
+					GetDlgItemTextA(hwnd,25,tempBufMsgStr,0x8000);
+					int messageLen = writeGameText(tempBufMsgData,tempBufMsgStr);
+					tempBufMsgData[messageLen++] = 0xFD;
+					//Clear old message data
+					int tMsgIdx = SendDlgItemMessageA(hwnd,20,CB_GETCURSEL,0,0);
+					int tMsgIdx2 = SendDlgItemMessageA(hwnd,21,CB_GETCURSEL,0,0);
+					tMsgIdx = (tMsgIdx<<2)|tMsgIdx2;
+					DWORD oldMessageOffset = romBuf[0x1110DB+(tMsgIdx<<1)]|(romBuf[0x1110DC+(tMsgIdx<<1)]<<8)|(romBuf[0x115390+tMsgIdx]<<16);
+					if(oldMessageOffset&0x800000) {
+						oldMessageOffset = convAddr_SNEStoPC_YI(oldMessageOffset);
+						int oldMessageSize = romBuf[oldMessageOffset-4]|(romBuf[oldMessageOffset-3]<<8);
+						memset(&romBuf[oldMessageOffset-8],0,oldMessageSize+9);
+					}
+					//Write message data to ROM and exit with code 1 (message changed)
+					DWORD messageOffset = findFreespace(messageLen);
+					memcpy(&romBuf[messageOffset],tempBufMsgData,messageLen);
+					messageOffset = convAddr_PCtoSNES_YI(messageOffset);
+					romBuf[0x1110DB+(tMsgIdx<<1)] = messageOffset&0xFF;
+					romBuf[0x1110DC+(tMsgIdx<<1)] = (messageOffset>>8)&0xFF;
+					romBuf[0x115390+tMsgIdx] = (messageOffset>>16)&0xFF;
+					EndDialog(hwnd,1);
 					break;
 				}
 			}

@@ -29,6 +29,7 @@ org $01E656
 SetLevel:
 	and.w #$00FF
 	sta.w LevelID
+	asl
 	jml.l $01B088
 
 padbyte $FF
