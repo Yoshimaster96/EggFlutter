@@ -1,6 +1,6 @@
 ;Allow sprite data to be located in extended region
 org $01B09A
-	jml.l SetSpriteDataPointer
+	jmp.w SetSpriteDataPointer
 padbyte $FF
 pad $01B0AD
 
@@ -12,7 +12,7 @@ pad $00C795
 
 ;Allow level messages to be located in extended region
 org $01E19A
-	jml.l SetLevelMessageDataPointer
+	jmp.w SetLevelMessageDataPointer
 padbyte $FF
 org $01E1A9
 
@@ -50,7 +50,7 @@ SetSpriteDataPointer_EndCopy:
 	lda.w #$0071
 	sta.l $702602
 SetSpriteDataPointer_Return:
-	jml.l $01B0AD
+	jmp.w $01B0AD
 
 SetLevelNameDataPointer:
 	phx
@@ -117,7 +117,7 @@ SetLevelMessageDataPointer_EndCopy:
 	lda.w #$0070
 	sta.w $704098
 SetLevelMessageDataPointer_Return:
-	jml.l $01E1A9
+	jmp.w $01E1A9
 
 org $09E92F
 arch superfx

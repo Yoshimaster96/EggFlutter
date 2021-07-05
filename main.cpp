@@ -1172,6 +1172,11 @@ inline void updateDialogs() {
 }
 
 //Functions for menu items
+BYTE manifestXmlBuf[0x10000];
+DWORD manifestXmlBufSize;
+BYTE manifestBmlBuf[0x10000];
+DWORD manifestBmlBufSize;
+
 //File
 void onOpen() {
 	//Prompt save
@@ -1191,7 +1196,11 @@ void onOpen() {
 	if(GetOpenFileNameA(&ofn)) {
 		hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 		//Load ROM
+#ifdef YI_4MB_MODE
+		memset(romBuf,0,0x400000);
+#else
 		memset(romBuf,0,0x800000);
+#endif
 		FILE * fp = fopen(romFilename,"rb");
 		fseek(fp,0,SEEK_END);
 		long fileSize = ftell(fp);
@@ -1238,6 +1247,8 @@ void onSave() {
 	if(isRomOpen) {
 		//Save level
 		saveLevel();
+		//Save manifest files
+		//TODO
 		//Save ROM
 		FILE * fp = fopen(romFilename,"wb");
 		if(hasSmcHeader) {
@@ -1265,6 +1276,8 @@ void onSaveAs() {
 			hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 			//Save level
 			saveLevel();
+			//Save manifest files
+			//TODO
 			//Save ROM
 			FILE * fp = fopen(romFilename,"wb");
 			if(hasSmcHeader) {
@@ -2240,15 +2253,27 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 //Main entry point
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
 	//Load resources
+	//Icon
 	hiconMain = LoadIconA(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));
 	hinstMain = hInstance;
+	//8x8 2BPP font
 	HRSRC fontRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_FONT_CHR),RT_RCDATA);
 	BYTE * fontData = (BYTE*)LockResource(LoadResource(NULL,fontRes));
 	unpackGfx2BPP(fontBuffer,fontData,0x80);
+	//BPS patch
 	HRSRC patchRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_PATCH_BPS),RT_RCDATA);
 	BYTE * patchData = (BYTE*)LockResource(LoadResource(NULL,patchRes));
 	patchBufSize = SizeofResource(NULL,patchRes);
 	memcpy(patchBuf,patchData,patchBufSize);
+	//Manifest files
+	HRSRC manifestXmlRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_MANIFEST_XML),RT_RCDATA);
+	HRSRC manifestBmlRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_MANIFEST_BML),RT_RCDATA);
+	BYTE * manifestXmlData = (BYTE*)LockResource(LoadResource(NULL,manifestXmlRes));
+	BYTE * manifestBmlData = (BYTE*)LockResource(LoadResource(NULL,manifestBmlRes));
+	manifestXmlSize = SizeofResource(NULL,manifestXmlRes);
+	manifestBmlSize = SizeofResource(NULL,manifestBmlRes);
+	memcpy(manifestXmlBuf,manifestXmlData,manifestXmlSize);
+	memcpy(manifestBmlBuf,manifestBmlData,manifestBmlSize);
 	
 	//Register main window class
 	WNDCLASSEXA wc;

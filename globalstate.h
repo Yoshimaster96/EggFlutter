@@ -8,8 +8,12 @@
 extern HICON hiconMain;
 extern HINSTANCE hinstMain;
 extern bool isRomOpen,isRomSaved;
+#ifdef YI_4MB_MODE
+extern BYTE romBuf[0x400000];
+#else
 extern BYTE romBuf[0x800000];
-extern BYTE patchBuf[0x200000];
+#endif
+extern BYTE patchBuf[0x10000];
 extern DWORD patchBufSize;
 //Variables for levels
 extern BYTE curLevel;

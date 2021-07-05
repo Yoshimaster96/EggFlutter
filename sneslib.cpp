@@ -161,16 +161,25 @@ DWORD convAddr_SNEStoPC_YI(DWORD addr) {
 			break;
 		}
 		case 0xC00000: {
+#ifdef YI_4MB_MODE
+			return (addr&0x3FFFFF)|0x200000;
+#else
 			return (addr&0x3FFFFF)|0x400000;
+#endif
 			break;
 		}
 	}
 }
 DWORD convAddr_PCtoSNES_YI(DWORD addr) {
+#ifdef YI_4MB_MODE
+	if(addr>0x200000) {
+		return (addr&0x1FFFFF)|0xC00000;
+#else
 	if(addr>0x400000) {
 		return addr|0x800000;
 	} else if(addr>0x200000) {
 		return (addr&0x7FFF)|((addr&0x1F8000)<<1)|0x808000;
+#endif
 	} else if(addr>0xC0000) {
 		return addr|0x400000;
 	} else {

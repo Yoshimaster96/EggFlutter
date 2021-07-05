@@ -1,4 +1,12 @@
 #include "../resources.h"
 
-IDR_PATCH_BPS RCDATA "resources/patches/patch.bps"
+#ifdef YI_4MB_MODE
+IDR_PATCH_BPS RCDATA "resources/patches/patch_4mb.bps"
+IDR_MANIFEST_XML RCDATA "resources/patches/yi_4mb.xml"
+IDR_MANIFEST_BML RCDATA "resources/patches/yi_4mb.bml"
+#else
+IDR_PATCH_BPS RCDATA "resources/patches/patch_8mb.bps"
+IDR_MANIFEST_XML RCDATA "resources/patches/yi_8mb.xml"
+IDR_MANIFEST_BML RCDATA "resources/patches/yi_8mb.bml"
+#endif
 

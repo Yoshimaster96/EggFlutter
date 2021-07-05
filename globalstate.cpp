@@ -4,9 +4,14 @@
 HICON hiconMain;
 HINSTANCE hinstMain;
 bool isRomOpen = false,isRomSaved = false;
+#ifdef YI_4MB_MODE
+BYTE romBuf[0x400000];
+BYTE oldRomBuf[0x400000];
+#else
 BYTE romBuf[0x800000];
 BYTE oldRomBuf[0x800000];
-BYTE patchBuf[0x200000];
+#endif
+BYTE patchBuf[0x10000];
 DWORD patchBufSize;
 //Variables for levels
 BYTE curLevel = 0;
@@ -29,7 +34,11 @@ DWORD readVariableSizeFromPatch(int * offset) {
 }
 void patchRom() {
 	//Patch ROM
+#ifdef YI_4MB_MODE
+	memcpy(oldRomBuf,romBuf,0x400000);
+#else
 	memcpy(oldRomBuf,romBuf,0x800000);
+#endif
 	int srcOff = 4,dstOff = 0;
 	int srcReadOff = 0,dstReadOff = 0;
 	//Skip magic/input/output/manifest stuff
@@ -84,17 +93,26 @@ bool checkRom() {
 	if(romBuf[0x7FD7]==11) {
 		patchRom();
 		return true;
+#ifdef YI_4MB_MODE
+	} else if(romBuf[0x7FD7]==12) {
+#else
 	} else if(romBuf[0x7FD7]==13) {
+#endif
 		return true;
 	}
 	return false;
 }
 DWORD findFreespace(DWORD size) {
 	//Find smallest region which is at least size+8 bytes
-	DWORD smallestRegionOffset = 0x200000;
-	DWORD smallestRegionSize = 0x800000;
 	DWORD prevRatsEnd = 0x200000;
+	DWORD smallestRegionOffset = 0x200000;
+#ifdef YI_4MB_MODE
+	DWORD smallestRegionSize = 0x200000;
+	for(DWORD i=0x200000; i<0x400000; i++) {
+#else
+	DWORD smallestRegionSize = 0x600000;
 	for(DWORD i=0x200000; i<0x800000; i++) {
+#endif
 		//Search for next RATS tag
 		if(romBuf[i]=='S') {
 			DWORD ratsBegin = i;
@@ -110,6 +128,13 @@ DWORD findFreespace(DWORD size) {
 						if((ratsSize^ratsSizeCmp)==0xFFFF) {
 							i += ratsSize+4;
 							if(ratsBegin!=prevRatsEnd) {
+#ifdef YI_4MB_MODE
+								int thisRegionSize = ratsBegin-prevRatsEnd;
+								if(thisRegionSize<smallestRegionSize && thisRegionSize>=(size+8)) {
+									smallestRegionSize = thisRegionSize;
+									smallestRegionOffset = prevRatsEnd;
+								}
+#else
 								//Make sure region does not cross bank boundary!
 								if(((ratsBegin-1)&0x7F8000)==(prevRatsEnd&0x7F8000)) {
 									int thisRegionSize = ratsBegin-prevRatsEnd;
@@ -138,6 +163,7 @@ DWORD findFreespace(DWORD size) {
 										}
 									}
 								}
+#endif
 							}
 							prevRatsEnd = i+1;
 						}
@@ -147,6 +173,14 @@ DWORD findFreespace(DWORD size) {
 		}
 	}
 	//Check region at end of ROM
+#ifdef YI_4MB_MODE
+	//Check end bit after last RATS
+	int endRegionSize = 0x400000-prevRatsEnd;
+	if(endRegionSize<smallestRegionSize && endRegionSize>=(size+8)) {
+		smallestRegionSize = endRegionSize;
+		smallestRegionOffset = prevRatsEnd;
+	}
+#else
 	//Make sure region does not cross bank boundary!
 	//Check end bit after last RATS
 	int endRegionSize = ((prevRatsEnd+0x8000)&0x7F8000)-prevRatsEnd;
@@ -161,6 +195,7 @@ DWORD findFreespace(DWORD size) {
 			smallestRegionOffset = (prevRatsEnd+0x8000)&0x7F8000;
 		}
 	}
+#endif
 	//Create RATS tag and return pointer
 	romBuf[smallestRegionOffset] = 'S';
 	romBuf[smallestRegionOffset+1] = 'T';

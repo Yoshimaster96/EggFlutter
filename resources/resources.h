@@ -21,6 +21,8 @@
 
 #define IDR_FONT_CHR		500
 #define IDR_PATCH_BPS		501
+#define IDR_MANIFEST_XML	502
+#define IDR_MANIFEST_BML	503
 
 #endif
 

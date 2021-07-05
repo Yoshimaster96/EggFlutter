@@ -2,7 +2,9 @@
 
 ;Modify code
 org $01B084
-	jml.l SetLevel
+	jmp.w SetLevel
+padbyte $FF
+pad $01B088
 
 org $01E656
 	stz.w $038E
@@ -30,8 +32,7 @@ SetLevel:
 	and.w #$00FF
 	sta.w LevelID
 	asl
-	jml.l $01B088
-
+	jmp.w $01B088
 padbyte $FF
 pad $01E687
 
