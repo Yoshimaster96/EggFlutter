@@ -2270,10 +2270,10 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	HRSRC manifestBmlRes = FindResourceA(NULL,MAKEINTRESOURCE(IDR_MANIFEST_BML),RT_RCDATA);
 	BYTE * manifestXmlData = (BYTE*)LockResource(LoadResource(NULL,manifestXmlRes));
 	BYTE * manifestBmlData = (BYTE*)LockResource(LoadResource(NULL,manifestBmlRes));
-	manifestXmlSize = SizeofResource(NULL,manifestXmlRes);
-	manifestBmlSize = SizeofResource(NULL,manifestBmlRes);
-	memcpy(manifestXmlBuf,manifestXmlData,manifestXmlSize);
-	memcpy(manifestBmlBuf,manifestBmlData,manifestBmlSize);
+	manifestXmlBufSize = SizeofResource(NULL,manifestXmlRes);
+	manifestBmlBufSize = SizeofResource(NULL,manifestBmlRes);
+	memcpy(manifestXmlBuf,manifestXmlData,manifestXmlBufSize);
+	memcpy(manifestBmlBuf,manifestBmlData,manifestBmlBufSize);
 	
 	//Register main window class
 	WNDCLASSEXA wc;

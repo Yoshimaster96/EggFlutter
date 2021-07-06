@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=3
 CompilerSettings=000a00b100110000000001000
-UnitCount=37
+UnitCount=38
 
 [VersionInfo]
 Major=1
@@ -322,10 +322,10 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit32]
-FileName=resources\patches\patch.bps
+FileName=resources\patches\patch.rc
 CompileCpp=1
 Folder=resources/patches
-Compile=0
+Compile=1
 Link=0
 Priority=1000
 OverrideBuildCmd=0
@@ -359,15 +359,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit33]
-FileName=resources\patches\patch.rc
-Folder=resources/patches
-Compile=1
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit34]
 FileName=resources\patches\yi_4mb.bml
 Folder=resources/patches
 Compile=0
@@ -376,7 +367,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
+[Unit34]
 FileName=resources\patches\yi_4mb.xml
 Folder=resources/patches
 Compile=0
@@ -385,7 +376,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit35]
 FileName=resources\patches\yi_8mb.bml
 Folder=resources/patches
 Compile=0
@@ -394,8 +385,26 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
+[Unit36]
 FileName=resources\patches\yi_8mb.xml
+Folder=resources/patches
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit37]
+FileName=resources\patches\patch_4mb.bps
+Folder=resources/patches
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit38]
+FileName=resources\patches\patch_8mb.bps
 Folder=resources/patches
 Compile=0
 Link=0

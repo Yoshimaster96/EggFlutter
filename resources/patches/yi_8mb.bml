@@ -1,23 +1,23 @@
 game
-  region: NTSC
-  board: GSU8MB-RAM
-    memory
-      type: ROM
-      size: 0x800000
-      content: Program
-    memory
-      type: RAM
-      size: 0x20000
-      content: Save
+	region: NTSC
+	board: GSU8MB-RAM
+		memory
+			type: ROM
+			size: 0x800000
+			content: Program
+		memory
+			type: RAM
+			size: 0x20000
+			content: Save
 
 board: GSU8MB-RAM
-  processor architecture=GSU
-    map address=00-3f,80-bf:3000-34ff
-    memory type=ROM content=Program
-      map address=00-3f:8000-ffff mask=0x8000
-      map address=40-5f:0000-ffff
-      map address=80-bf:8000-ffff mask=0x8000 base=0x200000
-      map address=c0-ff:0000-ffff base=0x400000
-    memory type=RAM content=Save
-      map address=00-3f,80-bf:6000-7fff size=0x2000
-      map address=70-71:0000-ffff
+	processor architecture=GSU
+		map address=00-3f,80-bf:3000-34ff
+			memory type=ROM size=0x800000 content=Program
+				map address=00-3f:8000-ffff mask=0x8000
+				map address=40-5f:0000-ffff
+				map address=80-bf:8000-ffff base=0x200000 mask=0x8000
+				map address=c0-ff:0000-ffff base=0x400000
+			memory type=RAM size=0x20000 content=Save
+				map address=00-3f,80-bf:6000-7fff size=0x2000
+				map address=70-71:0000-ffff
