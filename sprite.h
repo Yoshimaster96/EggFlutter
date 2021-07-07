@@ -14,12 +14,12 @@ typedef struct {
 	BYTE data[8];
 	int dataSize;
 	bool selected;
-	std::vector<sprite_tile_t> tiles;
 	std::vector<int> occupiedTiles;
 } sprite_t;
 typedef struct {
 	std::vector<sprite_t> sprites;
 	std::vector<sprite_t*> assocSprites[0x8000];
+	std::vector<sprite_tile_t> tilemapSprites[0x8000];
 	bool invalidSprites[0x8000];
 } level_sprite_data_ctx_t;
 

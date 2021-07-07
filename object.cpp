@@ -14,7 +14,7 @@ void addObjectTile(object_t * o,WORD tile,int offset) {
 		//Store in object
 		o->occupiedTiles.push_back(offset);
 		//Set tile in tilemap for current context
-		objectContexts[curObjCtx].tilemap[offset] = tile;
+		objectContexts[curObjCtx].tilemapObjects[offset] = tile;
 		objectContexts[curObjCtx].assocObjects[offset].push_back(o);
 	}
 }
@@ -32,7 +32,7 @@ inline int getBaseMap16Offset(object_t * o) {
 	return (lo&0xF)|((hi&0xF)<<4)|((lo&0xF0)<<4)|((hi&0xF0)<<8);
 }
 inline WORD getOriginalMap16Tile(int offset) {
-	if(offset>=0 && offset<0x8000) return objectContexts[curObjCtx].tilemap[offset];
+	if(offset>=0 && offset<0x8000) return objectContexts[curObjCtx].tilemapObjects[offset];
 	else return 0;
 }
 inline int offsetMap16Right(int curOffs) {
@@ -9027,7 +9027,7 @@ void drawObjects() {
 		objectContexts[curObjCtx].assocObjects[i].clear();
 		objectContexts[curObjCtx].invalidObjects[i] = false;
 	}
-	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
+	memset(objectContexts[curObjCtx].tilemapObjects,0,0x10000);
 	//Draw objects
 	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
@@ -9061,7 +9061,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
-			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
+			WORD tile = objectContexts[curObjCtx].tilemapObjects[tileIdx];
 			if((tile&0xFF00)==0xBC00) {
 				switch(tile&0xFF) {
 					//Screen copy

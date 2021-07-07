@@ -14,7 +14,7 @@ typedef struct {
 typedef struct {
 	std::vector<object_t> objects;
 	std::vector<object_t*> assocObjects[0x8000];
-	WORD tilemap[0x8000];
+	WORD tilemapObjects[0x8000];
 	bool invalidObjects[0x8000];
 } level_object_data_ctx_t;
 

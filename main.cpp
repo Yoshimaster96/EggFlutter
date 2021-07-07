@@ -1248,9 +1248,21 @@ void onSave() {
 		//Save level
 		saveLevel();
 		//Save manifest files
-		//TODO
+		char mfStr[256];
+		strncpy(mfStr,romFilename,256);
+		int extOff = strlen(mfStr)-3;
+		mfStr[extOff] = 'x';
+		mfStr[extOff+1] = 'm';
+		mfStr[extOff+2] = 'l';
+		FILE * fp = fopen(mfStr,"wb");
+		fwrite(manifestXmlBuf,1,manifestXmlBufSize,fp);
+		fclose(fp);
+		mfStr[extOff] = 'b';
+		fp = fopen(mfStr,"wb");
+		fwrite(manifestBmlBuf,1,manifestBmlBufSize,fp);
+		fclose(fp);
 		//Save ROM
-		FILE * fp = fopen(romFilename,"wb");
+		fp = fopen(romFilename,"wb");
 		if(hasSmcHeader) {
 			for(int i=0; i<0x200; i++) {
 				putc(0,fp);
@@ -1277,9 +1289,21 @@ void onSaveAs() {
 			//Save level
 			saveLevel();
 			//Save manifest files
-			//TODO
+			char mfStr[256];
+			strncpy(mfStr,romFilename,256);
+			int extOff = strlen(mfStr)-3;
+			mfStr[extOff] = 'x';
+			mfStr[extOff+1] = 'm';
+			mfStr[extOff+2] = 'l';
+			FILE * fp = fopen(mfStr,"wb");
+			fwrite(manifestXmlBuf,1,manifestXmlBufSize,fp);
+			fclose(fp);
+			mfStr[extOff] = 'b';
+			fp = fopen(mfStr,"wb");
+			fwrite(manifestBmlBuf,1,manifestBmlBufSize,fp);
+			fclose(fp);
 			//Save ROM
-			FILE * fp = fopen(romFilename,"wb");
+			fp = fopen(romFilename,"wb");
 			if(hasSmcHeader) {
 				for(int i=0; i<0x200; i++) {
 					putc(0,fp);
