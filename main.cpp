@@ -2202,12 +2202,10 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					if(eObj) {
 						setInvalidObjectBuffer(tempInvalid);
 						moveObjects(dx,dy);
-						drawObjects();
 						getInvalidObjectBuffer(tempInvalid);
 					} else if(eSp) {
 						setInvalidSpriteBuffer(tempInvalid);
 						moveSprites(dx,dy);
-						drawSprites();
 						getInvalidSpriteBuffer(tempInvalid);
 					}
 					isRomSaved = false;
@@ -2219,7 +2217,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					if(eObj) {
 						setInvalidObjectBuffer(tempInvalid);
 						resizeObjects(dx,dy);
-						drawObjects();
 						getInvalidObjectBuffer(tempInvalid);
 					}
 					isRomSaved = false;

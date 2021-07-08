@@ -9022,7 +9022,6 @@ void drawObjects() {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		objectContexts[curObjCtx].assocObjects[i].clear();
-		objectContexts[curObjCtx].invalidObjects[i] = false;
 	}
 	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	//Draw objects
@@ -9471,7 +9470,7 @@ void moveObjects(int dx,int dy) {
 		drawObjects();
 		for(int n=0; n<objectContexts[0].objects.size(); n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
-			if(thisObject->prevSelected!=thisObject->selected) {
+			if(thisObject->selected) {
 				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
 					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
 				}
@@ -9532,7 +9531,7 @@ void resizeObjects(int dx,int dy) {
 		drawObjects();
 		for(int n=0; n<objectContexts[0].objects.size(); n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
-			if(thisObject->prevSelected!=thisObject->selected) {
+			if(thisObject->selected) {
 				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
 					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
 				}

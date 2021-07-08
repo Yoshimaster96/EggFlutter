@@ -4020,7 +4020,6 @@ void drawSprites() {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
 		spriteContexts[curSpCtx].tilemap[i].clear();
-		spriteContexts[curSpCtx].invalidSprites[i] = false;
 	}
 	//Draw sprites
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
@@ -4352,7 +4351,7 @@ void moveSprites(int dx,int dy) {
 		drawSprites();
 		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-			if(thisSprite->prevSelected!=thisSprite->selected) {
+			if(thisSprite->selected) {
 				for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
 					spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
 				}
