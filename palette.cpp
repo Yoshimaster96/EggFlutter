@@ -417,6 +417,7 @@ void updatePaletteW6(bool dark) {
 HDC				hdcPal;
 HBITMAP			hbmpPal;
 DWORD *			bmpDataPal;
+RECT invRect_pal = {0,0,0x100,0x100};
 
 //Main drawing code
 void updateEntireScreen_pal() {

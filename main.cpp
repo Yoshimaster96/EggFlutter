@@ -1714,7 +1714,7 @@ int yoshiSpriteOffsYData[66] = {
 	 21, 12, -6,  2,  2, 21,
 	 -7,  1,  1, 15, 26, 26,
 	 18, 18,  2,  2, -6, 14};
-void dispYoshiSprite(int action,int x,int y) {
+void dispYoshiSprite(RECT rect,int action,int x,int y) {
 	for(int n=5; n>=0; n--) {
 		int tp = yoshiSpriteTileData[(action*6)+n];
 		if(tp==0xFFFF) continue;
@@ -1722,7 +1722,7 @@ void dispYoshiSprite(int action,int x,int y) {
 		int props = ((tp&0xC000)>>8)|((tp&0x2000)>>13)|(0xD<<2);
 		int xpos = x+yoshiSpriteOffsXData[(action*6)+n];
 		int ypos = y+yoshiSpriteOffsYData[(action*6)+n];
-		dispMap8Tile(bmpDataMain,0x1000,0x800,props,tile,{xpos,ypos},false);
+		dispMap8Tile(bmpDataMain,0x1000,0x800,props,tile,{xpos,ypos},rect,false);
 	}
 }
 
@@ -1734,29 +1734,29 @@ void dispEntrances(RECT rect) {
 		if(romBuf[0x0BF471+(i<<2)]==curLevel) {
 			int xpos = romBuf[0x0BF472+(i<<2)]<<4;
 			int ypos = romBuf[0x0BF473+(i<<2)]<<4;
-			dispYoshiSprite(0,xpos,ypos);
+			dispYoshiSprite(rect,0,xpos,ypos);
 			snprintf(strBuf,256,"Main Entrance to %s",worldLevelStrings[i]);
 			for(int n=0; n<strlen(strBuf); n++) {
-				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},false);
+				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},rect,false);
 			}
 		}
 	}
 	//Draw midway entrance
 	int xpos = romBuf[0x0BF551+(curLevel<<1)]<<4;
 	int ypos = romBuf[0x0BF552+(curLevel<<1)]<<4;
-	dispYoshiSprite(0,xpos,ypos);
+	dispYoshiSprite(rect,0,xpos,ypos);
 	snprintf(strBuf,256,"Midway Entrance to Level %02X",curLevel);
 	for(int n=0; n<strlen(strBuf); n++) {
-		dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},false);
+		dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{xpos+(n<<3),ypos},rect,false);
 	}
 }
 void dispExits(RECT rect) {
 	int minx = std::max((int)(rect.left&0x7F00),0);
 	int miny = std::max((int)(rect.top&0x7F00),0);
-	int maxx = std::min((int)((rect.right&0x7F00)+0x100),0x1000);
-	int maxy = std::min((int)((rect.bottom&0x7F00)+0x100),0x800);
-	for(int j=miny; j<maxy; j+=0x100) {
-		for(int i=minx; i<maxx; i+=0x100) {
+	int maxx = std::min((int)(rect.right&0x7F00),0xF00);
+	int maxy = std::min((int)(rect.bottom&0x7F00),0x700);
+	for(int j=miny; j<=maxy; j+=0x100) {
+		for(int i=minx; i<=maxx; i+=0x100) {
 			//Draw screen borders
 			for(int n=0; n<0x100; n++) {
 				putPixel(bmpDataMain,0x1000,0x800,0xFF,{i+n,j});
@@ -1787,7 +1787,7 @@ void dispExits(RECT rect) {
 				snprintf(strBuf,256,"%02X",screen);
 			}
 			for(int n=0; n<strlen(strBuf); n++) {
-				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{i+(n<<3)+2,j+2},false);
+				dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0xFF,strBuf[n],{i+(n<<3)+2,j+2},rect,false);
 			}
 		}
 	}
@@ -1795,10 +1795,10 @@ void dispExits(RECT rect) {
 void dispGrid(RECT rect) {
 	int minx = std::max((int)(rect.left&0x7FF0),0);
 	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
-	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
-	for(int j=miny; j<maxy; j+=0x10) {
-		for(int i=minx; i<maxx; i+=0x10) {
+	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+	for(int j=miny; j<=maxy; j+=0x10) {
+		for(int i=minx; i<=maxx; i+=0x10) {
 			for(int n=0; n<0x10; n++) {
 				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i+n,j});
 				putPixel(bmpDataMain,0x1000,0x800,0xFFFFFF,{i,j+n});
@@ -1866,12 +1866,12 @@ void updateRect(RECT rect) {
 			int maxx = std::max(selpCur.x,selpPrev.x);
 			int maxy = std::max(selpCur.y,selpPrev.y);
 			for(int i=minx; i<maxx; i++) {
-				invertPixel(bmpDataMain,0x1000,0x800,{i,miny});
-				invertPixel(bmpDataMain,0x1000,0x800,{i+1,maxy});
+				if(PtInRect(&rect,{i,miny})) invertPixel(bmpDataMain,0x1000,0x800,{i,miny});
+				if(PtInRect(&rect,{i+1,maxy})) invertPixel(bmpDataMain,0x1000,0x800,{i+1,maxy});
 			}
 			for(int j=miny; j<maxy; j++) {
-				invertPixel(bmpDataMain,0x1000,0x800,{minx,j+1});
-				invertPixel(bmpDataMain,0x1000,0x800,{maxx,j});
+				if(PtInRect(&rect,{minx,j+1})) invertPixel(bmpDataMain,0x1000,0x800,{minx,j+1});
+				if(PtInRect(&rect,{maxx,j})) invertPixel(bmpDataMain,0x1000,0x800,{maxx,j});
 			}
 		}
 	} else {
@@ -2117,6 +2117,34 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			levY = std::max(0,levY);
 			levY = std::min(0x7FFF,levY);
 			if(dragFlag) {
+				//Setup invalid tile buffer
+				bool tempInvalid[0x8000];
+				for(int i=0; i<0x8000; i++) {
+					tempInvalid[i] = false;
+				}
+				if(selOp==4) {
+					RECT selRect = {
+					std::min(selpCur.x,selpPrev.x),
+					std::min(selpCur.y,selpPrev.y),
+					std::max(selpCur.x,selpPrev.x),
+					std::max(selpCur.y,selpPrev.y)};
+					int minx = std::max((int)(selRect.left&0x7FF0),0);
+					int miny = std::max((int)(selRect.top&0x7FF0),0);
+					int maxx = std::min((int)(selRect.right&0x7FF0),0xFF0);
+					int maxy = std::min((int)(selRect.bottom&0x7FF0),0x7F0);
+					for(int i=minx; i<=maxx; i+=0x10) {
+						int tileIdx = (i>>4)|(miny<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+						tileIdx = (i>>4)|(maxy<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+					}
+					for(int j=miny; j<=maxy; j+=0x10) {
+						int tileIdx = (minx>>4)|(j<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+						tileIdx = (maxx>>4)|(j<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+					}
+				}
 				//Do fast edge scroll
 				if(selOp!=4) selpPrev = selpCur;
 				selpCur = {levX,levY};
@@ -2143,32 +2171,73 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					std::min(selpCur.y,selpPrev.y),
 					std::max(selpCur.x,selpPrev.x),
 					std::max(selpCur.y,selpPrev.y)};
+					int minx = std::max((int)(selRect.left&0x7FF0),0);
+					int miny = std::max((int)(selRect.top&0x7FF0),0);
+					int maxx = std::min((int)(selRect.right&0x7FF0),0xFF0);
+					int maxy = std::min((int)(selRect.bottom&0x7FF0),0x7F0);
+					for(int i=minx; i<=maxx; i+=0x10) {
+						int tileIdx = (i>>4)|(miny<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+						tileIdx = (i>>4)|(maxy<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+					}
+					for(int j=miny; j<=maxy; j+=0x10) {
+						int tileIdx = (minx>>4)|(j<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+						tileIdx = (maxx>>4)|(j<<4);
+						if(tileIdx>=0 && tileIdx<0x8000) tempInvalid[tileIdx] = true;
+					}
 					if(eObj) {
+						setInvalidObjectBuffer(tempInvalid);
 						selectObjects(selRect);
+						getInvalidObjectBuffer(tempInvalid);
 					} else if(eSp) {
+						setInvalidSpriteBuffer(tempInvalid);
 						selectSprites(selRect);
+						getInvalidSpriteBuffer(tempInvalid);
 					}
 				} else if(selOp==5) {
-					int dx = (selpCur.x&0xFFF0)-(selpPrev.x&0xFFF0);
+					int dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
 					int dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
 					if(eObj) {
+						setInvalidObjectBuffer(tempInvalid);
 						moveObjects(dx,dy);
 						drawObjects();
+						getInvalidObjectBuffer(tempInvalid);
 					} else if(eSp) {
+						setInvalidSpriteBuffer(tempInvalid);
 						moveSprites(dx,dy);
 						drawSprites();
+						getInvalidSpriteBuffer(tempInvalid);
 					}
 					isRomSaved = false;
 				} else {
 					int dx = 0;
 					int dy = 0;
-					if(selOp&1) dx = (selpCur.x&0xFFF0)-(selpPrev.x&0xFFF0);
+					if(selOp&1) dx = (selpCur.x&0x7FF0)-(selpPrev.x&0x7FF0);
 					if(selOp&2) dy = (selpCur.y&0x7FF0)-(selpPrev.y&0x7FF0);
 					if(eObj) {
+						setInvalidObjectBuffer(tempInvalid);
 						resizeObjects(dx,dy);
 						drawObjects();
+						getInvalidObjectBuffer(tempInvalid);
 					}
 					isRomSaved = false;
+				}
+				//Invalidate using buffer
+				RECT winRect;
+				GetWindowRect(hwnd,&winRect);
+				for(int i=0; i<0x8000; i++) {
+					if(tempInvalid[i]) {
+						int tileX = (i&0xFF)<<4;
+						int tileY = (i>>8)<<4;
+						RECT tileRect = {tileX,tileY,tileX+0x10,tileY+0x10};
+						updateRect(tileRect);
+						tileX += winRect.left-xCurScroll;
+						tileY += winRect.top-yCurScroll;
+						tileRect = {tileX,tileY,tileX+0x10,tileY+0x10};
+						InvalidateRect(hwnd,&tileRect,false);
+					}
 				}
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
@@ -2194,8 +2263,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 				SendMessageA(hwndTooltip,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
 				SendMessageA(hwndTooltip,TTM_ACTIVATE,tipText[0]!='\0',0);
 			}
-			
-			updateEntireScreen();
 			break;
 		}
 		case WM_LBUTTONDOWN: {

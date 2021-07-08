@@ -14,7 +14,7 @@ void addObjectTile(object_t * o,WORD tile,int offset) {
 		//Store in object
 		o->occupiedTiles.push_back(offset);
 		//Set tile in tilemap for current context
-		objectContexts[curObjCtx].tilemapObjects[offset] = tile;
+		objectContexts[curObjCtx].tilemap[offset] = tile;
 		objectContexts[curObjCtx].assocObjects[offset].push_back(o);
 	}
 }
@@ -32,7 +32,7 @@ inline int getBaseMap16Offset(object_t * o) {
 	return (lo&0xF)|((hi&0xF)<<4)|((lo&0xF0)<<4)|((hi&0xF0)<<8);
 }
 inline WORD getOriginalMap16Tile(int offset) {
-	if(offset>=0 && offset<0x8000) return objectContexts[curObjCtx].tilemapObjects[offset];
+	if(offset>=0 && offset<0x8000) return objectContexts[curObjCtx].tilemap[offset];
 	else return 0;
 }
 inline int offsetMap16Right(int curOffs) {
@@ -85,7 +85,7 @@ inline void overlapTile_stdLedgeBottom(object_t * o,int mtOff,WORD orig) {
 		int mtOff2 = offsetMap16Left(mtOff);
 		WORD orig2 = getOriginalMap16Tile(mtOff2);
 		if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
-		(orig2>=tilesetBuffer[0x1CAE>>1]) && orig2<tilesetBuffer[0x1CB6>>1]) {
+		(orig2>=tilesetBuffer[0x1CAE>>1] && orig2<tilesetBuffer[0x1CB6>>1])) {
 			addObjectTile(o,tilesetBuffer[0x1CCC>>1],mtOff);
 			mtOff2 = offsetMap16Down(mtOff);
 			addObjectTile(o,tilesetBuffer[0x1CC2>>1],mtOff2);
@@ -94,7 +94,7 @@ inline void overlapTile_stdLedgeBottom(object_t * o,int mtOff,WORD orig) {
 		mtOff2 = offsetMap16Right(mtOff);
 		orig2 = getOriginalMap16Tile(mtOff2);
 		if(orig2==tilesetBuffer[0x1CE8>>1] || orig2==tilesetBuffer[0x1CEA>>1] ||
-		(orig2>=tilesetBuffer[0x1CAE>>1]) && orig2<tilesetBuffer[0x1CB6>>1]) {
+		(orig2>=tilesetBuffer[0x1CAE>>1] && orig2<tilesetBuffer[0x1CB6>>1])) {
 			addObjectTile(o,tilesetBuffer[0x1CCA>>1],mtOff);
 			mtOff2 = offsetMap16Down(mtOff);
 			addObjectTile(o,tilesetBuffer[0x1CC4>>1],mtOff2);
@@ -918,7 +918,7 @@ void drawObject_extended67(object_t * o) {
 		if(tile==orig) {
 			tileRef = romBuf[0x09313E +n]|(romBuf[0x09313F+n]<<8);
 			if(tileRef&0x8000) tile = romBuf[0x88000+tileRef]|(romBuf[0x88001+tileRef]<<8);
-			else tilesetBuffer[tileRef>>1];
+			else tile = tilesetBuffer[tileRef>>1];
 			addObjectTile(o,tile,mtOff);
 			break;
 		}
@@ -5865,7 +5865,6 @@ void drawObject_85(object_t * o) {
 	int height = o->data[4]+1;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			WORD orig = getOriginalMap16Tile(mtOff);
 			if((height-j)==1) addObjectTile(o,tilesetBuffer[0x1DF6>>1],mtOff);
 			else if((height-j)==2) addObjectTile(o,tilesetBuffer[0x1DF2>>1],mtOff);
 			else {
@@ -5913,7 +5912,6 @@ void drawObject_86(object_t * o) {
 	if(height<1) height = 1;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			WORD orig = getOriginalMap16Tile(mtOff);
 			if((height-j)==1) addObjectTile(o,tilesetBuffer[0x1DEE>>1],mtOff);
 			else if((height-j)==2) addObjectTile(o,tilesetBuffer[0x1DEA>>1],mtOff);
 			else {
@@ -7505,7 +7503,6 @@ void drawObject_CB(object_t * o) {
 	bool shadowFlag = false;
 	for(int i=0; i<width; i++) {
 		for(int j=0; j<height; j++) {
-			WORD orig = getOriginalMap16Tile(mtOff);
 			WORD tile = 0x00C2;
 			if(i==0) tile = 0x00D6;
 			else if((i+1)==width) tile = 0x00D7;
@@ -8679,21 +8676,21 @@ void drawObject_ED(object_t * o) {
 		for(int i=0; i<width; i++) {
 			bool rhs = (mtOff&1)^((mtOff>>8)&1);
 			if(j==0) {
-				if((i==0 && rhs) || (i!=0 & (i+1)==width && !rhs)) addObjectTile(o,0x3D09,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x3D09,mtOff);
 				else addObjectTile(o,rhs?0x3D0B:0x3D0A,mtOff);
 			} else if(j==1) {
 				if(i==0 || !rhs) shadeOffs = (noiseTilemap[mtOff]&1)*3;
-				if((i==0 && rhs) || (i!=0 & (i+1)==width && !rhs)) addObjectTile(o,0x79E8+shadeOffs,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79E8+shadeOffs,mtOff);
 				else addObjectTile(o,rhs?(0x79EA+shadeOffs):(0x79E9+shadeOffs),mtOff);
 			} else if(j==2) {
-				if((i==0 && rhs) || (i!=0 & (i+1)==width && !rhs)) addObjectTile(o,0x79EB,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EB,mtOff);
 				else addObjectTile(o,rhs?0x79ED:0x79EC,mtOff);
 			} else if(j==3) {
 				if(i==0 || !rhs) shadeOffs = (noiseTilemap[mtOff]&1)*3;
-				if((i==0 && rhs) || (i!=0 & (i+1)==width && !rhs)) addObjectTile(o,0x79EB+shadeOffs,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EB+shadeOffs,mtOff);
 				else addObjectTile(o,rhs?(0x79ED+shadeOffs):(0x79EC+shadeOffs),mtOff);
 			} else {
-				if((i==0 && rhs) || (i!=0 & (i+1)==width && !rhs)) addObjectTile(o,0x79EE,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EE,mtOff);
 				else addObjectTile(o,rhs?0x79F0:0x79EF,mtOff);
 			}
 			mtOff = offsetMap16Right(mtOff);
@@ -9027,7 +9024,7 @@ void drawObjects() {
 		objectContexts[curObjCtx].assocObjects[i].clear();
 		objectContexts[curObjCtx].invalidObjects[i] = false;
 	}
-	memset(objectContexts[curObjCtx].tilemapObjects,0,0x10000);
+	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	//Draw objects
 	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
@@ -9053,15 +9050,16 @@ void drawObjects() {
 	}
 }
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
-	int minx = std::max((int)(rect.left&0xFFF0),0);
+	int minx = std::max((int)(rect.left&0x7FF0),0);
 	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)((rect.right&0xFFF0)+0x10),0x1000);
-	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
+	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
 	char obStr[256];
-	for(int j=miny; j<maxy; j+=0x10) {
-		for(int i=minx; i<maxx; i+=0x10) {
-			int tileIdx = (i>>4)|((j>>4)<<8);
-			WORD tile = objectContexts[curObjCtx].tilemapObjects[tileIdx];
+	for(int j=miny; j<=maxy; j+=0x10) {
+		for(int i=minx; i<=maxx; i+=0x10) {
+			int tileIdx = (i>>4)|(j<<4);
+			RECT tileRect = {i,j,i+0x10,j+0x10};
+			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
 			if((tile&0xFF00)==0xBC00) {
 				switch(tile&0xFF) {
 					//Screen copy
@@ -9087,7 +9085,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						break;
 					}
 					//Screen scroll enable
-					case 0xD0: 
+					case 0xD0:
 					case 0xE0: {
 						obStr[0] = 'S';
 						obStr[1] = 'c';
@@ -9109,7 +9107,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						obStr[3] = 'n';
 						break;
 					}
-					case 0xD3: 
+					case 0xD3:
 					case 0xE3: {
 						obStr[0] = ' ';
 						obStr[1] = ' ';
@@ -9117,7 +9115,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						obStr[3] = 'b';
 						break;
 					}
-					case 0xD4: 
+					case 0xD4:
 					case 0xE4: {
 						obStr[0] = 'S';
 						obStr[1] = 'c';
@@ -9125,7 +9123,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						obStr[3] = 'e';
 						break;
 					}
-					case 0xD5: 
+					case 0xD5:
 					case 0xE5 :{
 						obStr[0] = 'r';
 						obStr[1] = 'o';
@@ -9133,7 +9131,7 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						obStr[3] = ' ';
 						break;
 					}
-					case 0xD6: 
+					case 0xD6:
 					case 0xE6: {
 						obStr[0] = 'l';
 						obStr[1] = 'l';
@@ -9179,24 +9177,24 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						break;
 					}
 				}
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
 			} else if((tile&0xFF00)==0xBE00) {
 				snprintf(obStr,256,"OX%02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
 			} else if((tile&0xFF00)==0xBF00) {
 				snprintf(obStr,256,"O %02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
 			} else if(tile!=0x0000) {
-				dispMap16Tile(pixelBuf,width,height,tile,{i,j},false);
+				dispMap16Tile(pixelBuf,width,height,tile,{i,j},tileRect,false);
 			}
 			//Check object selection to highlight/invert
 			int hiliteInvertFlag = 0;
@@ -9247,6 +9245,13 @@ void initOtherObjectBuffers() {
 	
 }
 
+void getInvalidObjectBuffer(bool * buf) {
+	memcpy(buf,objectContexts[curObjCtx].invalidObjects,0x8000*sizeof(bool));
+}
+void setInvalidObjectBuffer(bool * buf) {
+	memcpy(objectContexts[curObjCtx].invalidObjects,buf,0x8000*sizeof(bool));
+}
+
 /////////////////////
 //OBJECT MANAGEMENT//
 /////////////////////
@@ -9274,7 +9279,7 @@ int loadObjects(BYTE * data) {
 			curSz++;
 		}
 		//Init other elements to sane values
-		entry.selected = false;
+		entry.prevSelected = entry.selected = false;
 		entry.occupiedTiles.clear();
 		//Push back
 		objectContexts[curObjCtx].objects.push_back(entry);
@@ -9294,21 +9299,30 @@ int saveObjects(BYTE * data) {
 }
 
 //Manipulation
-int selectObjects(RECT rect) {
+void selectObjects(RECT rect) {
 	//Select nothing by default
 	clearObjectSelection();
 	//Get tile region
 	int minx = std::max((int)(rect.left&0x7FF0),0);
 	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)((rect.right&0x7FF0)+0x10),0x1000);
-	int maxy = std::min((int)((rect.bottom&0x7FF0)+0x10),0x800);
+	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
 	//For each tile, mark all occupied objects as selected
-	for(int j=miny; j<maxy; j+=0x10) {
-		for(int i=minx; i<maxx; i+=0x10) {
+	for(int j=miny; j<=maxy; j+=0x10) {
+		for(int i=minx; i<=maxx; i+=0x10) {
 			int tileIdx = (i>>4)|(j<<4);
 			for(int n=0; n<objectContexts[0].assocObjects[tileIdx].size(); n++) {
 				object_t * thisObject = objectContexts[0].assocObjects[tileIdx][n];
 				thisObject->selected = true;
+			}
+		}
+	}
+	//Invalidate
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->prevSelected!=thisObject->selected) {
+			for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+				objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
 			}
 		}
 	}
@@ -9317,6 +9331,7 @@ void clearObjectSelection() {
 	//Deselect all objects
 	for(int n=0; n<objectContexts[0].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
+		thisObject->prevSelected = thisObject->selected;
 		thisObject->selected = false;
 	}
 }
@@ -9446,6 +9461,20 @@ void moveObjects(int dx,int dy) {
 				ypos += dy;
 				thisObject->data[1] = ((xpos&0xF0)>>4)|(ypos&0xF0);
 				thisObject->data[2] = (xpos&0xF)|((ypos&0xF)<<4);
+				//Invalidate
+				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
+				}
+			}
+		}
+		//Redraw and invalidate
+		drawObjects();
+		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+			object_t * thisObject = &objectContexts[0].objects[n];
+			if(thisObject->prevSelected!=thisObject->selected) {
+				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
+				}
 			}
 		}
 	}
@@ -9492,6 +9521,20 @@ void resizeObjects(int dx,int dy) {
 				}
 				if(resizeCaps&2) {
 					thisObject->data[3+(resizeCaps&1)] += dy;
+				}
+				//Invalidate
+				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
+				}
+			}
+		}
+		//Redraw and invalidate
+		drawObjects();
+		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+			object_t * thisObject = &objectContexts[0].objects[n];
+			if(thisObject->prevSelected!=thisObject->selected) {
+				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
 				}
 			}
 		}
@@ -11131,6 +11174,7 @@ int focusObject(int x,int y,UINT * cursor,char * text) {
 			strcpy(text,whatsThisObjectExt[idExt]);
 		}
 		int retval = 5;
+		//Determine horizontal/vertical resizing capabilities
 		if(thisObject->selected) {
 			int resizeCaps = romBuf[0x0904EC+id]+1;
 			//Check for horizontal resize
@@ -11254,7 +11298,7 @@ void updateEntireScreen_obj() {
 	memset(bmpDataObj,0x80,0x10000*sizeof(DWORD));
 	updateWindowSub_object();
 	int prevCtx = setObjectContext(1);
-	dispObjects(bmpDataObj,0x100,0x100,{0,0,0x100,0x100});
+	dispObjects(bmpDataObj,0x100,0x100,invRect_object);
 	setObjectContext(prevCtx);
 }
 

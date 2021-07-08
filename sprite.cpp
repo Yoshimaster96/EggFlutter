@@ -10,49 +10,52 @@ int curSpCtx = 0;
 //SPRITE OCCUPY REGISTRATION &//
 // 8x8/16x16 SECTION HANDLING //
 ////////////////////////////////
-void occupySpriteTile(sprite_t * s,int offset) {
+void occupySpriteTile(sprite_t * s,sprite_tile_t * tile,int offset) {
 	if(offset>=0 && offset<0x8000) {
 		//Store in sprite
 		s->occupiedTiles.push_back(offset);
 		//Set tile in tilemap for current context
-		spriteContexts[curSpCtx].assocSprites[offset].push_back(s);
+		spriteContexts[curSpCtx].tilemap[offset].push_back(*tile);
 	}
 }
 void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
+	int sptX = (s->data[2])<<4;
+	int sptY = (s->data[1]>>1)<<4;
+	sptX += offsX;
+	sptY += offsY;
+	int spTileIdx = (sptX>>4)|((sptY>>4)<<8);
 	//Simple setup
 	sprite_tile_t entry;
-	entry.props		 = props;
-	entry.tile		 = tile;
-	entry.offsX		 = offsX;
-	entry.offsY		 = offsY;
+	entry.props			 = props;
+	entry.tile			 = tile;
+	entry.offsX			 = sptX;
+	entry.offsY			 = sptY;
+	entry.assocSprite	 = s;
 	//Determine occupied tiles
-	int spX = s->data[2];
-	int spY = s->data[1]&0xFE;
-	int spTileIdx = spX|(spY<<7);
 	switch(tile&0xC000) {
 		case 0x0000: {
 			if(props&1) {
 				//16x16
-				occupySpriteTile(s,spTileIdx);
+				occupySpriteTile(s,&entry,spTileIdx);
 				if(offsX&0xF) {
-					occupySpriteTile(s,spTileIdx+1);
+					occupySpriteTile(s,&entry,spTileIdx+1);
 				}
 				if(offsY&0xF) {
-					occupySpriteTile(s,spTileIdx+0x100);
+					occupySpriteTile(s,&entry,spTileIdx+0x100);
 					if(offsX&0xF) {
-						occupySpriteTile(s,spTileIdx+0x101);
+						occupySpriteTile(s,&entry,spTileIdx+0x101);
 					}
 				}
 			} else {
 				//8x8
-				occupySpriteTile(s,spTileIdx);
+				occupySpriteTile(s,&entry,spTileIdx);
 				if((offsX&0xF)>7) {
-					occupySpriteTile(s,spTileIdx+1);
+					occupySpriteTile(s,&entry,spTileIdx+1);
 				}
 				if((offsY&0xF)>7) {
-					occupySpriteTile(s,spTileIdx+0x100);
+					occupySpriteTile(s,&entry,spTileIdx+0x100);
 					if((offsX&0xF)>7) {
-						occupySpriteTile(s,spTileIdx+0x101);
+						occupySpriteTile(s,&entry,spTileIdx+0x101);
 					}
 				}
 			}
@@ -60,14 +63,14 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 		}
 		case 0x4000: {
 			//16x16
-			occupySpriteTile(s,spTileIdx);
+			occupySpriteTile(s,&entry,spTileIdx);
 			if(offsX&0xF) {
-				occupySpriteTile(s,spTileIdx+1);
+				occupySpriteTile(s,&entry,spTileIdx+1);
 			}
 			if(offsY&0xF) {
-				occupySpriteTile(s,spTileIdx+0x100);
+				occupySpriteTile(s,&entry,spTileIdx+0x100);
 				if(offsX&0xF) {
-					occupySpriteTile(s,spTileIdx+0x101);
+					occupySpriteTile(s,&entry,spTileIdx+0x101);
 				}
 			}
 			break;
@@ -75,30 +78,28 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 		case 0x8000: {
 			//256x1
 			for(int i=0; i<16; i++) {
-				occupySpriteTile(s,spTileIdx+i);
+				occupySpriteTile(s,&entry,spTileIdx+i);
 			}
 			if(offsX&0xF) {
-				occupySpriteTile(s,spTileIdx+16);
+				occupySpriteTile(s,&entry,spTileIdx+16);
 			}
 			break;
 		}
 		case 0xC000: {
 			//8x8
-			occupySpriteTile(s,spTileIdx);
+			occupySpriteTile(s,&entry,spTileIdx);
 			if((offsX&0xF)>7) {
-				occupySpriteTile(s,spTileIdx+1);
+				occupySpriteTile(s,&entry,spTileIdx+1);
 			}
 			if((offsY&0xF)>7) {
-				occupySpriteTile(s,spTileIdx+0x100);
+				occupySpriteTile(s,&entry,spTileIdx+0x100);
 				if((offsX&0xF)>7) {
-					occupySpriteTile(s,spTileIdx+0x101);
+					occupySpriteTile(s,&entry,spTileIdx+0x101);
 				}
 			}
 			break;
 		}
 	}
-	//Store in sprite
-	s->tiles.push_back(entry);
 }
 
 ////////////////////////////
@@ -217,7 +218,7 @@ inline int findSpGfxFile(BYTE file) {
 }
 
 //SuperFX texture displayer function
-void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs,bool inv) {
+void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs,RECT clip,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	bool flipV = props&0x80;
@@ -227,37 +228,41 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 	int ty = tile&0x3F0;
 	for(int j=0; j<16; j++) {
 		for(int i=0; i<16; i++) {
-			int sx = flipH?(0xF-i):i;
-			int sy = flipV?(0xF-j):j;
-			if(tile&0x2000) {
-				int temp = sx;
-				sx = sy;
-				sy = temp;
-			}
-			sx += tx;
-			sy += ty;
-			int dx = offsX+i;
-			int dy = offsY+j;
-			int pixShift = (tile&0x400)?4:0;
-			int idx = getIndexFromTexture(&romBuf[0x140000],{sx,sy});
-			idx = (idx>>pixShift)&0xF;
-			if(idx) {
-				putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
-				if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
+			if(PtInRect(&clip,{offsX+i,offsY+j})) {
+				int sx = flipH?(0xF-i):i;
+				int sy = flipV?(0xF-j):j;
+				if(tile&0x2000) {
+					int temp = sx;
+					sx = sy;
+					sy = temp;
+				}
+				sx += tx;
+				sy += ty;
+				int dx = offsX+i;
+				int dy = offsY+j;
+				int pixShift = (tile&0x400)?4:0;
+				int idx = getIndexFromTexture(&romBuf[0x140000],{sx,sy});
+				idx = (idx>>pixShift)&0xF;
+				if(idx) {
+					putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
+					if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
+				}
 			}
 		}
 	}
 }
 //HDMA displayer function
-void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs,bool inv) {
+void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs,RECT clip,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
 	for(int i=0; i<0x100; i++) {
-		DWORD color = bmpDataBg[base+i];
-		if(color!=0x80808080) {
-			putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
-			if(inv) invertPixel(pixelBuf,width,height,{offsX+i,offsY});
+		if(PtInRect(&clip,{offsX+i,offsY})) {
+			DWORD color = bmpDataBg[base+i];
+			if(color!=0x80808080) {
+				putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
+				if(inv) invertPixel(pixelBuf,width,height,{offsX+i,offsY});
+			}
 		}
 	}
 }
@@ -4014,14 +4019,12 @@ int setSpriteContext(int ctx) {
 void drawSprites() {
 	//Clear buffers
 	for(int i=0; i<0x8000; i++) {
-		spriteContexts[curSpCtx].assocSprites[i].clear();
+		spriteContexts[curSpCtx].tilemap[i].clear();
 		spriteContexts[curSpCtx].invalidSprites[i] = false;
 	}
 	//Draw sprites
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
-		thisSprite->tiles.clear();
-		thisSprite->occupiedTiles.clear();
 		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
 		id &= 0x1FF;
 		spriteDrawFunc[id](thisSprite);
@@ -4034,33 +4037,39 @@ void drawSprites() {
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
-	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
-		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
-		int spX = thisSprite->data[2]<<4;
-		int spY = (thisSprite->data[1]&0xFE)<<3;
-		for(int i=0; i<thisSprite->tiles.size(); i++) {
-			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
-			BYTE props = thisSpriteTile->props;
-			WORD tile = thisSpriteTile->tile;
-			int sptX = spX+thisSpriteTile->offsX;
-			int sptY = spY+thisSpriteTile->offsY;
-			switch(tile&0xC000) {
-				case 0x0000: {
-					if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY},thisSprite->selected);
-					else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY},thisSprite->selected);
-					break;
-				}
-				case 0x4000: {
-					dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY},thisSprite->selected);
-					break;
-				}
-				case 0x8000: {
-					dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY},thisSprite->selected);
-					break;
-				}
-				case 0xC000: {
-					dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,{sptX,sptY},thisSprite->selected);
-					break;
+	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int miny = std::max((int)(rect.top&0x7FF0),0);
+	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+	for(int j=miny; j<=maxy; j+=0x10) {
+		for(int i=minx; i<=maxx; i+=0x10) {
+			int tileIdx = (i>>4)|((j>>4)<<8);
+			RECT tileRect = {i,j,i+0x10,j+0x10};
+			for(int n=0; n<spriteContexts[curSpCtx].tilemap[tileIdx].size(); n++) {
+				sprite_tile_t * thisSpriteTile = &spriteContexts[curSpCtx].tilemap[tileIdx][n];
+				BYTE props = thisSpriteTile->props;
+				WORD tile = thisSpriteTile->tile;
+				int sptX = thisSpriteTile->offsX;
+				int sptY = thisSpriteTile->offsY;
+				bool inv = thisSpriteTile->assocSprite->selected;
+				switch(tile&0xC000) {
+					case 0x0000: {
+						if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY},tileRect,inv);
+						else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY},tileRect,inv);
+						break;
+					}
+					case 0x4000: {
+						dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY},tileRect,inv);
+						break;
+					}
+					case 0x8000: {
+						dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY},tileRect,inv);
+						break;
+					}
+					case 0xC000: {
+						dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,{sptX,sptY},tileRect,inv);
+						break;
+					}
 				}
 			}
 		}
@@ -4071,6 +4080,13 @@ void initOtherSpriteBuffers() {
 	for(int i=0; i<6; i++) {
 		spGfxFiles[i] = romBuf[0x003039+i+(spTs*6)];
 	}
+}
+
+void getInvalidSpriteBuffer(bool * buf) {
+	memcpy(buf,spriteContexts[curSpCtx].invalidSprites,0x8000*sizeof(bool));
+}
+void setInvalidSpriteBuffer(bool * buf) {
+	memcpy(spriteContexts[curSpCtx].invalidSprites,buf,0x8000*sizeof(bool));
 }
 
 /////////////////////
@@ -4091,8 +4107,7 @@ void loadSprites(BYTE * data) {
 		entry.data[2] = *data++;
 		entry.dataSize = 3;
 		//Init other elements to sane values
-		entry.selected = false;
-		entry.tiles.clear();
+		entry.prevSelected = entry.selected = false;
 		entry.occupiedTiles.clear();
 		//Push back
 		spriteContexts[curSpCtx].sprites.push_back(entry);
@@ -4111,44 +4126,57 @@ int saveSprites(BYTE * data) {
 }
 
 //Manipulation
-int selectSprites(RECT rect) {
+void selectSprites(RECT rect) {
 	//Required by IntersectRect (we only care about the bool result)
 	RECT dummyIntersect;
-	//Check each sprite
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-		thisSprite->selected = false;
-		int xpos = (thisSprite->data[2])<<4;
-		int ypos = (thisSprite->data[1]>>1)<<4;
-		//Check each sprite tile for intersection
-		for(int i=0; i<thisSprite->tiles.size(); i++) {
-			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
-			int xpos2 = xpos+thisSpriteTile->offsX;
-			int ypos2 = ypos+thisSpriteTile->offsY;
-			switch(thisSpriteTile->tile&0xC000) {
-				case 0x0000: {
-					int tileSize = (thisSpriteTile->props&1)?16:8;
-					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
-					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
-					break;
-				}
-				case 0x4000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
-					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
-					break;
-				}
-				case 0x8000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
-					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
-					break;
-				}
-				case 0xC000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
-					thisSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
-					break;
+	//Select nothing by default
+	clearSpriteSelection();
+	//Get tile region
+	int minx = std::max((int)(rect.left&0x7FF0),0);
+	int miny = std::max((int)(rect.top&0x7FF0),0);
+	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+	//For each tile, check for intersection
+	for(int j=miny; j<=maxy; j+=0x10) {
+		for(int i=minx; i<=maxx; i+=0x10) {
+			int tileIdx = (i>>4)|(j<<4);
+			for(int n=0; n<spriteContexts[0].tilemap[tileIdx].size(); n++) {
+				sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
+				int xpos2 = thisSpriteTile->offsX;
+				int ypos2 = thisSpriteTile->offsY;
+				switch(thisSpriteTile->tile&0xC000) {
+					case 0x0000: {
+						int tileSize = (thisSpriteTile->props&1)?16:8;
+						RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						break;
+					}
+					case 0x4000: {
+						RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						break;
+					}
+					case 0x8000: {
+						RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						break;
+					}
+					case 0xC000: {
+						RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						break;
+					}
 				}
 			}
-			if(thisSprite->selected) break;
+		}
+	}
+	//Invalidate
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		if(thisSprite->prevSelected!=thisSprite->selected) {
+			for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
+				spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
+			}
 		}
 	}
 }
@@ -4156,6 +4184,7 @@ void clearSpriteSelection() {
 	//Deselect all sprites
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		thisSprite->prevSelected = thisSprite->selected;
 		thisSprite->selected = false;
 	}
 }
@@ -4230,63 +4259,56 @@ void deleteSprites() {
 }
 void selectTopSprite(int x,int y) {
 	//Select top sprite
-	for(int n=(spriteContexts[0].sprites.size()-1); n>=0; n--) {
-		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
-		id &= 0x1FF;
-		int xpos = (thisSprite->data[2])<<4;
-		int ypos = (thisSprite->data[1]>>1)<<4;
-		//Check each sprite tile for intersection
-		for(int i=0; i<thisSprite->tiles.size(); i++) {
-			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
-			int xpos2 = xpos+thisSpriteTile->offsX;
-			int ypos2 = ypos+thisSpriteTile->offsY;
-			switch(thisSpriteTile->tile&0xC000) {
-				case 0x0000: {
-					int tileSize = (thisSpriteTile->props&1)?16:8;
-					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
-					if(PtInRect(&tileRect,{x,y})) {
-						if(!thisSprite->selected) {
-							clearSpriteSelection();
-							thisSprite->selected = true;
-						}
-						return;
+	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
+	for(int n=(spriteContexts[0].tilemap[tileIdx].size()-1); n>=0; n--) {
+		sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
+		int xpos2 = thisSpriteTile->offsX;
+		int ypos2 = thisSpriteTile->offsY;
+		switch(thisSpriteTile->tile&0xC000) {
+			case 0x0000: {
+				int tileSize = (thisSpriteTile->props&1)?16:8;
+				RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+				if(PtInRect(&tileRect,{x,y})) {
+					if(!thisSpriteTile->assocSprite->selected) {
+						clearSpriteSelection();
+						thisSpriteTile->assocSprite->selected = true;
 					}
-					break;
+					return;
 				}
-				case 0x4000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
-					if(PtInRect(&tileRect,{x,y})) {
-						if(!thisSprite->selected) {
-							clearSpriteSelection();
-							thisSprite->selected = true;
-						}
-						return;
+				break;
+			}
+			case 0x4000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+				if(PtInRect(&tileRect,{x,y})) {
+					if(!thisSpriteTile->assocSprite->selected) {
+						clearSpriteSelection();
+						thisSpriteTile->assocSprite->selected = true;
 					}
-					break;
+					return;
 				}
-				case 0x8000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
-					if(PtInRect(&tileRect,{x,y})) {
-						if(!thisSprite->selected) {
-							clearSpriteSelection();
-							thisSprite->selected = true;
-						}
-						return;
+				break;
+			}
+			case 0x8000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+				if(PtInRect(&tileRect,{x,y})) {
+					if(!thisSpriteTile->assocSprite->selected) {
+						clearSpriteSelection();
+						thisSpriteTile->assocSprite->selected = true;
 					}
-					break;
+					return;
 				}
-				case 0xC000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
-					if(PtInRect(&tileRect,{x,y})) {
-						if(!thisSprite->selected) {
-							clearSpriteSelection();
-							thisSprite->selected = true;
-						}
-						return;
+				break;
+			}
+			case 0xC000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+				if(PtInRect(&tileRect,{x,y})) {
+					if(!thisSpriteTile->assocSprite->selected) {
+						clearSpriteSelection();
+						thisSpriteTile->assocSprite->selected = true;
 					}
-					break;
+					return;
 				}
+				break;
 			}
 		}
 	}
@@ -4320,6 +4342,20 @@ void moveSprites(int dx,int dy) {
 			if(thisSprite->selected) {
 				thisSprite->data[2] += dx;
 				thisSprite->data[1] += (dy<<1);
+				//Invalidate
+				for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
+					spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
+				}
+			}
+		}
+		//Redraw and invalidate
+		drawSprites();
+		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+			if(thisSprite->prevSelected!=thisSprite->selected) {
+				for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
+					spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
+				}
 			}
 		}
 	}
@@ -6003,56 +6039,51 @@ LPCSTR whatsThisSprite[0x200] = {
 	"Index out of bounds, do not use.\r\nSprite ID: 1FF"};
 
 int focusSprite(int x,int y,UINT * cursor,char * text) {
-	//Check each sprite
-	for(int n=(spriteContexts[0].sprites.size()-1); n>=0; n--) {
-		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
+	//Get top sprite
+	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
+	for(int n=(spriteContexts[0].tilemap[tileIdx].size()-1); n>=0; n--) {
+		sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
+		int id = thisSpriteTile->assocSprite->data[0]|(thisSpriteTile->assocSprite->data[1]<<8);
 		id &= 0x1FF;
-		int xpos = (thisSprite->data[2])<<4;
-		int ypos = (thisSprite->data[1]>>1)<<4;
-		//Check each sprite tile for intersection
-		for(int i=0; i<thisSprite->tiles.size(); i++) {
-			sprite_tile_t * thisSpriteTile = &thisSprite->tiles[i];
-			int xpos2 = xpos+thisSpriteTile->offsX;
-			int ypos2 = ypos+thisSpriteTile->offsY;
-			switch(thisSpriteTile->tile&0xC000) {
-				case 0x0000: {
-					int tileSize = (thisSpriteTile->props&1)?16:8;
-					RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
-					if(PtInRect(&tileRect,{x,y})) {
-						*cursor = 0x7F86; //IDC_SIZEALL
-						strcpy(text,whatsThisSprite[id]);
-						return 5;
-					}
-					break;
+		int xpos2 = thisSpriteTile->offsX;
+		int ypos2 = thisSpriteTile->offsY;
+		switch(thisSpriteTile->tile&0xC000) {
+			case 0x0000: {
+				int tileSize = (thisSpriteTile->props&1)?16:8;
+				RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
+				if(PtInRect(&tileRect,{x,y})) {
+					*cursor = 0x7F86; //IDC_SIZEALL
+					strcpy(text,whatsThisSprite[id]);
+					return 5;
 				}
-				case 0x4000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
-					if(PtInRect(&tileRect,{x,y})) {
-						*cursor = 0x7F86; //IDC_SIZEALL
-						strcpy(text,whatsThisSprite[id]);
-						return 5;
-					}
-					break;
+				break;
+			}
+			case 0x4000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
+				if(PtInRect(&tileRect,{x,y})) {
+					*cursor = 0x7F86; //IDC_SIZEALL
+					strcpy(text,whatsThisSprite[id]);
+					return 5;
 				}
-				case 0x8000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
-					if(PtInRect(&tileRect,{x,y})) {
-						*cursor = 0x7F86; //IDC_SIZEALL
-						strcpy(text,whatsThisSprite[id]);
-						return 5;
-					}
-					break;
+				break;
+			}
+			case 0x8000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
+				if(PtInRect(&tileRect,{x,y})) {
+					*cursor = 0x7F86; //IDC_SIZEALL
+					strcpy(text,whatsThisSprite[id]);
+					return 5;
 				}
-				case 0xC000: {
-					RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
-					if(PtInRect(&tileRect,{x,y})) {
-						*cursor = 0x7F86; //IDC_SIZEALL
-						strcpy(text,whatsThisSprite[id]);
-						return 5;
-					}
-					break;
+				break;
+			}
+			case 0xC000: {
+				RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
+				if(PtInRect(&tileRect,{x,y})) {
+					*cursor = 0x7F86; //IDC_SIZEALL
+					strcpy(text,whatsThisSprite[id]);
+					return 5;
 				}
+				break;
 			}
 		}
 	}
@@ -6107,7 +6138,7 @@ void updateEntireScreen_sp() {
 	memset(bmpDataSp,0x80,0x10000*sizeof(DWORD));
 	updateWindowSub_sprite();
 	int prevCtx = setSpriteContext(1);
-	dispSprites(bmpDataSp,0x100,0x100,{0,0,0x100,0x100});
+	dispSprites(bmpDataSp,0x100,0x100,invRect_sprite);
 	setSpriteContext(prevCtx);
 }
 

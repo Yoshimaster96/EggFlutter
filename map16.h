@@ -10,7 +10,7 @@ extern bool wvisMap16;
 
 //Functions
 void loadMap16();
-void dispMap16Tile(DWORD * pixelBuf,int width,int height,WORD tile,POINT offs,bool inv);
+void dispMap16Tile(DWORD * pixelBuf,int width,int height,WORD tile,POINT offs,RECT clip,bool inv);
 //Window
 LRESULT CALLBACK WndProc_Map16(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 

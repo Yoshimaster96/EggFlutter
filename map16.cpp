@@ -19,17 +19,17 @@ void loadMap16() {
 	}
 }
 
-void dispMap16Tile(DWORD * pixelBuf,int width,int height,WORD tile,POINT offs,bool inv) {
+void dispMap16Tile(DWORD * pixelBuf,int width,int height,WORD tile,POINT offs,RECT clip,bool inv) {
 	int offsX = offs.x;
 	int offsY = offs.y;
 	WORD td = map16Buffer[tile<<3]|(map16Buffer[(tile<<3)|1]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX,offsY},inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX,offsY},clip,inv);
 	td = map16Buffer[(tile<<3)|2]|(map16Buffer[(tile<<3)|3]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX+8,offsY},inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX+8,offsY},clip,inv);
 	td = map16Buffer[(tile<<3)|4]|(map16Buffer[(tile<<3)|5]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX,offsY+8},inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX,offsY+8},clip,inv);
 	td = map16Buffer[(tile<<3)|6]|(map16Buffer[(tile<<3)|7]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX+8,offsY+8},inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,{offsX+8,offsY+8},clip,inv);
 }
 
 ///////////////////
@@ -46,7 +46,7 @@ void updateEntireScreen_map16() {
 	memset(bmpDataMap16,0x80,0x10000*sizeof(DWORD));
 	for(int j=0; j<0x10; j++) {
 		for(int i=0; i<0x10; i++) {
-			dispMap16Tile(bmpDataMap16,0x100,0x100,map16Base+i+(j<<4),{i<<4,j<<4},false);
+			dispMap16Tile(bmpDataMap16,0x100,0x100,map16Base+i+(j<<4),{i<<4,j<<4},invRect_map16,false);
 		}
 	}
 }

@@ -2,7 +2,7 @@
 #define BACKGROUND_H
 
 //Includes
-#include "map16.h"
+#include "map8.h"
 
 //Variables
 extern HWND hwndBackground;
