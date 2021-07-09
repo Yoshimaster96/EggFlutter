@@ -4229,21 +4229,19 @@ void insertSprites(int x,int y) {
 				spriteContexts[0].sprites.push_back(entry);
 			}
 		}
-	} else {
+	} else if(wvisSprite) {
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
 		//Insert current sprite in selection dialog
-		if(spriteContexts[1].sprites.size()) {
-			sprite_t * thisSprite = &spriteContexts[1].sprites[0];
-			sprite_t entry;
-			entry.data[0] = thisSprite->data[0];
-			entry.data[1] = (thisSprite->data[1]&1)|(y<<1);
-			entry.data[2] = x;
-			entry.dataSize = 3;
-			entry.selected = true;
-			spriteContexts[0].sprites.push_back(entry);
-		}
+		sprite_t * thisSprite = &spriteContexts[1].sprites[0];
+		sprite_t entry;
+		entry.data[0] = thisSprite->data[0];
+		entry.data[1] = (thisSprite->data[1]&1)|(y<<1);
+		entry.data[2] = x;
+		entry.dataSize = 3;
+		entry.selected = true;
+		spriteContexts[0].sprites.push_back(entry);
 	}
 }
 void deleteSprites() {

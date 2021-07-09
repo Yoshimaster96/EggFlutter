@@ -1137,7 +1137,7 @@ inline BOOL promptSave() {
 inline void updateEntireScreen() {
 	RECT rect = {xCurScroll,yCurScroll,xCurScroll+xCurSize,yCurScroll+yCurSize};
 	updateRect(rect);
-	GetWindowRect(hwndMain,&rect);
+	GetClientRect(hwndMain,&rect);
 	InvalidateRect(hwndMain,&rect,false);
 }
 inline void updateDialogs() {
@@ -1866,12 +1866,20 @@ void updateRect(RECT rect) {
 			int maxx = std::max(selpCur.x,selpPrev.x);
 			int maxy = std::max(selpCur.y,selpPrev.y);
 			for(int i=minx; i<maxx; i++) {
-				if(PtInRect(&rect,{i,miny})) invertPixel(bmpDataMain,0x1000,0x800,{i,miny});
-				if(PtInRect(&rect,{i+1,maxy})) invertPixel(bmpDataMain,0x1000,0x800,{i+1,maxy});
+				if(PtInRect(&rect,{i,miny})) {
+					invertPixel(bmpDataMain,0x1000,0x800,{i,miny});
+				}
+				if(PtInRect(&rect,{i+1,maxy})) {
+					invertPixel(bmpDataMain,0x1000,0x800,{i+1,maxy});
+				}
 			}
 			for(int j=miny; j<maxy; j++) {
-				if(PtInRect(&rect,{minx,j+1})) invertPixel(bmpDataMain,0x1000,0x800,{minx,j+1});
-				if(PtInRect(&rect,{maxx,j})) invertPixel(bmpDataMain,0x1000,0x800,{maxx,j});
+				if(PtInRect(&rect,{minx,j+1})) {
+					invertPixel(bmpDataMain,0x1000,0x800,{minx,j+1});
+				}
+				if(PtInRect(&rect,{maxx,j})) {
+					invertPixel(bmpDataMain,0x1000,0x800,{maxx,j});
+				}
 			}
 		}
 	} else {
@@ -2222,16 +2230,14 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					isRomSaved = false;
 				}
 				//Invalidate using buffer
-				RECT winRect;
-				GetWindowRect(hwnd,&winRect);
 				for(int i=0; i<0x8000; i++) {
 					if(tempInvalid[i]) {
 						int tileX = (i&0xFF)<<4;
 						int tileY = (i>>8)<<4;
 						RECT tileRect = {tileX,tileY,tileX+0x10,tileY+0x10};
 						updateRect(tileRect);
-						tileX += winRect.left-xCurScroll;
-						tileY += winRect.top-yCurScroll;
+						tileX -= xCurScroll;
+						tileY -= yCurScroll;
 						tileRect = {tileX,tileY,tileX+0x10,tileY+0x10};
 						InvalidateRect(hwnd,&tileRect,false);
 					}

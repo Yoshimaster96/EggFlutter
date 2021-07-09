@@ -9382,23 +9382,21 @@ void insertObjects(int x,int y) {
 				objectContexts[0].objects.push_back(entry);
 			}
 		}
-	} else {
+	} else if(wvisObject) {
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
 		//Insert current objects in selection dialog
-		if(objectContexts[1].objects.size()) {
-			object_t * thisObject = &objectContexts[1].objects[0];
-			object_t entry;
-			entry.data[0] = thisObject->data[0];
-			entry.data[1] = ((x&0xF0)>>4)|(y&0xF0);
-			entry.data[2] = (x&0xF)|((y&0xF)<<4);
-			entry.data[3] = thisObject->data[3];
-			if(thisObject->dataSize==5) entry.data[4] = thisObject->data[4];
-			entry.dataSize = thisObject->dataSize;
-			entry.selected = true;
-			objectContexts[0].objects.push_back(entry);
-		}
+		object_t * thisObject = &objectContexts[1].objects[0];
+		object_t entry;
+		entry.data[0] = thisObject->data[0];
+		entry.data[1] = ((x&0xF0)>>4)|(y&0xF0);
+		entry.data[2] = (x&0xF)|((y&0xF)<<4);
+		entry.data[3] = thisObject->data[3];
+		if(thisObject->dataSize==5) entry.data[4] = thisObject->data[4];
+		entry.dataSize = thisObject->dataSize;
+		entry.selected = true;
+		objectContexts[0].objects.push_back(entry);
 	}
 }
 void deleteObjects() {
