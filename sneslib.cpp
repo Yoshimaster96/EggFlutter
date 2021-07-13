@@ -100,38 +100,19 @@ void fillImage(DWORD * pixelBuf,int width,int height,DWORD color) {
 		pixelBuf[i] = color;
 	}
 }
-void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
-	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
-		pixelBuf[(offs.y*width)+offs.x] = color;
+void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
+	if(offsX>=0 && offsY>=0 && offsX<width && offsY<height) {
+		pixelBuf[(offsY*width)+offsX] = color;
 	}
 }
-void invertPixel(DWORD * pixelBuf,int width,int height,POINT offs) {
-	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
-		pixelBuf[(offs.y*width)+offs.x] ^= 0xFFFFFF;
+void invertPixel(DWORD * pixelBuf,int width,int height,int offsX,int offsY) {
+	if(offsX>=0 && offsY>=0 && offsX<width && offsY<height) {
+		pixelBuf[(offsY*width)+offsX] ^= 0xFFFFFF;
 	}
 }
-void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
-	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
-		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
-		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
-		if(r > 0xFF0000) r = 0xFF0000;
-		DWORD g = (orig&0xFF00)+(color&0xFF00);
-		if(g > 0xFF00) g = 0xFF00;
-		DWORD b = (orig&0xFF)+(color&0xFF);
-		if(b > 0xFF) b = 0xFF;
-		pixelBuf[(offs.y*width)+offs.x] = r|g|b;
-	}
-}
-void blendPixel(DWORD * pixelBuf,int width,int height,DWORD color,POINT offs) {
-	if(offs.x>=0 && offs.y>=0 && offs.x<width && offs.y<height) {
-		DWORD orig = pixelBuf[(offs.y*width)+offs.x];
-		DWORD r = (orig&0xFF0000)+(color&0xFF0000);
-		r = (r>>1)&0xFF0000;
-		DWORD g = (orig&0xFF00)+(color&0xFF00);
-		g = (g>>1)&0xFF00;
-		DWORD b = (orig&0xFF)+(color&0xFF);
-		b >>= 1;
-		pixelBuf[(offs.y*width)+offs.x] = color;
+void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
+	if(offsX>=0 && offsY>=0 && offsX<width && offsY<height) {
+		pixelBuf[(offsY*width)+offsX] |= color;
 	}
 }
 

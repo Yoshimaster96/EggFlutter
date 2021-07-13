@@ -218,9 +218,7 @@ inline int findSpGfxFile(BYTE file) {
 }
 
 //SuperFX texture displayer function
-void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,POINT offs,RECT clip,bool inv) {
-	int offsX = offs.x;
-	int offsY = offs.y;
+void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int offsX,int offsY,BYTE inv) {
 	bool flipV = props&0x80;
 	bool flipH = props&0x40;
 	int palette = (props&0x3C)<<2;
@@ -228,42 +226,30 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 	int ty = tile&0x3F0;
 	for(int j=0; j<16; j++) {
 		for(int i=0; i<16; i++) {
-			if(PtInRect(&clip,{offsX+i,offsY+j})) {
-				int sx = flipH?(0xF-i):i;
-				int sy = flipV?(0xF-j):j;
-				if(tile&0x2000) {
-					int temp = sx;
-					sx = sy;
-					sy = temp;
-				}
-				sx += tx;
-				sy += ty;
-				int dx = offsX+i;
-				int dy = offsY+j;
-				int pixShift = (tile&0x400)?4:0;
-				int idx = getIndexFromTexture(&romBuf[0x140000],{sx,sy});
-				idx = (idx>>pixShift)&0xF;
-				if(idx) {
-					putPixel(pixelBuf,width,height,paletteBuffer[palette|idx],{dx,dy});
-					if(inv) invertPixel(pixelBuf,width,height,{dx,dy});
-				}
+			int sx = flipH?(0xF-i):i;
+			int sy = flipV?(0xF-j):j;
+			if(tile&0x2000) {
+				int temp = sx;
+				sx = sy;
+				sy = temp;
 			}
+			sx += tx;
+			sy += ty;
+			int dx = offsX+i;
+			int dy = offsY+j;
+			int pixShift = (tile&0x400)?4:0;
+			int idx = getIndexFromTexture(&romBuf[0x140000],{sx,sy});
+			idx = (idx>>pixShift)&0xF;
+			dispMap8Pixel(pixelBuf,width,height,paletteBuffer[palette|idx],idx,dx,dy,inv);
 		}
 	}
 }
 //HDMA displayer function
-void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,POINT offs,RECT clip,bool inv) {
-	int offsX = offs.x;
-	int offsY = offs.y;
+void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,int offsX,int offsY,BYTE inv) {
 	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
 	for(int i=0; i<0x100; i++) {
-		if(PtInRect(&clip,{offsX+i,offsY})) {
-			DWORD color = bmpDataBg[base+i];
-			if(color!=0x80808080) {
-				putPixel(pixelBuf,width,height,color,{offsX+i,offsY});
-				if(inv) invertPixel(pixelBuf,width,height,{offsX+i,offsY});
-			}
-		}
+		DWORD color = bmpDataBg[base+i];
+		dispMap8Pixel(pixelBuf,width,height,color,color!=0x80808080,offsX+i,offsY,inv);
 	}
 }
 
@@ -4035,38 +4021,37 @@ void drawSprites() {
 		}
 	}
 }
-void dispSprites(DWORD * pixelBuf,int width,int height,RECT rect) {
-	int minx = std::max((int)(rect.left&0x7FF0),0);
-	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+void dispSprites(DWORD * pixelBuf,int width,int height,RECT * rect) {
+	int minx = std::max((int)(rect->left&0x7FF0),0);
+	int miny = std::max((int)(rect->top&0x7FF0),0);
+	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
-			RECT tileRect = {i,j,i+0x10,j+0x10};
 			for(int n=0; n<spriteContexts[curSpCtx].tilemap[tileIdx].size(); n++) {
 				sprite_tile_t * thisSpriteTile = &spriteContexts[curSpCtx].tilemap[tileIdx][n];
 				BYTE props = thisSpriteTile->props;
 				WORD tile = thisSpriteTile->tile;
 				int sptX = thisSpriteTile->offsX;
 				int sptY = thisSpriteTile->offsY;
-				bool inv = thisSpriteTile->assocSprite->selected;
+				BYTE inv = (thisSpriteTile->assocSprite->selected)?8:0;
 				switch(tile&0xC000) {
 					case 0x0000: {
-						if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,{sptX,sptY},tileRect,inv);
-						else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,{sptX,sptY},tileRect,inv);
+						if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,sptX,sptY,inv);
+						else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,sptX,sptY,inv);
 						break;
 					}
 					case 0x4000: {
-						dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,{sptX,sptY},tileRect,inv);
+						dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,sptX,sptY,inv);
 						break;
 					}
 					case 0x8000: {
-						dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,{sptX,sptY},tileRect,inv);
+						dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,sptX,sptY,inv);
 						break;
 					}
 					case 0xC000: {
-						dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,{sptX,sptY},tileRect,inv);
+						dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,sptX,sptY,inv);
 						break;
 					}
 				}
@@ -4079,13 +4064,6 @@ void initOtherSpriteBuffers() {
 	for(int i=0; i<6; i++) {
 		spGfxFiles[i] = romBuf[0x003039+i+(spTs*6)];
 	}
-}
-
-void getInvalidSpriteBuffer(bool * buf) {
-	memcpy(buf,spriteContexts[curSpCtx].invalidSprites,0x8000*sizeof(bool));
-}
-void setInvalidSpriteBuffer(bool * buf) {
-	memcpy(spriteContexts[curSpCtx].invalidSprites,buf,0x8000*sizeof(bool));
 }
 
 /////////////////////
@@ -4106,7 +4084,7 @@ void loadSprites(BYTE * data) {
 		entry.data[2] = *data++;
 		entry.dataSize = 3;
 		//Init other elements to sane values
-		entry.prevSelected = entry.selected = false;
+		entry.selected = false;
 		entry.occupiedTiles.clear();
 		//Push back
 		spriteContexts[curSpCtx].sprites.push_back(entry);
@@ -4124,17 +4102,38 @@ int saveSprites(BYTE * data) {
 	return curSz;
 }
 
+//Invalidation
+void clearInvalidSprites() {
+	memset(&spriteContexts[0].invalid,0,0x8000);
+}
+void updateInvalidSprites(BYTE flag) {
+	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
+		if(thisSprite->selected) {
+			for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
+				spriteContexts[0].invalid[thisSprite->occupiedTiles[k]] |= flag;
+			}
+		}
+	}
+}
+void getInvalidSprites(BYTE * data) {
+	memcpy(data,&spriteContexts[0].invalid,0x8000);
+}
+
 //Manipulation
-void selectSprites(RECT rect) {
+void selectSprites(RECT * rect) {
 	//Required by IntersectRect (we only care about the bool result)
 	RECT dummyIntersect;
+	//Pre-invalidation
+	clearInvalidSprites();
+	updateInvalidSprites(1);
 	//Select nothing by default
 	clearSpriteSelection();
 	//Get tile region
-	int minx = std::max((int)(rect.left&0x7FF0),0);
-	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+	int minx = std::max((int)(rect->left&0x7FF0),0);
+	int miny = std::max((int)(rect->top&0x7FF0),0);
+	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
 	//For each tile, check for intersection
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
@@ -4147,43 +4146,38 @@ void selectSprites(RECT rect) {
 					case 0x0000: {
 						int tileSize = (thisSpriteTile->props&1)?16:8;
 						RECT tileRect = {xpos2,ypos2,xpos2+tileSize,ypos2+tileSize};
-						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,rect,&tileRect);
 						break;
 					}
 					case 0x4000: {
 						RECT tileRect = {xpos2,ypos2,xpos2+16,ypos2+16};
-						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,rect,&tileRect);
 						break;
 					}
 					case 0x8000: {
 						RECT tileRect = {xpos2,ypos2,xpos2+256,ypos2+1};
-						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,rect,&tileRect);
 						break;
 					}
 					case 0xC000: {
 						RECT tileRect = {xpos2,ypos2,xpos2+8,ypos2+8};
-						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,&rect,&tileRect);
+						thisSpriteTile->assocSprite->selected = IntersectRect(&dummyIntersect,rect,&tileRect);
 						break;
 					}
 				}
 			}
 		}
 	}
-	//Invalidate
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-		if(thisSprite->prevSelected!=thisSprite->selected) {
-			for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
-				spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
-			}
-		}
-	}
+	//Post-invalidation
+	updateInvalidSprites(2);
 }
 void clearSpriteSelection() {
+	//Invalidation
+	clearInvalidSprites();
+	updateInvalidSprites(1);
 	//Deselect all sprites
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-		thisSprite->prevSelected = thisSprite->selected;
 		thisSprite->selected = false;
 	}
 }
@@ -4207,6 +4201,9 @@ void insertSprites(int x,int y) {
 		}
 	}
 	if(numSelectedSprites) {
+		//Pre-invalidation
+		clearInvalidSprites();
+		updateInvalidSprites(1);
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
@@ -4229,7 +4226,12 @@ void insertSprites(int x,int y) {
 				spriteContexts[0].sprites.push_back(entry);
 			}
 		}
+		//Post-invalidation
+		updateInvalidSprites(1);
 	} else if(wvisSprite) {
+		//Pre-invalidation
+		clearInvalidSprites();
+		updateInvalidSprites(1);
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
@@ -4242,9 +4244,14 @@ void insertSprites(int x,int y) {
 		entry.dataSize = 3;
 		entry.selected = true;
 		spriteContexts[0].sprites.push_back(entry);
+		//Post-invalidation
+		updateInvalidSprites(1);
 	}
 }
 void deleteSprites() {
+	//Invalidation
+	clearInvalidSprites();
+	updateInvalidSprites(1);
 	//Delete selected sprites
 	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
@@ -4269,6 +4276,8 @@ void selectTopSprite(int x,int y) {
 					if(!thisSpriteTile->assocSprite->selected) {
 						clearSpriteSelection();
 						thisSpriteTile->assocSprite->selected = true;
+						//Invalidation
+						updateInvalidSprites(1);
 					}
 					return;
 				}
@@ -4280,6 +4289,8 @@ void selectTopSprite(int x,int y) {
 					if(!thisSpriteTile->assocSprite->selected) {
 						clearSpriteSelection();
 						thisSpriteTile->assocSprite->selected = true;
+						//Invalidation
+						updateInvalidSprites(1);
 					}
 					return;
 				}
@@ -4291,6 +4302,8 @@ void selectTopSprite(int x,int y) {
 					if(!thisSpriteTile->assocSprite->selected) {
 						clearSpriteSelection();
 						thisSpriteTile->assocSprite->selected = true;
+						//Invalidation
+						updateInvalidSprites(1);
 					}
 					return;
 				}
@@ -4302,6 +4315,8 @@ void selectTopSprite(int x,int y) {
 					if(!thisSpriteTile->assocSprite->selected) {
 						clearSpriteSelection();
 						thisSpriteTile->assocSprite->selected = true;
+						//Invalidation
+						updateInvalidSprites(1);
 					}
 					return;
 				}
@@ -4330,6 +4345,9 @@ void moveSprites(int dx,int dy) {
 		}
 	}
 	if(numSelectedSprites) {
+		//Pre-invalidation
+		clearInvalidSprites();
+		updateInvalidSprites(1);
 		//Determine if any sprites will be out of bounds after this operation,
 		//and if so, terminate
 		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
@@ -4339,22 +4357,10 @@ void moveSprites(int dx,int dy) {
 			if(thisSprite->selected) {
 				thisSprite->data[2] += dx;
 				thisSprite->data[1] += (dy<<1);
-				//Invalidate
-				for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
-					spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
-				}
 			}
 		}
-		//Redraw and invalidate
-		drawSprites();
-		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
-			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
-			if(thisSprite->selected) {
-				for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
-					spriteContexts[0].invalidSprites[thisSprite->occupiedTiles[k]] = true;
-				}
-			}
-		}
+		//Post-invalidation
+		updateInvalidSprites(1);
 	}
 }
 
@@ -6135,7 +6141,7 @@ void updateEntireScreen_sp() {
 	memset(bmpDataSp,0x80,0x10000*sizeof(DWORD));
 	updateWindowSub_sprite();
 	int prevCtx = setSpriteContext(1);
-	dispSprites(bmpDataSp,0x100,0x100,invRect_sprite);
+	dispSprites(bmpDataSp,0x100,0x100,&invRect_sprite);
 	setSpriteContext(prevCtx);
 }
 

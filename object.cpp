@@ -9048,16 +9048,25 @@ void drawObjects() {
 		}
 	}
 }
-void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
-	int minx = std::max((int)(rect.left&0x7FF0),0);
-	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+void dispObjects(DWORD * pixelBuf,int width,int height,RECT * rect) {
+	int minx = std::max((int)(rect->left&0x7FF0),0);
+	int miny = std::max((int)(rect->top&0x7FF0),0);
+	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
 	char obStr[256];
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
 			int tileIdx = (i>>4)|(j<<4);
-			RECT tileRect = {i,j,i+0x10,j+0x10};
+			//Check object selection to highlight/invert
+			BYTE inv = 0;
+			for(int n=0; n<objectContexts[curObjCtx].assocObjects[tileIdx].size(); n++) {
+				if(objectContexts[curObjCtx].assocObjects[tileIdx][n]->selected) {
+					inv = 0x88;
+				} else if(inv==0x88) {
+					inv = 0x44;
+				}
+			}
+			//Draw tile
 			WORD tile = objectContexts[curObjCtx].tilemap[tileIdx];
 			if((tile&0xFF00)==0xBC00) {
 				switch(tile&0xFF) {
@@ -9176,46 +9185,24 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect) {
 						break;
 					}
 				}
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
 			} else if((tile&0xFF00)==0xBE00) {
 				snprintf(obStr,256,"OX%02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
 			} else if((tile&0xFF00)==0xBF00) {
 				snprintf(obStr,256,"O %02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[0],{i,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[1],{i+8,j},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[2],{i,j+8},tileRect,false);
-				dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,obStr[3],{i+8,j+8},tileRect,false);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
 			} else if(tile!=0x0000) {
-				dispMap16Tile(pixelBuf,width,height,tile,{i,j},tileRect,false);
-			}
-			//Check object selection to highlight/invert
-			int hiliteInvertFlag = 0;
-			for(int n=0; n<objectContexts[curObjCtx].assocObjects[tileIdx].size(); n++) {
-				if(objectContexts[curObjCtx].assocObjects[tileIdx][n]->selected) {
-					hiliteInvertFlag = 1;
-				} else if(hiliteInvertFlag==1) {
-					hiliteInvertFlag = 2;
-				}
-			}
-			if(hiliteInvertFlag==1) {
-				for(int l=0; l<16; l++) {
-					for(int k=0; k<16; k++) {
-						invertPixel(pixelBuf,width,height,{i+k,j+l});
-					}
-				}
-			} else if(hiliteInvertFlag==2) {
-				for(int l=0; l<16; l++) {
-					for(int k=0; k<16; k++) {
-						hilitePixel(pixelBuf,width,height,0xFF0000,{i+k,j+l});
-					}
-				}
+				dispMap16Tile(pixelBuf,width,height,tile,i,j,inv);
 			}
 		}
 	}
@@ -9242,13 +9229,6 @@ void initOtherObjectBuffers() {
 		base += 0x20;
 	}
 	
-}
-
-void getInvalidObjectBuffer(bool * buf) {
-	memcpy(buf,objectContexts[curObjCtx].invalidObjects,0x8000*sizeof(bool));
-}
-void setInvalidObjectBuffer(bool * buf) {
-	memcpy(objectContexts[curObjCtx].invalidObjects,buf,0x8000*sizeof(bool));
 }
 
 /////////////////////
@@ -9278,7 +9258,7 @@ int loadObjects(BYTE * data) {
 			curSz++;
 		}
 		//Init other elements to sane values
-		entry.prevSelected = entry.selected = false;
+		entry.selected = false;
 		entry.occupiedTiles.clear();
 		//Push back
 		objectContexts[curObjCtx].objects.push_back(entry);
@@ -9297,15 +9277,36 @@ int saveObjects(BYTE * data) {
 	return curSz;
 }
 
+//Invalidation
+void clearInvalidObjects() {
+	memset(&objectContexts[0].invalid,0,0x8000);
+}
+void updateInvalidObjects(BYTE flag) {
+	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		object_t * thisObject = &objectContexts[0].objects[n];
+		if(thisObject->selected) {
+			for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+				objectContexts[0].invalid[thisObject->occupiedTiles[k]] |= flag;
+			}
+		}
+	}
+}
+void getInvalidObjects(BYTE * data) {
+	memcpy(data,&objectContexts[0].invalid,0x8000);
+}
+
 //Manipulation
-void selectObjects(RECT rect) {
+void selectObjects(RECT * rect) {
+	//Pre-invalidation
+	clearInvalidObjects();
+	updateInvalidObjects(1);
 	//Select nothing by default
 	clearObjectSelection();
 	//Get tile region
-	int minx = std::max((int)(rect.left&0x7FF0),0);
-	int miny = std::max((int)(rect.top&0x7FF0),0);
-	int maxx = std::min((int)(rect.right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect.bottom&0x7FF0),0x7F0);
+	int minx = std::max((int)(rect->left&0x7FF0),0);
+	int miny = std::max((int)(rect->top&0x7FF0),0);
+	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
+	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
 	//For each tile, mark all occupied objects as selected
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
@@ -9316,21 +9317,16 @@ void selectObjects(RECT rect) {
 			}
 		}
 	}
-	//Invalidate
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
-		object_t * thisObject = &objectContexts[0].objects[n];
-		if(thisObject->prevSelected!=thisObject->selected) {
-			for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
-				objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
-			}
-		}
-	}
+	//Post-invalidation
+	updateInvalidObjects(2);
 }
 void clearObjectSelection() {
+	//Invalidation
+	clearInvalidObjects();
+	updateInvalidObjects(1);
 	//Deselect all objects
 	for(int n=0; n<objectContexts[0].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
-		thisObject->prevSelected = thisObject->selected;
 		thisObject->selected = false;
 	}
 }
@@ -9356,6 +9352,9 @@ void insertObjects(int x,int y) {
 		}
 	}
 	if(numSelectedObjects) {
+		//Pre-invalidation
+		clearInvalidObjects();
+		updateInvalidObjects(1);
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
@@ -9382,7 +9381,12 @@ void insertObjects(int x,int y) {
 				objectContexts[0].objects.push_back(entry);
 			}
 		}
+		//Post-invalidation
+		updateInvalidObjects(1);
 	} else if(wvisObject) {
+		//Pre-invalidation
+		clearInvalidObjects();
+		updateInvalidObjects(1);
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
 		if(x<0 || y<0 || x>=0x100 || y>=0x80) return;
@@ -9397,9 +9401,14 @@ void insertObjects(int x,int y) {
 		entry.dataSize = thisObject->dataSize;
 		entry.selected = true;
 		objectContexts[0].objects.push_back(entry);
+		//Post-invalidation
+		updateInvalidObjects(1);
 	}
 }
 void deleteObjects() {
+	//Invalidation
+	clearInvalidObjects();
+	updateInvalidObjects(1);
 	//Delete selected objects
 	for(int n=0; n<objectContexts[0].objects.size(); n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
@@ -9418,6 +9427,8 @@ void selectTopObject(int x,int y) {
 		if(!thisObject->selected) {
 			clearObjectSelection();
 			thisObject->selected = true;
+			//Invalidation
+			updateInvalidObjects(1);
 		}
 	}
 }
@@ -9443,6 +9454,9 @@ void moveObjects(int dx,int dy) {
 		}
 	}
 	if(numSelectedObjects) {
+		//Pre-invalidation
+		clearInvalidObjects();
+		updateInvalidObjects(1);
 		//Determine if any objects will be out of bounds after this operation,
 		//and if so, terminate
 		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
@@ -9458,22 +9472,10 @@ void moveObjects(int dx,int dy) {
 				ypos += dy;
 				thisObject->data[1] = ((xpos&0xF0)>>4)|(ypos&0xF0);
 				thisObject->data[2] = (xpos&0xF)|((ypos&0xF)<<4);
-				//Invalidate
-				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
-					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
-				}
 			}
 		}
-		//Redraw and invalidate
-		drawObjects();
-		for(int n=0; n<objectContexts[0].objects.size(); n++) {
-			object_t * thisObject = &objectContexts[0].objects[n];
-			if(thisObject->selected) {
-				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
-					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
-				}
-			}
-		}
+		//Post-invalidation
+		updateInvalidObjects(1);
 	}
 }
 void resizeObjects(int dx,int dy) {
@@ -9504,6 +9506,9 @@ void resizeObjects(int dx,int dy) {
 		}
 	}
 	if(numSelectedObjects) {
+		//Pre-invalidation
+		clearInvalidObjects();
+		updateInvalidObjects(1);
 		//Determine if any objects will be oversized after this operation,
 		//and if so, terminate
 		if(((minX+dx)<0) || ((minY+dy)<0) || ((maxX+dx)>=0x100) || ((maxY+dy)>=0x100)) return;
@@ -9519,25 +9524,17 @@ void resizeObjects(int dx,int dy) {
 				if(resizeCaps&2) {
 					thisObject->data[3+(resizeCaps&1)] += dy;
 				}
-				//Invalidate
-				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
-					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
-				}
 			}
 		}
-		//Redraw and invalidate
-		drawObjects();
-		for(int n=0; n<objectContexts[0].objects.size(); n++) {
-			object_t * thisObject = &objectContexts[0].objects[n];
-			if(thisObject->selected) {
-				for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
-					objectContexts[0].invalidObjects[thisObject->occupiedTiles[k]] = true;
-				}
-			}
-		}
+		//Post-invalidation
+		updateInvalidObjects(1);
 	}
 }
 void increaseObjectZ() {
+	//Pre-invalidation
+	clearInvalidObjects();
+	updateInvalidObjects(1);
+	//Move selected objects forward in list
 	bool pastEnd = false;
 	int origSize = objectContexts[0].objects.size();
 	for(int n=(origSize-1); n>=0; n--) {
@@ -9550,9 +9547,14 @@ void increaseObjectZ() {
 			pastEnd = true;
 		}
 	}
-	
+	//Post-invalidation
+	updateInvalidObjects(1);
 }
 void decreaseObjectZ() {
+	//Pre-invalidation
+	clearInvalidObjects();
+	updateInvalidObjects(1);
+	//Move selected objects backward in list
 	bool pastEnd = false;
 	int origSize = objectContexts[0].objects.size();
 	for(int n=0; n<origSize; n++) {
@@ -9565,6 +9567,8 @@ void decreaseObjectZ() {
 			pastEnd = true;
 		}
 	}
+	//Post-invalidation
+	updateInvalidObjects(1);
 }
 
 ///////////////////
@@ -11295,7 +11299,7 @@ void updateEntireScreen_obj() {
 	memset(bmpDataObj,0x80,0x10000*sizeof(DWORD));
 	updateWindowSub_object();
 	int prevCtx = setObjectContext(1);
-	dispObjects(bmpDataObj,0x100,0x100,invRect_object);
+	dispObjects(bmpDataObj,0x100,0x100,&invRect_object);
 	setObjectContext(prevCtx);
 }
 

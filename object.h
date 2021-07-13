@@ -8,7 +8,6 @@
 typedef struct {
 	BYTE data[8];
 	int dataSize;
-	bool prevSelected;
 	bool selected;
 	std::vector<int> occupiedTiles;
 } object_t;
@@ -16,7 +15,7 @@ typedef struct {
 	std::vector<object_t> objects;
 	std::vector<object_t*> assocObjects[0x8000];
 	WORD tilemap[0x8000];
-	bool invalidObjects[0x8000];
+	BYTE invalid[0x8000];
 } level_object_data_ctx_t;
 
 //Variables
@@ -27,14 +26,13 @@ extern bool wvisObject;
 //Object drawing
 int setObjectContext(int ctx);
 void drawObjects();
-void dispObjects(DWORD * pixelBuf,int width,int height,RECT rect);
+void dispObjects(DWORD * pixelBuf,int width,int height,RECT * rect);
 void initOtherObjectBuffers();
-void getInvalidObjectBuffer(bool * buf);
-void setInvalidObjectBuffer(bool * buf);
 //Object management
 int loadObjects(BYTE * data);
 int saveObjects(BYTE * data);
-void selectObjects(RECT rect);
+void getInvalidObjects(BYTE * data);
+void selectObjects(RECT * rect);
 void clearObjectSelection();
 void insertObjects(int x,int y);
 void deleteObjects();
