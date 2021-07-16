@@ -4128,7 +4128,8 @@ void drawSprites() {
 		spriteContexts[curSpCtx].tilemap[i].clear();
 	}
 	//Draw sprites
-	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
+	int origSize = spriteContexts[curSpCtx].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		thisSprite->occupiedTiles.clear();
 		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
@@ -4147,7 +4148,8 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT * rect) {
 	for(int j=rect->top; j<rect->bottom; j+=0x10) {
 		for(int i=rect->left; i<rect->right; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
-			for(int n=0; n<spriteContexts[curSpCtx].tilemap[tileIdx].size(); n++) {
+			int origSize = spriteContexts[curSpCtx].tilemap[tileIdx].size();
+			for(int n=0; n<origSize; n++) {
 				sprite_tile_t * thisSpriteTile = &spriteContexts[curSpCtx].tilemap[tileIdx][n];
 				BYTE props = thisSpriteTile->props;
 				WORD tile = thisSpriteTile->tile;
@@ -4212,7 +4214,8 @@ int saveSprites(BYTE * data) {
 	//Init stuff
 	int curSz = 0;
 	//Save sprite data
-	for(int n=0; n<spriteContexts[curSpCtx].sprites.size(); n++) {
+	int origSize = spriteContexts[curSpCtx].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
 		memcpy(&data[curSz],thisSprite->data,thisSprite->dataSize);
 		curSz += thisSprite->dataSize;
@@ -4225,10 +4228,12 @@ void clearInvalidSprites() {
 	memset(&spriteContexts[0].invalid,0,0x8000);
 }
 void updateInvalidSprites(BYTE flag) {
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+	int origSize = spriteContexts[0].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 		if(thisSprite->selected) {
-			for(int k=0; k<thisSprite->occupiedTiles.size(); k++) {
+			int origSize2 = thisSprite->occupiedTiles.size();
+			for(int k=0; k<origSize2; k++) {
 				spriteContexts[0].invalid[thisSprite->occupiedTiles[k]] |= flag;
 			}
 		}
@@ -4256,7 +4261,8 @@ void selectSprites(RECT * rect) {
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
 			int tileIdx = (i>>4)|(j<<4);
-			for(int n=0; n<spriteContexts[0].tilemap[tileIdx].size(); n++) {
+			int origSize = spriteContexts[0].tilemap[tileIdx].size();
+			for(int n=0; n<origSize; n++) {
 				sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
 				int xpos2 = thisSpriteTile->offsX;
 				int ypos2 = thisSpriteTile->offsY;
@@ -4294,7 +4300,8 @@ void clearSpriteSelection() {
 	clearInvalidSprites();
 	updateInvalidSprites(1);
 	//Deselect all sprites
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+	int origSize = spriteContexts[0].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 		thisSprite->selected = false;
 	}
@@ -4306,7 +4313,8 @@ void insertSprites(int x,int y) {
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be pasted
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+	int origSize = spriteContexts[0].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 		if(thisSprite->selected) {
 			int xpos = thisSprite->data[2];
@@ -4326,7 +4334,6 @@ void insertSprites(int x,int y) {
 		//and if so, terminate
 		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
 		//Paste selected sprites
-		int origSize = spriteContexts[0].sprites.size();
 		for(int n=0; n<origSize; n++) {
 			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 			if(thisSprite->selected) {
@@ -4382,7 +4389,8 @@ void deleteSprites() {
 void selectTopSprite(int x,int y) {
 	//Select top sprite
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
-	for(int n=(spriteContexts[0].tilemap[tileIdx].size()-1); n>=0; n--) {
+	int topIdx = spriteContexts[0].tilemap[tileIdx].size()-1;
+	for(int n=topIdx; n>=0; n--) {
 		sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
 		int xpos2 = thisSpriteTile->offsX;
 		int ypos2 = thisSpriteTile->offsY;
@@ -4450,7 +4458,8 @@ void moveSprites(int dx,int dy) {
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
 	//Check if any sprites are to be moved
-	for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+	int origSize = spriteContexts[0].sprites.size();
+	for(int n=0; n<origSize; n++) {
 		sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 		if(thisSprite->selected) {
 			int xpos = thisSprite->data[2];
@@ -4470,7 +4479,7 @@ void moveSprites(int dx,int dy) {
 		//and if so, terminate
 		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
 		//Move selected sprites
-		for(int n=0; n<spriteContexts[0].sprites.size(); n++) {
+		for(int n=0; n<origSize; n++) {
 			sprite_t * thisSprite = &spriteContexts[0].sprites[n];
 			if(thisSprite->selected) {
 				thisSprite->data[2] += dx;
@@ -6162,7 +6171,8 @@ LPCSTR whatsThisSprite[0x200] = {
 int focusSprite(int x,int y,UINT * cursor,char * text) {
 	//Get top sprite
 	int tileIdx = (x>>4)|((y&0x7FF0)<<4);
-	for(int n=(spriteContexts[0].tilemap[tileIdx].size()-1); n>=0; n--) {
+	int topIdx = spriteContexts[0].tilemap[tileIdx].size()-1;
+	for(int n=topIdx; n>=0; n--) {
 		sprite_tile_t * thisSpriteTile = &spriteContexts[0].tilemap[tileIdx][n];
 		int id = thisSpriteTile->assocSprite->data[0]|(thisSpriteTile->assocSprite->data[1]<<8);
 		id &= 0x1FF;

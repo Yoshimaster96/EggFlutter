@@ -1134,7 +1134,7 @@ inline BOOL prompt(LPCSTR title,LPCSTR msg) {
 inline BOOL promptSave() {
 	return (MessageBoxA(hwndMain,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
 }
-inline void updateInvalidParts() {
+void updateInvalidParts() {
 	BYTE tempInvalid[0x8000];
 	if(eObj) {
 		getInvalidObjects(tempInvalid);
@@ -1144,8 +1144,8 @@ inline void updateInvalidParts() {
 	//Scrolling is pixel-perfect so we need to AND mask
 	int minx = xCurScroll&(~0xF);
 	int miny = yCurScroll&(~0xF);
-	int maxx = (xCurScroll+xCurSize+0x10)&(~0xF);
-	int maxy = (yCurScroll+yCurSize+0x10)&(~0xF);
+	int maxx = (xCurScroll+xCurSize+0xF)&(~0xF);
+	int maxy = (yCurScroll+yCurSize+0xF)&(~0xF);
 	for(int j=miny; j<maxy; j+=0x10) {
 		for(int i=minx; i<maxx; i+=0x10) {
 			//Check for invalid tile
@@ -1164,9 +1164,9 @@ inline void updateInvalidParts() {
 		}
 	}
 }
-inline void updateEntireScreen() {
+void updateEntireScreen() {
 	//Scrolling is pixel-perfect so we would need to AND mask
-	//Update takes care of it though
+	//updateRect takes care of it though
 	RECT rect = {
 		xCurScroll,
 		yCurScroll,
@@ -1176,7 +1176,7 @@ inline void updateEntireScreen() {
 	GetClientRect(hwndMain,&rect);
 	InvalidateRect(hwndMain,&rect,false);
 }
-inline void updateDialogs() {
+void updateDialogs() {
 	RECT rect = {0,0,256,384};
 	if(wvisObject) {
 		InvalidateRect(hwndObject,&rect,false);
@@ -1257,30 +1257,70 @@ void onOpen() {
 }
 void onClose() {
 	//Prompt save
-	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
-		}
-		isRomOpen = false;
-		updateMenu();
-		ShowWindow(hwndObject,SW_HIDE);
-		ShowWindow(hwndSprite,SW_HIDE);
-		ShowWindow(hwndMap8,SW_HIDE);
-		ShowWindow(hwndMap16,SW_HIDE);
-		ShowWindow(hwndPalette,SW_HIDE);
-		ShowWindow(hwndBackground,SW_HIDE);
-		wvisObject = false;
-		wvisSprite = false;
-		wvisMap8 = false;
-		wvisMap16 = false;
-		wvisPalette = false;
-		wvisBackground = false;
-		updateDialogs();
-		updateEntireScreen();
+	if(!isRomSaved) {
+		if(!promptSave()) return;
 	}
+	isRomOpen = false;
+	updateMenu();
+	ShowWindow(hwndObject,SW_HIDE);
+	ShowWindow(hwndSprite,SW_HIDE);
+	ShowWindow(hwndMap8,SW_HIDE);
+	ShowWindow(hwndMap16,SW_HIDE);
+	ShowWindow(hwndPalette,SW_HIDE);
+	ShowWindow(hwndBackground,SW_HIDE);
+	wvisObject = false;
+	wvisSprite = false;
+	wvisMap8 = false;
+	wvisMap16 = false;
+	wvisPalette = false;
+	wvisBackground = false;
+	updateDialogs();
+	updateEntireScreen();
 }
 void onSave() {
-	if(isRomOpen) {
+	//Save level
+	saveLevel();
+	//Save manifest files
+	char mfStr[256];
+	strncpy(mfStr,romFilename,256);
+	int extOff = strlen(mfStr)-3;
+	mfStr[extOff] = 'x';
+	mfStr[extOff+1] = 'm';
+	mfStr[extOff+2] = 'l';
+	FILE * fp = fopen(mfStr,"wb");
+	fwrite(manifestXmlBuf,1,manifestXmlBufSize,fp);
+	fclose(fp);
+	mfStr[extOff] = 'b';
+	fp = fopen(mfStr,"wb");
+	fwrite(manifestBmlBuf,1,manifestBmlBufSize,fp);
+	fclose(fp);
+	//Save ROM
+	fp = fopen(romFilename,"wb");
+	if(hasSmcHeader) {
+		for(int i=0; i<0x200; i++) {
+			putc(0,fp);
+		}
+	}
+#ifdef YI_4MB_MODE
+	fwrite(romBuf,1,0x400000,fp);
+#else
+	fwrite(romBuf,1,0x800000,fp);
+#endif
+	fclose(fp);
+	isRomSaved = true;
+}
+void onSaveAs() {
+	OPENFILENAMEA ofn;
+	memset(&ofn,0,sizeof(OPENFILENAMEA));
+	memset(romFilename,0,sizeof(romFilename));
+	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner	 = hwndMain;
+	ofn.lpstrFile	 = romFilename;
+	ofn.nMaxFile	 = 256;
+	ofn.lpstrTitle	 = "Save ROM";
+	ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
+	if(GetSaveFileNameA(&ofn)) {
+		hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
 		//Save level
 		saveLevel();
 		//Save manifest files
@@ -1304,51 +1344,13 @@ void onSave() {
 				putc(0,fp);
 			}
 		}
+#ifdef YI_4MB_MODE
+		fwrite(romBuf,1,0x400000,fp);
+#else
 		fwrite(romBuf,1,0x800000,fp);
+#endif
 		fclose(fp);
 		isRomSaved = true;
-	}
-}
-void onSaveAs() {
-	if(isRomOpen) {
-		OPENFILENAMEA ofn;
-		memset(&ofn,0,sizeof(OPENFILENAMEA));
-		memset(romFilename,0,sizeof(romFilename));
-		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = romFilename;
-		ofn.nMaxFile	 = 256;
-		ofn.lpstrTitle	 = "Save ROM";
-		ofn.lpstrFilter	 = "SNES ROM Image (*.smc,*.sfc)\0*.smc;*.sfc\0";
-		if(GetSaveFileNameA(&ofn)) {
-			hasSmcHeader = (romFilename[ofn.nFileExtension+1] == 'm');
-			//Save level
-			saveLevel();
-			//Save manifest files
-			char mfStr[256];
-			strncpy(mfStr,romFilename,256);
-			int extOff = strlen(mfStr)-3;
-			mfStr[extOff] = 'x';
-			mfStr[extOff+1] = 'm';
-			mfStr[extOff+2] = 'l';
-			FILE * fp = fopen(mfStr,"wb");
-			fwrite(manifestXmlBuf,1,manifestXmlBufSize,fp);
-			fclose(fp);
-			mfStr[extOff] = 'b';
-			fp = fopen(mfStr,"wb");
-			fwrite(manifestBmlBuf,1,manifestBmlBufSize,fp);
-			fclose(fp);
-			//Save ROM
-			fp = fopen(romFilename,"wb");
-			if(hasSmcHeader) {
-				for(int i=0; i<0x200; i++) {
-					putc(0,fp);
-				}
-			}
-			fwrite(romBuf,1,0x800000,fp);
-			fclose(fp);
-			isRomSaved = true;
-		}
 	}
 }
 void onQuit() {
@@ -1357,162 +1359,152 @@ void onQuit() {
 }
 void onImportLevel() {
 	//Prompt save
-	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
+	if(!isRomSaved) {
+		if(!promptSave()) return;
+	}
+	OPENFILENAMEA ofn;
+	char lfStr[256];
+	memset(&ofn,0,sizeof(OPENFILENAMEA));
+	memset(lfStr,0,256);
+	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner	 = hwndMain;
+	ofn.lpstrFile	 = lfStr;
+	ofn.nMaxFile	 = 256;
+	ofn.lpstrTitle	 = "Open Level File";
+	ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
+	ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
+	if(GetOpenFileNameA(&ofn)) {
+		//Load level file
+		BYTE levelFile[0x10000];
+		FILE * fp = fopen(lfStr,"rb");
+		fseek(fp,0,SEEK_END);
+		long fileSize = ftell(fp);
+		rewind(fp);
+		fread(levelFile,1,fileSize,fp);
+		fclose(fp);
+		//Get level pointer and load data
+		DWORD objectAddr = levelFile[0]|(levelFile[1]<<8)|(levelFile[2]<<16)|(levelFile[3]<<24);
+		DWORD spriteAddr = levelFile[8]|(levelFile[9]<<8)|(levelFile[10]<<16)|(levelFile[11]<<24);
+		memcpy(levelHeader,&levelFile[objectAddr],10);
+		objectAddr += 10;
+		initOtherObjectBuffers();
+		initOtherSpriteBuffers();
+		objectAddr += loadObjects(&levelFile[objectAddr]);
+		drawObjects();
+		objectAddr++;
+		memset(screenExits,0xFF,0x200);
+		while(true) {
+			int page = levelFile[objectAddr++];
+			if(page==0xFF) break;
+			page <<= 2;
+			screenExits[page] = levelFile[objectAddr++];
+			screenExits[page+1] = levelFile[objectAddr++];
+			screenExits[page+2] = levelFile[objectAddr++];
+			screenExits[page+3] = levelFile[objectAddr++];
 		}
-		OPENFILENAMEA ofn;
-		char lfStr[256];
-		memset(&ofn,0,sizeof(OPENFILENAMEA));
-		memset(lfStr,0,256);
-		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = lfStr;
-		ofn.nMaxFile	 = 256;
-		ofn.lpstrTitle	 = "Open Level File";
-		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
-		ofn.Flags		 = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
-		if(GetOpenFileNameA(&ofn)) {
-			//Load level file
-			BYTE levelFile[0x10000];
-			FILE * fp = fopen(lfStr,"rb");
-			fseek(fp,0,SEEK_END);
-			long fileSize = ftell(fp);
-			rewind(fp);
-			fread(levelFile,1,fileSize,fp);
-			fclose(fp);
-			//Get level pointer and load data
-			DWORD objectAddr = levelFile[0]|(levelFile[1]<<8)|(levelFile[2]<<16)|(levelFile[3]<<24);
-			DWORD spriteAddr = levelFile[8]|(levelFile[9]<<8)|(levelFile[10]<<16)|(levelFile[11]<<24);
-			memcpy(levelHeader,&levelFile[objectAddr],10);
-			objectAddr += 10;
-			initOtherObjectBuffers();
-			initOtherSpriteBuffers();
-			objectAddr += loadObjects(&levelFile[objectAddr]);
-			drawObjects();
-			objectAddr++;
-			memset(screenExits,0xFF,0x200);
-			while(true) {
-				int page = levelFile[objectAddr++];
-				if(page==0xFF) break;
-				page <<= 2;
-				screenExits[page] = levelFile[objectAddr++];
-				screenExits[page+1] = levelFile[objectAddr++];
-				screenExits[page+2] = levelFile[objectAddr++];
-				screenExits[page+3] = levelFile[objectAddr++];
-			}
-			loadSprites(&levelFile[spriteAddr]);
-			drawSprites();
-			//Load other stuff
-			isRomSaved = false;
-			loadMap8();
-			loadMap16();
-			loadPalette();
-			loadBackground();
-			updateDialogs();
-			updateEntireScreen();
-		}
+		loadSprites(&levelFile[spriteAddr]);
+		drawSprites();
+		//Load other stuff
+		isRomSaved = false;
+		loadMap8();
+		loadMap16();
+		loadPalette();
+		loadBackground();
+		updateDialogs();
+		updateEntireScreen();
 	}
 }
 void onExportLevel() {
-	if(isRomOpen) {
-		OPENFILENAMEA ofn;
-		char lfStr[256];
-		memset(&ofn,0,sizeof(OPENFILENAMEA));
-		memset(lfStr,0,256);
-		ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-		ofn.hwndOwner	 = hwndMain;
-		ofn.lpstrFile	 = lfStr;
-		ofn.nMaxFile	 = 256;
-		ofn.lpstrTitle	 = "Save Level File";
-		ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
-		if(GetSaveFileNameA(&ofn)) {
-			//Determine level size
-			BYTE tempBufObj[0x8000],tempBufSp[0x8000];
-			memcpy(tempBufObj,levelHeader,10);
-			int objectSize = 10;
-			objectSize += saveObjects(&tempBufObj[10]);
-			tempBufObj[objectSize++] = 0xFF;
-			for(int i=0; i<0x200; i+=4) {
-				if(screenExits[i]!=0xFF) {
-					tempBufObj[objectSize++] = i>>2;
-					for(int j=0; j<4; j++) {
-						tempBufObj[objectSize++] = screenExits[i+j];
-					}
+	OPENFILENAMEA ofn;
+	char lfStr[256];
+	memset(&ofn,0,sizeof(OPENFILENAMEA));
+	memset(lfStr,0,256);
+	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner	 = hwndMain;
+	ofn.lpstrFile	 = lfStr;
+	ofn.nMaxFile	 = 256;
+	ofn.lpstrTitle	 = "Save Level File";
+	ofn.lpstrFilter	 = "YI Level File (*.ylv)\0*.ylv;\0";
+	if(GetSaveFileNameA(&ofn)) {
+		//Determine level size
+		BYTE tempBufObj[0x8000],tempBufSp[0x8000];
+		memcpy(tempBufObj,levelHeader,10);
+		int objectSize = 10;
+		objectSize += saveObjects(&tempBufObj[10]);
+		tempBufObj[objectSize++] = 0xFF;
+		for(int i=0; i<0x200; i+=4) {
+			if(screenExits[i]!=0xFF) {
+				tempBufObj[objectSize++] = i>>2;
+				for(int j=0; j<4; j++) {
+					tempBufObj[objectSize++] = screenExits[i+j];
 				}
 			}
-			tempBufObj[objectSize++] = 0xFF;
-			int spriteSize = saveSprites(tempBufSp);
-			tempBufSp[spriteSize++] = 0xFF;
-			tempBufSp[spriteSize++] = 0xFF;
-			//Write level file data
-			int objectOffset = 0x80;
-			int spriteOffset = objectOffset+objectSize;
-			FILE * fp = fopen(lfStr,"wb");
-			putc(objectOffset,fp);
-			putc(objectOffset>>8,fp);
-			putc(objectOffset>>16,fp);
-			putc(objectOffset>>24,fp);
-			putc(objectSize,fp);
-			putc(objectSize>>8,fp);
-			putc(objectSize>>16,fp);
-			putc(objectSize>>24,fp);
-			putc(spriteOffset,fp);
-			putc(spriteOffset>>8,fp);
-			putc(spriteOffset>>16,fp);
-			putc(spriteOffset>>24,fp);
-			putc(spriteSize,fp);
-			putc(spriteSize>>8,fp);
-			putc(spriteSize>>16,fp);
-			putc(spriteSize>>24,fp);
-			for(int i=0; i<0x70; i++) {
-				putc(0,fp);
-			}
-			fwrite(tempBufObj,1,objectSize,fp);
-			fwrite(tempBufSp,1,spriteSize,fp);
-			fclose(fp);
 		}
+		tempBufObj[objectSize++] = 0xFF;
+		int spriteSize = saveSprites(tempBufSp);
+		tempBufSp[spriteSize++] = 0xFF;
+		tempBufSp[spriteSize++] = 0xFF;
+		//Write level file data
+		int objectOffset = 0x80;
+		int spriteOffset = objectOffset+objectSize;
+		FILE * fp = fopen(lfStr,"wb");
+		putc(objectOffset,fp);
+		putc(objectOffset>>8,fp);
+		putc(objectOffset>>16,fp);
+		putc(objectOffset>>24,fp);
+		putc(objectSize,fp);
+		putc(objectSize>>8,fp);
+		putc(objectSize>>16,fp);
+		putc(objectSize>>24,fp);
+		putc(spriteOffset,fp);
+		putc(spriteOffset>>8,fp);
+		putc(spriteOffset>>16,fp);
+		putc(spriteOffset>>24,fp);
+		putc(spriteSize,fp);
+		putc(spriteSize>>8,fp);
+		putc(spriteSize>>16,fp);
+		putc(spriteSize>>24,fp);
+		for(int i=0; i<0x70; i++) {
+			putc(0,fp);
+		}
+		fwrite(tempBufObj,1,objectSize,fp);
+		fwrite(tempBufSp,1,spriteSize,fp);
+		fclose(fp);
 	}
 }
 void onOpenLevel() {
 	//Prompt save
-	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
-		}
-		if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
-			isRomSaved = true;
-			loadLevel();
-			updateDialogs();
-			updateEntireScreen();
-		}
+	if(!isRomSaved) {
+		if(!promptSave()) return;
+	}
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
+		isRomSaved = true;
+		loadLevel();
+		updateDialogs();
+		updateEntireScreen();
 	}
 }
 void onNextLevel() {
 	//Prompt save
-	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
-		}
-		if(curLevel!=0xDD) curLevel++;
-		isRomSaved = true;
-		loadLevel();
-		updateDialogs();
-		updateEntireScreen();
+	if(!isRomSaved) {
+		if(!promptSave()) return;
 	}
+	if(curLevel!=0xDD) curLevel++;
+	isRomSaved = true;
+	loadLevel();
+	updateDialogs();
+	updateEntireScreen();
 }
 void onPrevLevel() {
 	//Prompt save
-	if(isRomOpen) {
-		if(!isRomSaved) {
-			if(!promptSave()) return;
-		}
-		if(curLevel) curLevel--;
-		isRomSaved = true;
-		loadLevel();
-		updateDialogs();
-		updateEntireScreen();
+	if(!isRomSaved) {
+		if(!promptSave()) return;
 	}
+	if(curLevel) curLevel--;
+	isRomSaved = true;
+	loadLevel();
+	updateDialogs();
+	updateEntireScreen();
 }
 //Edit
 void onEditObj() {
@@ -1842,7 +1834,9 @@ void updateRect(RECT * rect) {
 					int ypos = romBuf[0x0BF473+(i<<2)]<<4;
 					dispYoshiSprite(rect,0,xpos,ypos);
 					snprintf(strBuf,256,"Main Entrance to %s",worldLevelStrings[i]);
-					for(int n=0; n<strlen(strBuf); n++) {
+					int strBufLen = strlen(strBuf);
+					for(int n=0; n<strBufLen; n++) {
+						//This character tile is 8x8 pixel aligned so we can use clipRect directly
 						RECT tileRect = {
 							xpos+(n<<3),
 							ypos,
@@ -1857,7 +1851,9 @@ void updateRect(RECT * rect) {
 			int ypos = romBuf[0x0BF552+(curLevel<<1)]<<4;
 			dispYoshiSprite(rect,0,xpos,ypos);
 			snprintf(strBuf,256,"Midway Entrance to Level %02X",curLevel);
-			for(int n=0; n<strlen(strBuf); n++) {
+			int strBufLen = strlen(strBuf);
+			for(int n=0; n<strBufLen; n++) {
+				//This character tile is 8x8 pixel aligned so we can use clipRect directly
 				RECT tileRect = {
 					xpos+(n<<3),
 					ypos,
@@ -1886,20 +1882,54 @@ void updateRect(RECT * rect) {
 			//Update rect is not necessarily screen-aligned so we need to AND mask
 			int minx = rect->left&(~0xFF);
 			int miny = rect->top&(~0xFF);
-			int maxx = (rect->right&(~0xFF))+0x100;
-			int maxy = (rect->bottom&(~0xFF))+0x100;
+			int maxx = ((rect->right-1)&(~0xFF))+0x100;
+			int maxy = ((rect->bottom-1)&(~0xFF))+0x100;
 			for(int j=miny; j<maxy; j+=0x100) {
 				for(int i=minx; i<maxx; i+=0x100) {
 					//Draw screen borders
-					for(int n=0; n<0x100; n++) {
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+n,j);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i,j+n);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+n,j+0x01);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0x01,j+n);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+n,j+0xFE);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0xFE,j+n);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+n,j+0xFF);
-						putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0xFF,j+n);
+					int el = std::max(i,(int)rect->left);
+					int et = std::max(j,(int)rect->top);
+					int er = std::min(i+0x100,(int)rect->right);
+					int eb = std::min(j+0x100,(int)rect->bottom);
+					if(i>=rect->left && i<rect->right) {
+						for(int e=et; e<eb; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i,e);
+						}
+					}
+					if(j>=rect->top && j<rect->bottom) {
+						for(int e=el; e<er; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,e,j);
+						}
+					}
+					if((i+0xFF)>=rect->left && (i+0xFF)<rect->right) {
+						for(int e=et; e<eb; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0xFF,e);
+						}
+					}
+					if((j+0xFF)>=rect->top && (j+0xFF)<rect->bottom) {
+						for(int e=el; e<er; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,e,j+0xFF);
+						}
+					}
+					if((i+0x01)>=rect->left && (i+0x01)<rect->right) {
+						for(int e=et; e<eb; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0x01,e);
+						}
+					}
+					if((j+0x01)>=rect->top && (j+0x01)<rect->bottom) {
+						for(int e=el; e<er; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,e,j+0x01);
+						}
+					}
+					if((i+0xFE)>=rect->left && (i+0xFE)<rect->right) {
+						for(int e=et; e<eb; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,i+0xFE,e);
+						}
+					}
+					if((j+0xFE)>=rect->top && (j+0xFE)<rect->bottom) {
+						for(int e=el; e<er; e++) {
+							putPixel(bmpDataMain,0x1000,0x800,0x0000FF,e,j+0xFE);
+						}
 					}
 					//Highlight screens which have exits, and draw screen exit info text
 					int screen = (i>>8)|(j>>4);
@@ -1924,13 +1954,23 @@ void updateRect(RECT * rect) {
 					} else {
 						snprintf(strBuf,256,"%02X",screen);
 					}
-					for(int n=0; n<strlen(strBuf); n++) {
+					int strBufLen = strlen(strBuf);
+					for(int n=0; n<strBufLen; n++) {
+						//This character tile is not 8x8 pixel aligned so we need to do some extra stuff
+						int tileLeft = i+(n<<3)+2;
+						int tileTop = j+2;
 						RECT tileRect = {
-							i+(n<<3)+2,
-							j+2,
-							i+(n<<3)+10,
-							j+10};
-						if(IntersectRect(&tileRect,rect,&tileRect)) dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0x0000FF,strBuf[n],i+(n<<3)+2,j+2,&clipRect,0);
+							tileLeft,
+							tileTop,
+							tileLeft+8,
+							tileTop+8};
+						if(IntersectRect(&tileRect,rect,&tileRect)) {
+							tileRect.left -= tileLeft;
+							tileRect.top -= tileTop;
+							tileRect.right -= tileLeft;
+							tileRect.bottom -= tileTop;
+							dispMap8Char(bmpDataMain,0x1000,0x800,0xFFFFFF,0x0000FF,strBuf[n],i+(n<<3)+2,j+2,&tileRect,0);
+						}
 					}
 				}
 			}
@@ -1942,31 +1982,31 @@ void updateRect(RECT * rect) {
 			int maxx = std::max(selpCur.x,selpPrev.x);
 			int maxy = std::max(selpCur.y,selpPrev.y);
 			if(minx>=rect->left && minx<rect->right) {
-				int e0 = std::max(miny+1,(int)rect->top);
-				int e1 = std::min(maxy+1,(int)rect->bottom);
-				for(int j=e0; j<e1; j++) {
-					invertPixel(bmpDataMain,0x1000,0x800,minx,j);
+				int et = std::max(miny+1,(int)rect->top);
+				int eb = std::min(maxy+1,(int)rect->bottom);
+				for(int e=et; e<eb; e++) {
+					invertPixel(bmpDataMain,0x1000,0x800,minx,e);
 				}
 			}
 			if(miny>=rect->top && miny<rect->bottom) {
-				int e0 = std::max(minx,(int)rect->left);
-				int e1 = std::min(maxx,(int)rect->right);
-				for(int i=e0; i<e1; i++) {
-					invertPixel(bmpDataMain,0x1000,0x800,i,miny);
+				int el = std::max(minx,(int)rect->left);
+				int er = std::min(maxx,(int)rect->right);
+				for(int e=el; e<er; e++) {
+					invertPixel(bmpDataMain,0x1000,0x800,e,miny);
 				}
 			}
 			if(maxx>=rect->left && maxx<rect->right) {
-				int e0 = std::max(miny,(int)rect->top);
-				int e1 = std::min(maxy,(int)rect->bottom);
-				for(int j=e0; j<e1; j++) {
-					invertPixel(bmpDataMain,0x1000,0x800,maxx,j);
+				int et = std::max(miny,(int)rect->top);
+				int eb = std::min(maxy,(int)rect->bottom);
+				for(int e=et; e<eb; e++) {
+					invertPixel(bmpDataMain,0x1000,0x800,maxx,e);
 				}
 			}
 			if(maxy>=rect->top && maxy<rect->bottom) {
-				int e0 = std::max(minx+1,(int)rect->left);
-				int e1 = std::min(maxx+1,(int)rect->right);
-				for(int i=e0; i<e1; i++) {
-					invertPixel(bmpDataMain,0x1000,0x800,i,maxy);
+				int el = std::max(minx+1,(int)rect->left);
+				int er = std::min(maxx+1,(int)rect->right);
+				for(int e=el; e<er; e++) {
+					invertPixel(bmpDataMain,0x1000,0x800,e,maxy);
 				}
 			}
 		}
@@ -2209,6 +2249,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 		}
 		//Mouse input
 		case WM_MOUSEMOVE: {
+			if(!isRomOpen) break;
 			int mouseX = GET_X_LPARAM(lParam);
 			int mouseY = GET_Y_LPARAM(lParam);
 			int levX = mouseX+xCurScroll;
@@ -2282,7 +2323,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					}
 					isRomSaved = false;
 				}
-				
+				//Update selection rectangle
 				if(selOp==4) {
 					//Redraw previous selection rectangle outline
 					int minx = selRectPrev.left&(~0xF);
@@ -2351,6 +2392,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					rbEdgeRect.bottom -= yCurScroll;
 					InvalidateRect(hwnd,&rbEdgeRect,false);
 				}
+				//Update modified objects/sprites
 				updateInvalidParts();
 			} else {
 				//Determine what the mode would be if we were dragging and set cursor accordingly
@@ -2379,6 +2421,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		case WM_LBUTTONDOWN: {
+			if(!isRomOpen) break;
 			//Init drag
 			int mouseX = GET_X_LPARAM(lParam);
 			int mouseY = GET_Y_LPARAM(lParam);
@@ -2405,10 +2448,11 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			ClipCursor(&clipRect);
 			SetCapture(hwnd);
 			
-			updateInvalidParts();
+			updateEntireScreen();
 			break;
 		}
 		case WM_RBUTTONDOWN: {
+			if(!isRomOpen) break;
 			//Insert stuff and init drag (move mode)
 			int mouseX = GET_X_LPARAM(lParam);
 			int mouseY = GET_Y_LPARAM(lParam);
@@ -2438,11 +2482,12 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			ClipCursor(&clipRect);
 			SetCapture(hwnd);
 			
-			updateInvalidParts();
+			updateEntireScreen();
 			break;
 		}
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP: {
+			if(!isRomOpen) break;
 			//Unclip cursor
 			dragFlag = false;
 			ClipCursor(NULL);

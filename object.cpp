@@ -9025,7 +9025,8 @@ void drawObjects() {
 	}
 	memset(objectContexts[curObjCtx].tilemap,0,0x10000);
 	//Draw objects
-	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
+	int origSize = objectContexts[curObjCtx].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
 		thisObject->occupiedTiles.clear();
 		int id = thisObject->data[0];
@@ -9057,7 +9058,8 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT * rect) {
 			int tileIdx = (i>>4)|(j<<4);
 			//Check object selection to highlight/invert
 			BYTE inv = 0;
-			for(int n=0; n<objectContexts[curObjCtx].assocObjects[tileIdx].size(); n++) {
+			int origSize = objectContexts[curObjCtx].assocObjects[tileIdx].size();
+			for(int n=0; n<origSize; n++) {
 				if(objectContexts[curObjCtx].assocObjects[tileIdx][n]->selected) {
 					inv = 0x88;
 				} else if(inv==0x88) {
@@ -9266,8 +9268,9 @@ int loadObjects(BYTE * data) {
 int saveObjects(BYTE * data) {
 	//Init stuff
 	int curSz = 0;
-	//Save sprite data
-	for(int n=0; n<objectContexts[curObjCtx].objects.size(); n++) {
+	//Save object data
+	int origSize = objectContexts[curObjCtx].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[curObjCtx].objects[n];
 		memcpy(&data[curSz],thisObject->data,thisObject->dataSize);
 		curSz += thisObject->dataSize;
@@ -9280,10 +9283,12 @@ void clearInvalidObjects() {
 	memset(&objectContexts[0].invalid,0,0x8000);
 }
 void updateInvalidObjects(BYTE flag) {
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
 		if(thisObject->selected) {
-			for(int k=0; k<thisObject->occupiedTiles.size(); k++) {
+			int origSize2 = thisObject->occupiedTiles.size();
+			for(int k=0; k<origSize2; k++) {
 				objectContexts[0].invalid[thisObject->occupiedTiles[k]] |= flag;
 			}
 		}
@@ -9309,7 +9314,8 @@ void selectObjects(RECT * rect) {
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {
 			int tileIdx = (i>>4)|(j<<4);
-			for(int n=0; n<objectContexts[0].assocObjects[tileIdx].size(); n++) {
+			int origSize = objectContexts[0].assocObjects[tileIdx].size();
+			for(int n=0; n<origSize; n++) {
 				object_t * thisObject = objectContexts[0].assocObjects[tileIdx][n];
 				thisObject->selected = true;
 			}
@@ -9323,7 +9329,8 @@ void clearObjectSelection() {
 	clearInvalidObjects();
 	updateInvalidObjects(1);
 	//Deselect all objects
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
 		thisObject->selected = false;
 	}
@@ -9335,7 +9342,8 @@ void insertObjects(int x,int y) {
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
 	//Check if any objects are to be pasted
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
 		if(thisObject->selected) {
 			BYTE hi = thisObject->data[1];
@@ -9357,7 +9365,6 @@ void insertObjects(int x,int y) {
 		//and if so, terminate
 		if(x<0 || y<0 || (maxX-minX+x)>=0x100 || (maxY-minY+y)>=0x80) return;
 		//Paste selected objects
-		int origSize = objectContexts[0].objects.size();
 		for(int n=0; n<origSize; n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
 			if(thisObject->selected) {
@@ -9437,7 +9444,8 @@ void moveObjects(int dx,int dy) {
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
 	//Check if any objects are to be moved
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
 		if(thisObject->selected) {
 			BYTE hi = thisObject->data[1];
@@ -9459,7 +9467,7 @@ void moveObjects(int dx,int dy) {
 		//and if so, terminate
 		if((minX+dx)<0 || (minY+dy)<0 || (maxX+dx)>=0x100 || (maxY+dy)>=0x80) return;
 		//Move selected objects
-		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		for(int n=0; n<origSize; n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
 			if(thisObject->selected) {
 				BYTE hi = thisObject->data[1];
@@ -9483,7 +9491,8 @@ void resizeObjects(int dx,int dy) {
 	int minX = 0x8000,minY = 0x8000;
 	int maxX = 0,maxY = 0;
 	//Check if any objects are to be resized
-	for(int n=0; n<objectContexts[0].objects.size(); n++) {
+	int origSize = objectContexts[0].objects.size();
+	for(int n=0; n<origSize; n++) {
 		object_t * thisObject = &objectContexts[0].objects[n];
 		if(thisObject->selected) {
 			int id = thisObject->data[0];
@@ -9511,7 +9520,7 @@ void resizeObjects(int dx,int dy) {
 		//and if so, terminate
 		if(((minX+dx)<0) || ((minY+dy)<0) || ((maxX+dx)>=0x100) || ((maxY+dy)>=0x100)) return;
 		//Resize selected objects
-		for(int n=0; n<objectContexts[0].objects.size(); n++) {
+		for(int n=0; n<origSize; n++) {
 			object_t * thisObject = &objectContexts[0].objects[n];
 			if(thisObject->selected) {
 				int id = thisObject->data[0];
@@ -11176,13 +11185,14 @@ int focusObject(int x,int y,UINT * cursor,char * text) {
 		//Determine horizontal/vertical resizing capabilities
 		if(thisObject->selected) {
 			int resizeCaps = romBuf[0x0904EC+id]+1;
+			int origSize = thisObject->occupiedTiles.size();
 			//Check for horizontal resize
 			bool horizNeg = false;
 			if(resizeCaps&1) {
 				int width = thisObject->data[3];
 				if((resizeCaps&0x80) && (width&0x80) && ((x&0xF)<4)) {
 					bool edgeFlag = true;
-					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+					for(int n=0; n<origSize; n++) {
 						if(thisObject->occupiedTiles[n]==(tileIdx-1)) {
 							edgeFlag = false;
 							break;
@@ -11195,7 +11205,7 @@ int focusObject(int x,int y,UINT * cursor,char * text) {
 					}
 				} else if((x&0xF)>=0xC) {
 					bool edgeFlag = true;
-					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+					for(int n=0; n<origSize; n++) {
 						if(thisObject->occupiedTiles[n]==(tileIdx+1)) {
 							edgeFlag = false;
 							break;
@@ -11212,7 +11222,7 @@ int focusObject(int x,int y,UINT * cursor,char * text) {
 				int height = thisObject->data[3+(resizeCaps&1)];
 				if((resizeCaps&0x40) && (height&0x80) && ((y&0xF)<4)) {
 					bool edgeFlag = true;
-					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+					for(int n=0; n<origSize; n++) {
 						if(thisObject->occupiedTiles[n]==(tileIdx-0x100)) {
 							edgeFlag = false;
 							break;
@@ -11232,7 +11242,7 @@ int focusObject(int x,int y,UINT * cursor,char * text) {
 					}
 				} else if((y&0xF)>=0xC) {
 					bool edgeFlag = true;
-					for(int n=0; n<thisObject->occupiedTiles.size(); n++) {
+					for(int n=0; n<origSize; n++) {
 						if(thisObject->occupiedTiles[n]==(tileIdx+0x100)) {
 							edgeFlag = false;
 							break;
