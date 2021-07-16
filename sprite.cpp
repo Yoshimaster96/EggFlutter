@@ -10,6 +10,13 @@ int curSpCtx = 0;
 //SPRITE OCCUPY REGISTRATION &//
 // 8x8/16x16 SECTION HANDLING //
 ////////////////////////////////
+void getSpriteClipRect(RECT * dest,RECT * tile,RECT * spr) {
+	IntersectRect(dest,tile,spr);
+	dest->left -= spr->left;
+	dest->top -= spr->top;
+	dest->right -= spr->left;
+	dest->bottom -= spr->top;
+}
 void occupySpriteTile(sprite_t * s,sprite_tile_t * tile,int offset) {
 	if(offset>=0 && offset<0x8000) {
 		//Store in sprite
@@ -36,25 +43,75 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 		case 0x0000: {
 			if(props&1) {
 				//16x16
+				RECT sprRect = {sptX,sptY,sptX+0x10,sptY+0x10};
+				RECT tileRect = {
+					sptX&(~0xF),
+					sptY&(~0xF),
+					(sptX&(~0xF))+0x10,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx);
 				if(offsX&0xF) {
+					tileRect = {
+						(sptX&(~0xF))+0x10,
+						sptY&(~0xF),
+						(sptX&(~0xF))+0x20,
+						(sptY&(~0xF))+0x10};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+1);
 				}
 				if(offsY&0xF) {
+					tileRect = {
+						sptX&(~0xF),
+						(sptY&(~0xF))+0x10,
+						(sptX&(~0xF))+0x10,
+						(sptY&(~0xF))+0x20};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+0x100);
 					if(offsX&0xF) {
+						tileRect = {
+							(sptX&(~0xF))+0x10,
+							(sptY&(~0xF))+0x10,
+							(sptX&(~0xF))+0x20,
+							(sptY&(~0xF))+0x20};
+						getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 						occupySpriteTile(s,&entry,spTileIdx+0x101);
 					}
 				}
 			} else {
 				//8x8
+				RECT sprRect = {sptX,sptY,sptX+8,sptY+8};
+				RECT tileRect = {
+					sptX&(~0xF),
+					sptY&(~0xF),
+					(sptX&(~0xF))+0x10,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx);
 				if((offsX&0xF)>7) {
+					tileRect = {
+						(sptX&(~0xF))+0x10,
+						sptY&(~0xF),
+						(sptX&(~0xF))+0x20,
+						(sptY&(~0xF))+0x10};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+1);
 				}
-				if((offsY&0xF)>7) {
+				if(offsY&0x8) {
+					tileRect = {
+						sptX&(~0xF),
+						(sptY&(~0xF))+0x10,
+						(sptX&(~0xF))+0x10,
+						(sptY&(~0xF))+0x20};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+0x100);
-					if((offsX&0xF)>7) {
+					if(offsX&0x8) {
+						tileRect = {
+							(sptX&(~0xF))+0x10,
+							(sptY&(~0xF))+0x10,
+							(sptX&(~0xF))+0x20,
+							(sptY&(~0xF))+0x20};
+						getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 						occupySpriteTile(s,&entry,spTileIdx+0x101);
 					}
 				}
@@ -63,13 +120,38 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 		}
 		case 0x4000: {
 			//16x16
+			RECT sprRect = {sptX,sptY,sptX+0x10,sptY+0x10};
+			RECT tileRect = {
+				sptX&(~0xF),
+				sptY&(~0xF),
+				(sptX&(~0xF))+0x10,
+				(sptY&(~0xF))+0x10};
+			getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 			occupySpriteTile(s,&entry,spTileIdx);
 			if(offsX&0xF) {
+				tileRect = {
+					(sptX&(~0xF))+0x10,
+					sptY&(~0xF),
+					(sptX&(~0xF))+0x20,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+1);
 			}
 			if(offsY&0xF) {
+				tileRect = {
+					sptX&(~0xF),
+					(sptY&(~0xF))+0x10,
+					(sptX&(~0xF))+0x10,
+					(sptY&(~0xF))+0x20};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+0x100);
 				if(offsX&0xF) {
+					tileRect = {
+						(sptX&(~0xF))+0x10,
+						(sptY&(~0xF))+0x10,
+						(sptX&(~0xF))+0x20,
+						(sptY&(~0xF))+0x20};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+0x101);
 				}
 			}
@@ -77,23 +159,61 @@ void addSpriteTile(sprite_t * s,BYTE props,DWORD tile,int offsX,int offsY) {
 		}
 		case 0x8000: {
 			//256x1
+			RECT sprRect = {sptX,sptY,sptX+0x100,sptY+1};
 			for(int i=0; i<16; i++) {
+				RECT tileRect = {
+					(sptX&(~0xF))+(i<<4),
+					sptY&(~0xF),
+					(sptX&(~0xF))+(i<<4)+0x10,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+i);
 			}
 			if(offsX&0xF) {
+				RECT tileRect = {
+					(sptX&(~0xF))+0x100,
+					sptY&(~0xF),
+					(sptX&(~0xF))+0x110,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+16);
 			}
 			break;
 		}
 		case 0xC000: {
 			//8x8
+			RECT sprRect = {sptX,sptY,sptX+8,sptY+8};
+			RECT tileRect = {
+				sptX&(~0xF),
+				sptY&(~0xF),
+				(sptX&(~0xF))+0x10,
+				(sptY&(~0xF))+0x10};
+			getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 			occupySpriteTile(s,&entry,spTileIdx);
 			if((offsX&0xF)>7) {
+				tileRect = {
+					(sptX&(~0xF))+0x10,
+					sptY&(~0xF),
+					(sptX&(~0xF))+0x20,
+					(sptY&(~0xF))+0x10};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+1);
 			}
-			if((offsY&0xF)>7) {
+			if(offsY&0x8) {
+				tileRect = {
+					sptX&(~0xF),
+					(sptY&(~0xF))+0x10,
+					(sptX&(~0xF))+0x10,
+					(sptY&(~0xF))+0x20};
+				getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 				occupySpriteTile(s,&entry,spTileIdx+0x100);
-				if((offsX&0xF)>7) {
+				if(offsX&0x8) {
+					tileRect = {
+						(sptX&(~0xF))+0x10,
+						(sptY&(~0xF))+0x10,
+						(sptX&(~0xF))+0x20,
+						(sptY&(~0xF))+0x20};
+					getSpriteClipRect(&entry.clip,&tileRect,&sprRect);
 					occupySpriteTile(s,&entry,spTileIdx+0x101);
 				}
 			}
@@ -218,14 +338,14 @@ inline int findSpGfxFile(BYTE file) {
 }
 
 //SuperFX texture displayer function
-void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int offsX,int offsY,BYTE inv) {
+void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int offsX,int offsY,RECT * clip,BYTE inv) {
 	bool flipV = props&0x80;
 	bool flipH = props&0x40;
 	int palette = (props&0x3C)<<2;
 	int tx = (tile&0xF)<<4;
 	int ty = tile&0x3F0;
-	for(int j=0; j<16; j++) {
-		for(int i=0; i<16; i++) {
+	for(int j=clip->top; j<clip->bottom; j++) {
+		for(int i=clip->left; i<clip->right; i++) {
 			int sx = flipH?(0xF-i):i;
 			int sy = flipV?(0xF-j):j;
 			if(tile&0x2000) {
@@ -245,9 +365,9 @@ void dispSuperFXTexture(DWORD * pixelBuf,int width,int height,BYTE props,WORD ti
 	}
 }
 //HDMA displayer function
-void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,int offsX,int offsY,BYTE inv) {
+void dispBackgroundRow(DWORD * pixelBuf,int width,int height,int row,int offsX,int offsY,RECT * clip,BYTE inv) {
 	int base = ((row&0x3FF)<<10)|((row&0x400)>>1);
-	for(int i=0; i<0x100; i++) {
+	for(int i=clip->left; i<clip->right; i++) {
 		DWORD color = bmpDataBg[base+i];
 		dispMap8Pixel(pixelBuf,width,height,color,color!=0x80808080,offsX+i,offsY,inv);
 	}
@@ -4010,6 +4130,7 @@ void drawSprites() {
 	//Draw sprites
 	for(int n = 0; n < spriteContexts[curSpCtx].sprites.size(); n++) {
 		sprite_t * thisSprite = &spriteContexts[curSpCtx].sprites[n];
+		thisSprite->occupiedTiles.clear();
 		int id = thisSprite->data[0]|(thisSprite->data[1]<<8);
 		id &= 0x1FF;
 		spriteDrawFunc[id](thisSprite);
@@ -4022,12 +4143,9 @@ void drawSprites() {
 	}
 }
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT * rect) {
-	int minx = std::max((int)(rect->left&0x7FF0),0);
-	int miny = std::max((int)(rect->top&0x7FF0),0);
-	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
-	for(int j=miny; j<=maxy; j+=0x10) {
-		for(int i=minx; i<=maxx; i+=0x10) {
+	//Update rect is tile-aligned so we don't need to AND mask
+	for(int j=rect->top; j<rect->bottom; j+=0x10) {
+		for(int i=rect->left; i<rect->right; i+=0x10) {
 			int tileIdx = (i>>4)|((j>>4)<<8);
 			for(int n=0; n<spriteContexts[curSpCtx].tilemap[tileIdx].size(); n++) {
 				sprite_tile_t * thisSpriteTile = &spriteContexts[curSpCtx].tilemap[tileIdx][n];
@@ -4038,20 +4156,20 @@ void dispSprites(DWORD * pixelBuf,int width,int height,RECT * rect) {
 				BYTE inv = (thisSpriteTile->assocSprite->selected)?8:0;
 				switch(tile&0xC000) {
 					case 0x0000: {
-						if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,sptX,sptY,inv);
-						else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,sptX,sptY,inv);
+						if(tile&0x2000) dispMap8Tile(pixelBuf,width,height,props,tile,sptX,sptY,&thisSpriteTile->clip,inv);
+						else dispMap8Tile(pixelBuf,width,height,props,tile+0x480,sptX,sptY,&thisSpriteTile->clip,inv);
 						break;
 					}
 					case 0x4000: {
-						dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,sptX,sptY,inv);
+						dispSuperFXTexture(pixelBuf,width,height,props,tile&0x3FFF,sptX,sptY,&thisSpriteTile->clip,inv);
 						break;
 					}
 					case 0x8000: {
-						dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,sptX,sptY,inv);
+						dispBackgroundRow(pixelBuf,width,height,tile&0x7FF,sptX,sptY,&thisSpriteTile->clip,inv);
 						break;
 					}
 					case 0xC000: {
-						dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,sptX,sptY,inv);
+						dispMap8Char(pixelBuf,width,height,0xFF,0xFFFFFF,tile&0x7F,sptX,sptY,&thisSpriteTile->clip,inv);
 						break;
 					}
 				}
@@ -4130,10 +4248,10 @@ void selectSprites(RECT * rect) {
 	//Select nothing by default
 	clearSpriteSelection();
 	//Get tile region
-	int minx = std::max((int)(rect->left&0x7FF0),0);
-	int miny = std::max((int)(rect->top&0x7FF0),0);
-	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
+	int minx = rect->left&(~0xF);
+	int miny = rect->top&(~0xF);
+	int maxx = rect->right&(~0xF);
+	int maxy = rect->bottom&(~0xF);
 	//For each tile, check for intersection
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {

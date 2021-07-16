@@ -381,15 +381,15 @@ void dispMap8Pixel(DWORD * pixelBuf,int width,int height,DWORD color,int idx,int
 		hilitePixel(pixelBuf,width,height,ored,offsX,offsY);
 	}
 }
-void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int offsX,int offsY,BYTE inv) {
+void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int offsX,int offsY,RECT * clip,BYTE inv) {
 	bool flipV = props&0x80;
 	bool flipH = props&0x40;
 	int palette = (props&0x3C)<<2;
 	if(props&2) palette >>= 2;
 	bool size = props&1;
 	if(size) {
-		for(int j=0; j<16; j++) {
-			for(int i=0; i<16; i++) {
+		for(int j=clip->top; j<clip->bottom; j++) {
+			for(int i=clip->left; i<clip->right; i++) {
 				int si = i&7;
 				int sj = j&7;
 				int sx = flipH?(7-si):si;
@@ -409,8 +409,8 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int
 			}
 		}
 	} else {
-		for(int j=0; j<8; j++) {
-			for(int i=0; i<8; i++) {
+		for(int j=clip->top; j<clip->bottom; j++) {
+			for(int i=clip->left; i<clip->right; i++) {
 				int sx = flipH?(7-i):i;
 				int sy = flipV?(7-j):j;
 				int dx = offsX+i;
@@ -426,9 +426,9 @@ void dispMap8Tile(DWORD * pixelBuf,int width,int height,BYTE props,WORD tile,int
 		}
 	}
 }
-void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,int offsX,int offsY,BYTE inv) {
-	for(int j=0; j<8; j++) {
-		for(int i=0; i<8; i++) {
+void dispMap8Char(DWORD * pixelBuf,int width,int height,DWORD fgCol,DWORD bgCol,char c,int offsX,int offsY,RECT * clip,BYTE inv) {
+	for(int j=clip->top; j<clip->bottom; j++) {
+		for(int i=clip->left; i<clip->right; i++) {
 			int dx = offsX+i;
 			int dy = offsY+j;
 			int idx = getIndexFromTile(fontBuffer,c,{i,j});
@@ -450,6 +450,7 @@ RECT invRect_map8 = {0,0,0x100,0x100};
 
 //Main drawing code
 void updateEntireScreen_map8() {
+	RECT clipRect = {0,0,8,8};
 	memset(bmpDataMap8,0x80,0x4000*sizeof(DWORD));
 	for(int j=0; j<0x10; j++) {
 		WORD row = map8Base+(j<<4);
@@ -457,7 +458,7 @@ void updateEntireScreen_map8() {
 		if(row>=0x480) props |= 0x20;
 		else if(row>=0x380) props |= 2;
 		for(int i=0; i<0x10; i++) {
-			dispMap8Tile(bmpDataMap8,0x80,0x80,props,row|i,i<<3,j<<3,false);
+			dispMap8Tile(bmpDataMap8,0x80,0x80,props,row|i,i<<3,j<<3,&clipRect,0);
 		}
 	}
 }

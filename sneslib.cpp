@@ -94,12 +94,6 @@ void unpackGfx4BPP(BYTE * dst,BYTE * src,int numTiles) {
 }
 
 //Pixel manipulation
-void fillImage(DWORD * pixelBuf,int width,int height,DWORD color) {
-	int numPixels = width*height;
-	for(int i=0; i<numPixels; i++) {
-		pixelBuf[i] = color;
-	}
-}
 void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY) {
 	if(offsX>=0 && offsY>=0 && offsX<width && offsY<height) {
 		pixelBuf[(offsY*width)+offsX] = color;

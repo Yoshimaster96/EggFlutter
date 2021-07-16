@@ -20,7 +20,6 @@ void packGfx2BPP(BYTE * dst,BYTE * src,int numTiles);
 void packGfx4BPP(BYTE * dst,BYTE * src,int numTiles);
 void unpackGfx2BPP(BYTE * dst,BYTE * src,int numTiles);
 void unpackGfx4BPP(BYTE * dst,BYTE * src,int numTiles);
-void fillImage(DWORD * pixelBuf,int width,int height,DWORD color);
 void putPixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY);
 void invertPixel(DWORD * pixelBuf,int width,int height,int offsX,int offsY);
 void hilitePixel(DWORD * pixelBuf,int width,int height,DWORD color,int offsX,int offsY);

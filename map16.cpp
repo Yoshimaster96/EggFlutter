@@ -20,14 +20,15 @@ void loadMap16() {
 }
 
 void dispMap16Tile(DWORD * pixelBuf,int width,int height,WORD tile,int offsX,int offsY,BYTE inv) {
+	RECT clipRect = {0,0,8,8};
 	WORD td = map16Buffer[tile<<3]|(map16Buffer[(tile<<3)|1]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX,offsY,inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX,offsY,&clipRect,inv);
 	td = map16Buffer[(tile<<3)|2]|(map16Buffer[(tile<<3)|3]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX+8,offsY,inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX+8,offsY,&clipRect,inv);
 	td = map16Buffer[(tile<<3)|4]|(map16Buffer[(tile<<3)|5]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX,offsY+8,inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX,offsY+8,&clipRect,inv);
 	td = map16Buffer[(tile<<3)|6]|(map16Buffer[(tile<<3)|7]<<8);
-	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX+8,offsY+8,inv);
+	dispMap8Tile(pixelBuf,width,height,(td>>8)&0xDC,td&0x3FF,offsX+8,offsY+8,&clipRect,inv);
 }
 
 ///////////////////

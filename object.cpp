@@ -9049,13 +9049,11 @@ void drawObjects() {
 	}
 }
 void dispObjects(DWORD * pixelBuf,int width,int height,RECT * rect) {
-	int minx = std::max((int)(rect->left&0x7FF0),0);
-	int miny = std::max((int)(rect->top&0x7FF0),0);
-	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
+	RECT clipRect = {0,0,8,8};
 	char obStr[256];
-	for(int j=miny; j<=maxy; j+=0x10) {
-		for(int i=minx; i<=maxx; i+=0x10) {
+	//Update rect is tile-aligned so we don't need to AND mask
+	for(int j=rect->top; j<rect->bottom; j+=0x10) {
+		for(int i=rect->left; i<rect->right; i+=0x10) {
 			int tileIdx = (i>>4)|(j<<4);
 			//Check object selection to highlight/invert
 			BYTE inv = 0;
@@ -9185,23 +9183,23 @@ void dispObjects(DWORD * pixelBuf,int width,int height,RECT * rect) {
 						break;
 					}
 				}
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,&clipRect,inv);
 			} else if((tile&0xFF00)==0xBE00) {
 				snprintf(obStr,256,"OX%02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,&clipRect,inv);
 			} else if((tile&0xFF00)==0xBF00) {
 				snprintf(obStr,256,"O %02X",tile&0xFF);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,inv);
-				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,inv);
-			} else if(tile!=0x0000) {
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[0],i,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[1],i+8,j,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[2],i,j+8,&clipRect,inv);
+				dispMap8Char(pixelBuf,width,height,0x0000FF,0xFFFFFF,obStr[3],i+8,j+8,&clipRect,inv);
+			} else {
 				dispMap16Tile(pixelBuf,width,height,tile,i,j,inv);
 			}
 		}
@@ -9303,10 +9301,10 @@ void selectObjects(RECT * rect) {
 	//Select nothing by default
 	clearObjectSelection();
 	//Get tile region
-	int minx = std::max((int)(rect->left&0x7FF0),0);
-	int miny = std::max((int)(rect->top&0x7FF0),0);
-	int maxx = std::min((int)(rect->right&0x7FF0),0xFF0);
-	int maxy = std::min((int)(rect->bottom&0x7FF0),0x7F0);
+	int minx = rect->left&(~0xF);
+	int miny = rect->top&(~0xF);
+	int maxx = rect->right&(~0xF);
+	int maxy = rect->bottom&(~0xF);
 	//For each tile, mark all occupied objects as selected
 	for(int j=miny; j<=maxy; j+=0x10) {
 		for(int i=minx; i<=maxx; i+=0x10) {

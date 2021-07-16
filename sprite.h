@@ -15,6 +15,7 @@ typedef struct {
 	BYTE props;
 	DWORD tile;
 	int offsX,offsY;
+	RECT clip;
 	sprite_t * assocSprite;
 } sprite_tile_t;
 typedef struct {

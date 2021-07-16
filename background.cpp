@@ -42,19 +42,20 @@ RECT invRect_bg = {0,0,0x400,0x400};
 
 //Main drawing code
 void updateEntireScreen_bg() {
+	RECT clipRect = {0,0,0x10,0x10};
 	memset(bmpDataBg,0x80,0x100000*sizeof(DWORD));
 	for(int j=0; j<0x40; j++) {
 		for(int i=0; i<0x20; i++) {
 			WORD tile = i+(j<<5);
 			WORD td = bg2Buffer[tile<<1]|(bg2Buffer[(tile<<1)|1]<<8);
-			dispMap8Tile(bmpDataBg,0x400,0x400,((td>>8)&0xDC)|1,td&0x3FF,i<<4,j<<4,0);
+			dispMap8Tile(bmpDataBg,0x400,0x400,((td>>8)&0xDC)|1,td&0x3FF,i<<4,j<<4,&clipRect,0);
 		}
 	}
 	for(int j=0; j<0x20; j++) {
 		for(int i=0; i<0x20; i++) {
 			WORD tile = i+(j<<5);
 			WORD td = bg3Buffer[tile<<1]|(bg3Buffer[(tile<<1)|1]<<8);
-			dispMap8Tile(bmpDataBg,0x400,0x400,((td>>8)&0xDC)|3,(td&0x3FF)+0x280,0x200+(i<<4),j<<4,0);
+			dispMap8Tile(bmpDataBg,0x400,0x400,((td>>8)&0xDC)|3,(td&0x3FF)+0x280,0x200+(i<<4),j<<4,&clipRect,0);
 		}
 	}
 }
