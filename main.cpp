@@ -1163,6 +1163,7 @@ void updateInvalidParts() {
 			}
 		}
 	}
+	UpdateWindow(hwndMain);
 }
 void updateEntireScreen() {
 	//Scrolling is pixel-perfect so we would need to AND mask
@@ -1175,6 +1176,7 @@ void updateEntireScreen() {
 	updateRect(&rect);
 	GetClientRect(hwndMain,&rect);
 	InvalidateRect(hwndMain,&rect,false);
+	UpdateWindow(hwndMain);
 }
 void updateDialogs() {
 	RECT rect = {0,0,256,384};
@@ -1524,13 +1526,11 @@ void onEditSp() {
 void onIncZ() {
 	increaseObjectZ();
 	isRomSaved = false;
-	drawObjects();
 	updateEntireScreen();
 }
 void onDecZ() {
 	decreaseObjectZ();
 	isRomSaved = false;
-	drawObjects();
 	updateEntireScreen();
 }
 //View
@@ -2236,10 +2236,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			if(wParam==VK_DELETE) {
 				if(eObj) {
 					deleteObjects();
-					drawObjects();
 				} else if(eSp) {
 					deleteSprites();
-					drawSprites();
 				}
 				isRomSaved = false;
 				
@@ -2305,10 +2303,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					int dy = (selpCur.y&(~0xF))-(selpPrev.y&(~0xF));
 					if(eObj) {
 						moveObjects(dx,dy);
-						drawObjects();
 					} else if(eSp) {
 						moveSprites(dx,dy);
-						drawSprites();
 					}
 					isRomSaved = false;
 				} else {
@@ -2319,7 +2315,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 					if(selOp&2) dy = (selpCur.y&(~0xF))-(selpPrev.y&(~0xF));
 					if(eObj) {
 						resizeObjects(dx,dy);
-						drawObjects();
 					}
 					isRomSaved = false;
 				}
@@ -2464,10 +2459,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			levY = std::min(0x7FF,levY);
 			if(eObj) {
 				insertObjects(levX,levY);
-				drawObjects();
 			} else if(eSp) {
 				insertSprites(levX,levY);
-				drawSprites();
 			}
 			isRomSaved = false;
 			selpCur = selpPrev = {levX,levY};
@@ -2504,12 +2497,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 
 //Main entry point
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
-	//Setup console for debug output
-	//AllocConsole();
-	//freopen("CONIN$","r",stdin);
-	//freopen("CONOUT$","w",stdout);
-	//freopen("CONOUT$","w",stderr);
-	
 	//Load resources
 	//Icon
 	hiconMain = LoadIconA(hInstance,MAKEINTRESOURCE(IDI_ICON_MAIN));

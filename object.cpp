@@ -9387,6 +9387,7 @@ void insertObjects(int x,int y) {
 			}
 		}
 		//Post-invalidation
+		drawObjects();
 		updateInvalidObjects(1);
 	} else if(wvisObject) {
 		//Pre-invalidation
@@ -9407,6 +9408,7 @@ void insertObjects(int x,int y) {
 		entry.selected = true;
 		objectContexts[0].objects.push_back(entry);
 		//Post-invalidation
+		drawObjects();
 		updateInvalidObjects(1);
 	}
 }
@@ -9422,6 +9424,7 @@ void deleteObjects() {
 			n--;
 		}
 	}
+	drawObjects();
 }
 void selectTopObject(int x,int y) {
 	//Select top object
@@ -9481,6 +9484,7 @@ void moveObjects(int dx,int dy) {
 			}
 		}
 		//Post-invalidation
+		drawObjects();
 		updateInvalidObjects(1);
 	}
 }
@@ -9534,6 +9538,7 @@ void resizeObjects(int dx,int dy) {
 			}
 		}
 		//Post-invalidation
+		drawObjects();
 		updateInvalidObjects(1);
 	}
 }
@@ -9555,6 +9560,7 @@ void increaseObjectZ() {
 		}
 	}
 	//Post-invalidation
+	drawObjects();
 	updateInvalidObjects(1);
 }
 void decreaseObjectZ() {
@@ -9575,6 +9581,7 @@ void decreaseObjectZ() {
 		}
 	}
 	//Post-invalidation
+	drawObjects();
 	updateInvalidObjects(1);
 }
 

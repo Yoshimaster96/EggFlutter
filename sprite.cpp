@@ -4190,9 +4190,11 @@ void initOtherSpriteBuffers() {
 //SPRITE MANAGEMENT//
 /////////////////////
 //Load/save
-void loadSprites(BYTE * data) {
+int loadSprites(BYTE * data) {
 	//Clear buffers
 	spriteContexts[curSpCtx].sprites.clear();
+	//Init stuff
+	int curSz = 0;
 	//Reload buffer with sprite data
 	while(true) {
 		//Create entry
@@ -4203,12 +4205,14 @@ void loadSprites(BYTE * data) {
 		if(entry.data[0]==0xFF && entry.data[1]==0xFF) break;
 		entry.data[2] = *data++;
 		entry.dataSize = 3;
+		curSz += 3;
 		//Init other elements to sane values
 		entry.selected = false;
 		entry.occupiedTiles.clear();
 		//Push back
 		spriteContexts[curSpCtx].sprites.push_back(entry);
 	}
+	return curSz;
 }
 int saveSprites(BYTE * data) {
 	//Init stuff
@@ -4352,6 +4356,7 @@ void insertSprites(int x,int y) {
 			}
 		}
 		//Post-invalidation
+		drawSprites();
 		updateInvalidSprites(1);
 	} else if(wvisSprite) {
 		//Pre-invalidation
@@ -4370,6 +4375,7 @@ void insertSprites(int x,int y) {
 		entry.selected = true;
 		spriteContexts[0].sprites.push_back(entry);
 		//Post-invalidation
+		drawSprites();
 		updateInvalidSprites(1);
 	}
 }
@@ -4385,6 +4391,7 @@ void deleteSprites() {
 			n--;
 		}
 	}
+	drawSprites();
 }
 void selectTopSprite(int x,int y) {
 	//Select top sprite
@@ -4487,6 +4494,7 @@ void moveSprites(int dx,int dy) {
 			}
 		}
 		//Post-invalidation
+		drawSprites();
 		updateInvalidSprites(1);
 	}
 }

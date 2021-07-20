@@ -35,7 +35,7 @@ void drawSprites();
 void dispSprites(DWORD * pixelBuf,int width,int height,RECT * rect);
 void initOtherSpriteBuffers();
 //Sprite management
-void loadSprites(BYTE * data);
+int loadSprites(BYTE * data);
 int saveSprites(BYTE * data);
 void getInvalidSprites(BYTE * data);
 void selectSprites(RECT * rect);
