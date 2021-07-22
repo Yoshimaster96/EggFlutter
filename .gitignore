@@ -10,5 +10,5 @@ Project2.layout
 resources/patches/*.smc
 resources/patches/*.sfc
 resources/help/*.*
-release/*.*
-release.zip
+release/EggFlutter.exe
+*.zip
