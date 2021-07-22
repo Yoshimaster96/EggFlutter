@@ -11,3 +11,4 @@ resources/patches/*.smc
 resources/patches/*.sfc
 resources/help/*.*
 release/*.*
+release.zip
