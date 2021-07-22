@@ -4416,7 +4416,7 @@ void drawObject_52(object_t * o) {
 		for(int i=0; i<width; i++) {
 			for(int j=0; j!=height;) {
 				if(j==0) addObjectTile(o,tilesetBuffer[0x1C4A>>1],mtOff);
-				else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x1C4C>>1],mtOff);
+				else if(j==1) addObjectTile(o,tilesetBuffer[0x1C4C>>1],mtOff);
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
 					j--;
@@ -4434,7 +4434,7 @@ void drawObject_52(object_t * o) {
 		for(int i=0; i<width; i++) {
 			for(int j=0; j!=height;) {
 				if(j==0) addObjectTile(o,tilesetBuffer[0x1C50>>1],mtOff);
-				else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x1C4E>>1],mtOff);
+				else if(j==1) addObjectTile(o,tilesetBuffer[0x1C4E>>1],mtOff);
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
 					j--;
@@ -4516,7 +4516,7 @@ void drawObject_54(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1A34>>1]:tilesetBuffer[0x1A2A>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A5E>>1]:tilesetBuffer[0x1A40>>1],mtOff);
+					else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A5E>>1]:tilesetBuffer[0x1A40>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -4555,7 +4555,7 @@ void drawObject_54(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,(i&1)?tilesetBuffer[0x1A42>>1]:tilesetBuffer[0x1A50>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A60>>1]:tilesetBuffer[0x1A5C>>1],mtOff);
+					else if(j==1) addObjectTile(o,(i&1)?tilesetBuffer[0x1A60>>1]:tilesetBuffer[0x1A5C>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -4607,7 +4607,7 @@ void drawObject_55(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,tilesetBuffer[0x1A02>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x1A14>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x1A14>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -4646,7 +4646,7 @@ void drawObject_55(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,tilesetBuffer[0x1A16>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x1A28>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x1A28>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -4698,8 +4698,8 @@ void drawObject_56(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,tilesetBuffer[0x19DA>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x19E2>>1],mtOff);
-					else if((j&0xFF)==2) addObjectTile(o,tilesetBuffer[0x19EC>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x19E2>>1],mtOff);
+					else if(j==2) addObjectTile(o,tilesetBuffer[0x19EC>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -4740,8 +4740,8 @@ void drawObject_56(object_t * o) {
 					}
 				} else {
 					if(j==0) addObjectTile(o,tilesetBuffer[0x19EE>>1],mtOff);
-					else if((j&0xFF)==1) addObjectTile(o,tilesetBuffer[0x19F6>>1],mtOff);
-					else if((j&0xFF)==2) addObjectTile(o,tilesetBuffer[0x1A00>>1],mtOff);
+					else if(j==1) addObjectTile(o,tilesetBuffer[0x19F6>>1],mtOff);
+					else if(j==2) addObjectTile(o,tilesetBuffer[0x1A00>>1],mtOff);
 				}
 				if(height<0) {
 					mtOff = offsetMap16Up(mtOff);
@@ -5657,7 +5657,7 @@ void drawObject_7B(object_t * o) {
 				WORD orig = getOriginalMap16Tile(mtOff);
 				if(j==0) {
 					if(orig==tilesetBuffer[0x1DAE>>1] || (orig&0xFF00)!=tilesetBuffer[0x1D8A>>1]) addObjectTile(o,tilesetBuffer[0x1D9A>>1],mtOff);
-				} else if((j&0xFF)==1) {
+				} else if(j==1) {
 					if((i+1)==width) {
 						if(orig==tilesetBuffer[0x1DAE>>1]) addObjectTile(o,tilesetBuffer[0x1D9C>>1],mtOff);
 						else {
@@ -5672,7 +5672,7 @@ void drawObject_7B(object_t * o) {
 						else if(orig!=tilesetBuffer[0x1D8C>>1] && orig!=tilesetBuffer[0x1D8E>>1] &&
 						orig!=tilesetBuffer[0x1D9C>>1] && orig!=tilesetBuffer[0x1D9E>>1]) addObjectTile(o,tilesetBuffer[0x1D9C>>1],mtOff);
 					}
-				} else if(((j+1)&0xFF)==(height&0xFF)) {
+				} else if((j+1)==height) {
 					if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] ||
 					orig==tilesetBuffer[0x1D92>>1] || orig==tilesetBuffer[0x1D94>>1] ||
 					orig==tilesetBuffer[0x1D96>>1] || orig==tilesetBuffer[0x1D98>>1]) {
@@ -5718,7 +5718,7 @@ void drawObject_7B(object_t * o) {
 				WORD orig = getOriginalMap16Tile(mtOff);
 				if(j==0) {
 					if(orig==tilesetBuffer[0x1DAE>>1] || (orig&0xFF00)!=tilesetBuffer[0x1D8A>>1]) addObjectTile(o,tilesetBuffer[0x1DA0>>1],mtOff);
-				} else if((j&0xFF)==1) {
+				} else if(j==1) {
 					if((i+1)==width) {
 						if(orig==tilesetBuffer[0x1DAE>>1]) addObjectTile(o,tilesetBuffer[0x1D9E>>1],mtOff);
 						else {
@@ -5733,7 +5733,7 @@ void drawObject_7B(object_t * o) {
 						else if(orig!=tilesetBuffer[0x1D8C>>1] && orig!=tilesetBuffer[0x1D8E>>1] &&
 						orig!=tilesetBuffer[0x1D9C>>1] && orig!=tilesetBuffer[0x1D9E>>1]) addObjectTile(o,tilesetBuffer[0x1D9E>>1],mtOff);
 					}
-				} else if(((j+1)&0xFF)==(height&0xFF)) {
+				} else if((j+1)==height) {
 					if(orig==tilesetBuffer[0x1C5C>>1] || orig==tilesetBuffer[0x1C5E>>1] ||
 					orig==tilesetBuffer[0x1D92>>1] || orig==tilesetBuffer[0x1D94>>1] ||
 					orig==tilesetBuffer[0x1D96>>1] || orig==tilesetBuffer[0x1D98>>1]) {
@@ -7782,7 +7782,7 @@ void drawObject_CC(object_t * o) {
 			WORD orig = getOriginalMap16Tile(mtOff);
 			WORD tile = 0x00C2;
 			if(j==0) tile = 0x00C9;
-			else if((j&0xFF)==0xFF) tile = 0x00CA;
+			else if(j==-1) tile = 0x00CA;
 			if((j&0xFF)>0xFE) {
 				int mtOff2 = offsetMap16Up(mtOff);
 				WORD orig2 = getOriginalMap16Tile(mtOff2);
@@ -7797,7 +7797,7 @@ void drawObject_CC(object_t * o) {
 						else tile = 0x77E3;
 					}
 				}
-			} else if(((i+1)&0xFF)==(width&0xFF)) {
+			} else if((i+1)==width) {
 				int mtOff2 = offsetMap16Left(mtOff);
 				WORD orig2 = getOriginalMap16Tile(mtOff2);
 				if(orig2<0x0153 || orig2>=0x0161) {
@@ -7817,7 +7817,7 @@ void drawObject_CC(object_t * o) {
 					if(orig2==0x00C5) tile = 0x00C7;
 				}
 			}
-			if(((j-1)&0xFF)==(height&0xFF) && (j&0xFF)<0xFF) {
+			if((j-1)==height && (j&0xFF)<0xFF) {
 				if(orig==0x00DE) shadowFlag = false;
 				else {
 					int mtOff2 = offsetMap16Left(mtOff);
@@ -7879,7 +7879,7 @@ void drawObject_CD(object_t * o) {
 			WORD orig = getOriginalMap16Tile(mtOff);
 			WORD tile = 0x00C2;
 			if(j==0) tile = 0x00CC;
-			else if((j&0xFF)==0xFF) tile = 0x00CB;
+			else if(j==-1) tile = 0x00CB;
 			if((j&0xFF)>0xFE) {
 				int mtOff2 = offsetMap16Up(mtOff);
 				WORD orig2 = getOriginalMap16Tile(mtOff2);
@@ -7914,7 +7914,7 @@ void drawObject_CD(object_t * o) {
 					if(orig2==0x00C5) tile = 0x00C7;
 				}
 			}
-			if(((j-1)&0xFF)==(height&0xFF) && (j&0xFF)<0xFF) {
+			if((j-1)==height && (j&0xFF)<0xFF) {
 				if(orig==0x00DE) shadowFlag = false;
 				else {
 					int mtOff2 = offsetMap16Left(mtOff);
@@ -8602,7 +8602,7 @@ void drawObject_E5(object_t * o) {
 				addObjectTile(o,tile,mtOff2);
 				tile = romBuf[seed+offset+8]|(romBuf[seed+offset+9]<<8);
 				addObjectTile(o,tile,mtOff);
-			} else if((j&0xFF)==1) {
+			} else if(j==1) {
 				int offset = ((i&1)<<1);
 				WORD tile = romBuf[seed+offset+12]|(romBuf[seed+offset+13]<<8);
 				addObjectTile(o,tile,mtOff);
@@ -8665,7 +8665,7 @@ void drawObject_E6(object_t * o) {
 				addObjectTile(o,tile,mtOff2);
 				tile = romBuf[seed+4]|(romBuf[seed+5]<<8);
 				addObjectTile(o,tile,mtOff);
-			} else if((j&0xFF)==1) {
+			} else if(j==1) {
 				WORD tile = romBuf[seed+6]|(romBuf[seed+7]<<8);
 				addObjectTile(o,tile,mtOff);
 			} else {
@@ -8722,10 +8722,10 @@ void drawObject_E7(object_t * o) {
 				addObjectTile(o,tile,mtOff2);
 				tile = romBuf[seed+2]|(romBuf[seed+3]<<8);
 				addObjectTile(o,tile,mtOff);
-			} else if((j&0xFF)==1) {
+			} else if(j==1) {
 				WORD tile = romBuf[seed+4]|(romBuf[seed+5]<<8);
 				addObjectTile(o,tile,mtOff);
-			} else if((j&0xFF)==2) {
+			} else if(j==2) {
 				WORD tile = romBuf[seed+6]|(romBuf[seed+7]<<8);
 				addObjectTile(o,tile,mtOff);
 			} else {
@@ -8984,23 +8984,23 @@ void drawObject_ED(object_t * o) {
 		for(int i=0; i!=width;) {
 			bool rhs = (mtOff&1)^((mtOff>>8)&1);
 			if(j==0) {
-				if((i==0 && rhs) || (i!=0 && ((i+1)&0xFF)==(width&0xFF) && !rhs)) addObjectTile(o,0x3D09,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x3D09,mtOff);
 				else addObjectTile(o,rhs?0x3D0B:0x3D0A,mtOff);
 			} else if(i!=0 && j!=0 && rhs && width<0) {
 				addObjectTile(o,0x0001,mtOff);
-			} else if((j&0xFF)==0xFF) {
+			} else if(j==-1) {
 				if(i==0 || !rhs) shadeOffs = (noiseTilemap[mtOff]&1)*3;
-				if((i==0 && rhs) || (i!=0 && ((i+1)&0xFF)==(width&0xFF) && !rhs)) addObjectTile(o,0x79E8+shadeOffs,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79E8+shadeOffs,mtOff);
 				else addObjectTile(o,rhs?(0x79EA+shadeOffs):(0x79E9+shadeOffs),mtOff);
-			} else if((j&0xFF)==0xFE) {
-				if((i==0 && rhs) || (i!=0 && ((i+1)&0xFF)==(width&0xFF) && !rhs)) addObjectTile(o,0x79EB,mtOff);
+			} else if(j==-2) {
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EB,mtOff);
 				else addObjectTile(o,rhs?0x79ED:0x79EC,mtOff);
-			} else if((j&0xFF)==0xFD) {
+			} else if(j==-3) {
 				if(i==0 || !rhs) shadeOffs = (noiseTilemap[mtOff]&1)*3;
-				if((i==0 && rhs) || (i!=0 && ((i+1)&0xFF)==(width&0xFF) && !rhs)) addObjectTile(o,0x79EB+shadeOffs,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EB+shadeOffs,mtOff);
 				else addObjectTile(o,rhs?(0x79ED+shadeOffs):(0x79EC+shadeOffs),mtOff);
 			} else {
-				if((i==0 && rhs) || (i!=0 && ((i+1)&0xFF)==(width&0xFF) && !rhs)) addObjectTile(o,0x79EE,mtOff);
+				if((i==0 && rhs) || (i!=0 && (i+1)==width && !rhs)) addObjectTile(o,0x79EE,mtOff);
 				else addObjectTile(o,rhs?0x79F0:0x79EF,mtOff);
 			}
 			if(width<0) {
