@@ -1,5 +1,6 @@
 *.o
 resources/*.o
+resources/help/*.o
 resources/patches/*.o
 Makefile
 Makefile.*
@@ -8,3 +9,5 @@ Project2.exe
 Project2.layout
 resources/patches/*.smc
 resources/patches/*.sfc
+resources/help/*.*
+release/*.*
