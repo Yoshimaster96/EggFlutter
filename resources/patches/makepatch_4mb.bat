@@ -8,12 +8,11 @@ if exist yi.sfc (
 	asar main_4mb.asm yi_patched.sfc
 	beat -create -delta -p patch_4mb.bps -o yi_patched.sfc yi.sfc
 	del yi_patched.sfc
-)
 
 rem	===============================================
 rem	Otherwise, let user know that ROM doesn't exist
 rem	===============================================
-else (
+) else (
 	echo Could not find Yoshi's Island US 1.0 ROM `yi.sfc`.
 )
 

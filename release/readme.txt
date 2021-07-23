@@ -12,3 +12,6 @@ VERSION HISTORY
 
 1.00
 	Initial release.
+1.01
+	Modified patch to include version for future-proofing.
+	Fixed scrolling crash issue.

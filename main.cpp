@@ -1784,8 +1784,8 @@ void updateRect(RECT * rect) {
 	//Ensure update rect is tile-aligned
 	rect->left = rect->left&(~0xF);
 	rect->top = rect->top&(~0xF);
-	rect->right = (rect->right&(~0xF))+0x10;
-	rect->bottom = (rect->bottom&(~0xF))+0x10;
+	rect->right = (rect->right+0xF)&(~0xF);
+	rect->bottom = (rect->bottom+0xF)&(~0xF);
 	//Check if ROM is open before drawing
 	if(isRomOpen) {
 		RECT clipRect = {0,0,8,8};
@@ -1882,8 +1882,8 @@ void updateRect(RECT * rect) {
 			//Update rect is not necessarily screen-aligned so we need to AND mask
 			int minx = rect->left&(~0xFF);
 			int miny = rect->top&(~0xFF);
-			int maxx = ((rect->right-1)&(~0xFF))+0x100;
-			int maxy = ((rect->bottom-1)&(~0xFF))+0x100;
+			int maxx = (rect->right+0xFF)&(~0xFF);
+			int maxy = (rect->bottom+0xFF)&(~0xFF);
 			for(int j=miny; j<maxy; j+=0x100) {
 				for(int i=minx; i<maxx; i+=0x100) {
 					//Draw screen borders

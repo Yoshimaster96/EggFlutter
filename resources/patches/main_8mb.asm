@@ -7,6 +7,10 @@ incsrc "regs.asm"
 incsrc "regs_gsu.asm"
 incsrc "vars.asm"
 
+;Write version number for future-proofing
+org $FFAE
+	dw $0100
+
 ;Expand ROM to 8MB and SRAM to 128KB
 org $FFBD
 	db $07
