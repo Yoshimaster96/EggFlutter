@@ -15,3 +15,5 @@ VERSION HISTORY
 1.01
 	Modified patch to include version for future-proofing.
 	Fixed scrolling crash issue.
+1.02
+	Fixed issue with objects CC and CD not rendering correctly.
