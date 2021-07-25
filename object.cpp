@@ -7783,7 +7783,7 @@ void drawObject_CC(object_t * o) {
 			WORD tile = 0x00C2;
 			if(j==0) tile = 0x00C9;
 			else if(j==-1) tile = 0x00CA;
-			if((j&0xFF)>0xFE) {
+			if(j==0 || (j&0xFF)>0xFE) {
 				int mtOff2 = offsetMap16Up(mtOff);
 				WORD orig2 = getOriginalMap16Tile(mtOff2);
 				if(orig2>=0x0153 && orig2<0x0161) {
@@ -7817,7 +7817,7 @@ void drawObject_CC(object_t * o) {
 					if(orig2==0x00C5) tile = 0x00C7;
 				}
 			}
-			if((j-1)==height && (j&0xFF)<0xFF) {
+			if((j-1)==height && j!=0 && (j&0xFF)<0xFF) {
 				if(orig==0x00DE) shadowFlag = false;
 				else {
 					int mtOff2 = offsetMap16Left(mtOff);
@@ -7880,7 +7880,7 @@ void drawObject_CD(object_t * o) {
 			WORD tile = 0x00C2;
 			if(j==0) tile = 0x00CC;
 			else if(j==-1) tile = 0x00CB;
-			if((j&0xFF)>0xFE) {
+			if(j==0 || (j&0xFF)>0xFE) {
 				int mtOff2 = offsetMap16Up(mtOff);
 				WORD orig2 = getOriginalMap16Tile(mtOff2);
 				if(orig2>=0x0153 && orig2<0x0161) {
@@ -7914,7 +7914,7 @@ void drawObject_CD(object_t * o) {
 					if(orig2==0x00C5) tile = 0x00C7;
 				}
 			}
-			if((j-1)==height && (j&0xFF)<0xFF) {
+			if((j-1)==height && j!=0 && (j&0xFF)<0xFF) {
 				if(orig==0x00DE) shadowFlag = false;
 				else {
 					int mtOff2 = offsetMap16Left(mtOff);

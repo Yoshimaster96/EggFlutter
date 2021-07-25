@@ -9,7 +9,7 @@ incsrc "vars.asm"
 
 ;Write version number for future-proofing
 org $FFAE
-	dw $0100
+	dw $0101
 
 ;Expand ROM to 4MB and SRAM to 128KB
 org $FFBD

@@ -32,22 +32,22 @@ SetSpriteDataPointer:
 	ldy.w #$0000
 SetSpriteDataPointer_CopyData:
 	lda.b [$08],y
-	sta.l $710000,x
+	sta.l $70C000,x
 	cmp.w #$FFFF
 	beq SetSpriteDataPointer_EndCopy
 	inx
 	iny
 	lda.b [$08],y
-	sta.l $710000,x
+	sta.l $70C000,x
 	inx
 	inx
 	iny
 	iny
 	bra SetSpriteDataPointer_CopyData
 SetSpriteDataPointer_EndCopy:
-	lda.w #$0000
+	lda.w #$C000
 	sta.l $702600
-	lda.w #$0071
+	lda.w #$0070
 	sta.l $702602
 SetSpriteDataPointer_Return:
 	jmp.w $01B0AD

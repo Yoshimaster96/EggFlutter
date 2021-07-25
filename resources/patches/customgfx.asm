@@ -44,8 +44,11 @@
 ;Create Map16 pointer table
 ;TODO
 
-;Allow custom Map16 graphics to be loaded
+;Allow custom Map16 graphics and "act-as" to be loaded
 ;TODO
 
-;Allow custom Map16 "act-as" attributes to be loaded
+;Process new custom Map16 graphics
+;TODO
+
+;Process new custom Map16 "act-as"
 ;TODO
