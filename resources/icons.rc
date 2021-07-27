@@ -1,4 +1,5 @@
 #include "resources.h"
 
 IDI_ICON_MAIN ICON "resources/icon_main.ico"
+IDB_TOOLBAR_MAIN BITMAP "resources/toolbar_main.bmp"
 

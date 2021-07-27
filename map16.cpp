@@ -123,7 +123,7 @@ LRESULT CALLBACK WndProc_Map16(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		default: {
-			return DefWindowProc(hwnd,msg,wParam,lParam);
+			return DefWindowProcA(hwnd,msg,wParam,lParam);
 		}
 	}
 	return 0;

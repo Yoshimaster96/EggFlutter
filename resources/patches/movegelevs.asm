@@ -18,33 +18,41 @@ org $01E1A9
 
 ;Extra code
 org $01EDB0
+Copy16KBToBank70:
+	lda.b $DA
+	xba
+	ora.w #$0054
+	sta.b $DC
+	lda.w #$6B70
+	sta.b $DE
+	ldx.b $D8
+	lda.w #$4000
+	jsl.l $0000DC
+	rtl
+Copy32KBToBank71:
+	lda.b $DA
+	xba
+	ora.w #$0054
+	sta.b $DC
+	lda.w #$6B71
+	sta.b $DE
+	ldx.b $D8
+	lda.w #$8000
+	jsl.l $0000DC
+	rtl
+
 SetSpriteDataPointer:
 	lda.l $17F7C6,x
 	sta.l $702600
-	sta.b $08
+	sta.b $D8
 	lda.l $17F7C8,x
 	and.w #$00FF
 	sta.l $702602
-	sta.b $0A
+	sta.b $DA
 	and.w #$0080
 	beq SetSpriteDataPointer_Return
-	ldx.w #$0000
-	ldy.w #$0000
-SetSpriteDataPointer_CopyData:
-	lda.b [$08],y
-	sta.l $70C000,x
-	cmp.w #$FFFF
-	beq SetSpriteDataPointer_EndCopy
-	inx
-	iny
-	lda.b [$08],y
-	sta.l $70C000,x
-	inx
-	inx
-	iny
-	iny
-	bra SetSpriteDataPointer_CopyData
-SetSpriteDataPointer_EndCopy:
+	ldy.w #$C000
+	jsl.l Copy16KBToBank70
 	lda.w #$C000
 	sta.l $702600
 	lda.w #$0070
@@ -60,25 +68,15 @@ SetLevelNameDataPointer:
 	tax
 	lda.l $5149BC,x
 	sta.w R10
-	sta.b $08
+	sta.b $D8
 	tyx
 	lda.l $515348,x
 	sta.w R0
-	sta.b $0A
+	sta.b $DA
 	and.w #$0080
 	beq SetLevelNameDataPointer_Return
-	ldx.w #$0000
-	ldy.w #$0000
-SetLevelNameDataPointer_CopyData:
-	lda.b [$08],y
-	sta.l $708000,x
-	and.w #$FF00
-	cmp.w #$FD00
-	beq SetLevelNameDataPointer_EndCopy
-	inx
-	iny
-	bra SetLevelNameDataPointer_CopyData
-SetLevelNameDataPointer_EndCopy:
+	ldy.w #$8000
+	jsl.l Copy16KBToBank70
 	lda.w #$8000
 	sta.w R10
 	lda.w #$0070
@@ -91,27 +89,18 @@ SetLevelNameDataPointer_Return:
 SetLevelMessageDataPointer:
 	lda.l $5110DB,x
 	sta.l $704096
-	sta.b $08
+	sta.b $D8
 	txa
 	lsr
 	tax
 	lda.l $515390,x
 	and.w #$00FF
 	sta.l $704098
-	sta.b $0A
+	sta.b $DA
 	and.w #$0080
 	beq SetLevelMessageDataPointer_Return
-	ldx.w #$0000
-	ldy.w #$0000
-SetLevelMessageDataPointer_CopyData:
-	lda.b [$08],y
-	sta.l $708000,x
-	cmp.w #$FFFF
-	beq SetLevelMessageDataPointer_EndCopy
-	inx
-	iny
-	bra SetLevelMessageDataPointer_CopyData
-SetLevelMessageDataPointer_EndCopy:
+	ldy.w #$8000
+	jsl.l Copy16KBToBank70
 	lda.w #$8000
 	sta.w $704096
 	lda.w #$0070

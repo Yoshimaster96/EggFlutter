@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=3
 CompilerSettings=000aa0c100000000000001000
-UnitCount=38
+UnitCount=39
 
 [VersionInfo]
 Major=1
@@ -406,6 +406,15 @@ BuildCmd=
 [Unit38]
 FileName=resources\patches\patch_8mb.bps
 Folder=resources/patches
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit39]
+FileName=resources\toolbar_main.bmp
+Folder=resources
 Compile=0
 Link=0
 Priority=1000

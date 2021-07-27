@@ -42,7 +42,10 @@
 ;MAP16;
 ;;;;;;;
 ;Create Map16 pointer table
-;TODO
+org $19FEB7	;(actually $5CFEB7 but ASAR doesn't like SuperFX mappings)
+Map16BankOffsetTable:	;5CFEB7
+fillbyte $00
+fill $18
 
 ;Allow custom Map16 graphics and "act-as" to be loaded
 ;TODO

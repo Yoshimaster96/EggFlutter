@@ -105,7 +105,7 @@ LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 			break;
 		}
 		default: {
-			return DefWindowProc(hwnd,msg,wParam,lParam);
+			return DefWindowProcA(hwnd,msg,wParam,lParam);
 		}
 	}
 	return 0;

@@ -10,7 +10,7 @@ org $01E656
 	stz.w $038E
 	phx
 	rep #$30
-	lda.w LevelID
+	lda.b LevelID
 	asl
 	tax
 	ldy.w #$7F7F
@@ -30,7 +30,7 @@ org $01E656
 	rtl
 SetLevel:
 	and.w #$00FF
-	sta.w LevelID
+	sta.b LevelID
 	asl
 	jmp.w $01B088
 padbyte $FF
@@ -66,6 +66,5 @@ org $17F551
 	db $0C,$39,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$06,$76,$00,$00
 	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$04,$7A
-
 padbyte $FF
 pad $17F7C3

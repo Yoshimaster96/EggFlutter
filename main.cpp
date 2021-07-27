@@ -1059,8 +1059,29 @@ INT_PTR DlgProc_dEditLevMessages(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 //////////////
 bool hasSmcHeader;
 char romFilename[256];
-HWND hwndMain,hwndTooltip;
+HWND hwndMainFrame,hwndToolbar,hwndStatusbar,hwndMainClient;
+int cutHeightTb,cutHeightSb;
 HMENU hmenuMain;
+HWND hwndTooltip;
+TBBUTTON tbButtonData[17] = {
+	{0,0,0,TBSTYLE_SEP,{0},0,0},
+	{2,1300,0,0,{0},0,0},
+	{3,1301,0,0,{0},0,0},
+	{4,1302,0,0,{0},0,0},
+	{0,0,0,TBSTYLE_SEP,{0},0,0},
+	{5,1310,0,0,{0},0,0},
+	{6,1311,0,0,{0},0,0},
+	{7,1312,0,0,{0},0,0},
+	{0,0,0,TBSTYLE_SEP,{0},0,0},
+	{10,1400,0,0,{0},0,0},
+	{11,1401,0,0,{0},0,0},
+	{0,0,0,TBSTYLE_SEP,{0},0,0},
+	{12,1410,0,0,{0},0,0},
+	{13,1411,0,0,{0},0,0},
+	{14,1412,0,0,{0},0,0},
+	{15,1413,0,0,{0},0,0},
+	{0,0,0,TBSTYLE_SEP,{0},0,0}};
+int sbTabData[2] = {200,-1};
 
 //View states
 bool eObj = true,eSp = false;
@@ -1127,12 +1148,25 @@ void updateMenu() {
 	CheckMenuItem(hmenuMain,1220,vW6?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1221,vSwA?MF_CHECKED:0);
 	CheckMenuItem(hmenuMain,1222,vSwB?MF_CHECKED:0);
+	//Update toolbar
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1300,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1301,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1302,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1310,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1311,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1312,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1400,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1401,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1410,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1411,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1412,isRomOpen);
+	SendMessageA(hwndToolbar,TB_ENABLEBUTTON,1413,isRomOpen);
 }
 inline BOOL prompt(LPCSTR title,LPCSTR msg) {
-	return (MessageBoxA(hwndMain,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
+	return (MessageBoxA(hwndMainFrame,msg,title,MB_ICONWARNING|MB_YESNO) == IDYES);
 }
 inline BOOL promptSave() {
-	return (MessageBoxA(hwndMain,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
+	return (MessageBoxA(hwndMainFrame,"Level data has been modified. Are you sure?","Unsaved changes!",MB_ICONWARNING|MB_YESNO) == IDYES);
 }
 void updateInvalidParts() {
 	BYTE tempInvalid[0x8000];
@@ -1159,11 +1193,11 @@ void updateInvalidParts() {
 				tileRect.top -= yCurScroll;
 				tileRect.right -= xCurScroll;
 				tileRect.bottom -= yCurScroll;
-				InvalidateRect(hwndMain,&tileRect,false);
+				InvalidateRect(hwndMainClient,&tileRect,false);
 			}
 		}
 	}
-	UpdateWindow(hwndMain);
+	UpdateWindow(hwndMainClient);
 }
 void updateEntireScreen() {
 	//Scrolling is pixel-perfect so we would need to AND mask
@@ -1174,9 +1208,9 @@ void updateEntireScreen() {
 		xCurScroll+xCurSize,
 		yCurScroll+yCurSize};
 	updateRect(&rect);
-	GetClientRect(hwndMain,&rect);
-	InvalidateRect(hwndMain,&rect,false);
-	UpdateWindow(hwndMain);
+	GetClientRect(hwndMainClient,&rect);
+	InvalidateRect(hwndMainClient,&rect,false);
+	UpdateWindow(hwndMainClient);
 }
 void updateDialogs() {
 	RECT rect = {0,0,256,384};
@@ -1225,7 +1259,7 @@ void onOpen() {
 	memset(&ofn,0,sizeof(OPENFILENAMEA));
 	memset(romFilename,0,sizeof(romFilename));
 	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner	 = hwndMain;
+	ofn.hwndOwner	 = hwndMainFrame;
 	ofn.lpstrFile	 = romFilename;
 	ofn.nMaxFile	 = 256;
 	ofn.lpstrTitle	 = "Open ROM";
@@ -1316,7 +1350,7 @@ void onSaveAs() {
 	memset(&ofn,0,sizeof(OPENFILENAMEA));
 	memset(romFilename,0,sizeof(romFilename));
 	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner	 = hwndMain;
+	ofn.hwndOwner	 = hwndMainFrame;
 	ofn.lpstrFile	 = romFilename;
 	ofn.nMaxFile	 = 256;
 	ofn.lpstrTitle	 = "Save ROM";
@@ -1357,7 +1391,7 @@ void onSaveAs() {
 }
 void onQuit() {
 	//Have WM_CLOSE handle this
-	SendMessageA(hwndMain,WM_CLOSE,0,0);
+	SendMessageA(hwndMainFrame,WM_CLOSE,0,0);
 }
 void onImportLevel() {
 	//Prompt save
@@ -1369,7 +1403,7 @@ void onImportLevel() {
 	memset(&ofn,0,sizeof(OPENFILENAMEA));
 	memset(lfStr,0,256);
 	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner	 = hwndMain;
+	ofn.hwndOwner	 = hwndMainFrame;
 	ofn.lpstrFile	 = lfStr;
 	ofn.nMaxFile	 = 256;
 	ofn.lpstrTitle	 = "Open Level File";
@@ -1422,7 +1456,7 @@ void onExportLevel() {
 	memset(&ofn,0,sizeof(OPENFILENAMEA));
 	memset(lfStr,0,256);
 	ofn.lStructSize	 = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner	 = hwndMain;
+	ofn.hwndOwner	 = hwndMainFrame;
 	ofn.lpstrFile	 = lfStr;
 	ofn.nMaxFile	 = 256;
 	ofn.lpstrTitle	 = "Save Level File";
@@ -1479,7 +1513,7 @@ void onOpenLevel() {
 	if(!isRomSaved) {
 		if(!promptSave()) return;
 	}
-	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMain,(DLGPROC)DlgProc_dOpenLevelId)) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_OPEN_LEVEL_ID),hwndMainFrame,(DLGPROC)DlgProc_dOpenLevelId)) {
 		isRomSaved = true;
 		loadLevel();
 		updateDialogs();
@@ -1590,25 +1624,25 @@ void onViewSwB() {
 }
 //Tools
 void onChgEnt() {
-	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMain,(DLGPROC)DlgProc_dEditEntrances) && vEnt) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE),hwndMainFrame,(DLGPROC)DlgProc_dEditEntrances) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgEnt2() {
-	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMain,(DLGPROC)DlgProc_dEditEntrances2) && vEnt) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_ENTRANCE2),hwndMainFrame,(DLGPROC)DlgProc_dEditEntrances2) && vEnt) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgExit() {
-	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMain,(DLGPROC)DlgProc_dEditExits) && vExit) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_EXIT),hwndMainFrame,(DLGPROC)DlgProc_dEditExits) && vExit) {
 		isRomSaved = false;
 		updateEntireScreen();
 	}
 }
 void onChgHead() {
-	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMain,(DLGPROC)DlgProc_dEditHeader)) {
+	if(DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_HEADER),hwndMainFrame,(DLGPROC)DlgProc_dEditHeader)) {
 		isRomSaved = false;
 		initOtherObjectBuffers();
 		initOtherSpriteBuffers();
@@ -1623,10 +1657,10 @@ void onChgHead() {
 	}
 }
 void onChgLevName() {
-	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMain,(DLGPROC)DlgProc_dEditLevNames);
+	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_NAME),hwndMainFrame,(DLGPROC)DlgProc_dEditLevNames);
 }
 void onChgLevMsg() {
-	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMain,(DLGPROC)DlgProc_dEditLevMessages);
+	DialogBoxA(NULL,MAKEINTRESOURCE(IDD_EDIT_LEV_MSG),hwndMainFrame,(DLGPROC)DlgProc_dEditLevMessages);
 }
 //Window
 void onSelObj() {
@@ -1669,8 +1703,8 @@ void (*cmMenuFunc[NUM_COMMANDS])() = {
 	onViewEnt,onViewExit,onViewGrid,onViewAnim,
 	onViewW6,onViewSwA,onViewSwB,
 //Tools
-	onChgEnt,onChgEnt2,onChgExit,onChgHead,
-	onChgLevName,onChgLevMsg,
+	onChgEnt,onChgEnt2,onChgExit,
+	onChgHead,onChgLevName,onChgLevMsg,
 //Window
 	onSelObj,onSelSp,
 	onEditMap8,onEditMap16,onEditPal,onEditBg};
@@ -2020,8 +2054,8 @@ void updateRect(RECT * rect) {
 	}
 }
 
-//Message loop function
-LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+//Message loop functions
+LRESULT CALLBACK WndProc_MainClient(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 	switch(msg) {
 		//Creation and destruction of window(s)
 		case WM_CREATE: {
@@ -2220,29 +2254,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
 			
 			updateEntireScreen();
-			break;
-		}
-		//Menu input
-		case WM_COMMAND: {
-			for(int i=0; i<NUM_COMMANDS; i++) {
-				if(cmMenuCommand[i] == LOWORD(wParam)) {
-					(*cmMenuFunc[i])();
-					break;
-				}
-			}
-			break;
-		}
-		case WM_KEYDOWN: {
-			if(wParam==VK_DELETE) {
-				if(eObj) {
-					deleteObjects();
-				} else if(eSp) {
-					deleteSprites();
-				}
-				isRomSaved = false;
-				
-				updateEntireScreen();
-			}
 			break;
 		}
 		//Mouse input
@@ -2490,7 +2501,50 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			break;
 		}
 		default:
-			return DefWindowProc(hwnd,msg,wParam,lParam);
+			return DefWindowProcA(hwnd,msg,wParam,lParam);
+	}
+	return 0;
+}
+LRESULT CALLBACK WndProc_MainFrame(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
+	switch(msg) {
+		//Updating
+		case WM_SIZE: {
+			SendMessageA(hwndToolbar,TB_AUTOSIZE,0,0);
+			SendMessageA(hwndStatusbar,WM_SIZE,0,0);
+			xCurSize = LOWORD(lParam);
+			yCurSize = HIWORD(lParam);
+			yCurSize -= cutHeightTb+cutHeightSb;
+			if(yCurSize<0) yCurSize = 0;
+			MoveWindow(hwndMainClient,0,cutHeightTb,xCurSize,yCurSize,TRUE);
+			break;
+		}
+		//Menu input
+		case WM_COMMAND: {
+			for(int i=0; i<NUM_COMMANDS; i++) {
+				if(cmMenuCommand[i] == LOWORD(wParam)) {
+					(*cmMenuFunc[i])();
+					break;
+				}
+			}
+			break;
+		}
+		case WM_KEYDOWN: {
+			if(wParam==VK_DELETE) {
+				if(eObj) {
+					deleteObjects();
+				} else if(eSp) {
+					deleteSprites();
+				}
+				isRomSaved = false;
+				
+				updateEntireScreen();
+			}
+			break;
+		}
+		default: {
+			return DefWindowProcA(hwnd,msg,wParam,lParam);
+			break;
+		}
 	}
 	return 0;
 }
@@ -2520,19 +2574,28 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	memcpy(manifestXmlBuf,manifestXmlData,manifestXmlBufSize);
 	memcpy(manifestBmlBuf,manifestBmlData,manifestBmlBufSize);
 	
-	//Register main window class
-	WNDCLASSEXA wc;
-	memset(&wc,0,sizeof(WNDCLASSEXA));
-	wc.cbSize			= sizeof(WNDCLASSEXA);
-	wc.lpfnWndProc		= WndProc;
-	wc.hInstance		= hInstance;
-	wc.hCursor			= LoadCursorA(NULL,IDC_ARROW);
-	wc.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
-	wc.lpszClassName	= "NewYILevelEditor";
-	wc.hIcon			= hiconMain;
-	wc.hIconSm			= hiconMain;
-	if(!RegisterClassEx(&wc)) {
-		MessageBoxA(NULL,"Main window registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+	//Register main window classes
+	WNDCLASSEXA wcMainFrame,wcMainClient;
+	memset(&wcMainFrame,0,sizeof(WNDCLASSEXA));
+	wcMainFrame.cbSize			= sizeof(WNDCLASSEXA);
+	wcMainFrame.lpfnWndProc		= WndProc_MainFrame;
+	wcMainFrame.hInstance		= hInstance;
+	wcMainFrame.hCursor			= LoadCursorA(NULL,IDC_ARROW);
+	wcMainFrame.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
+	wcMainFrame.lpszClassName	= "NewYILevelEditor_MainFrame";
+	wcMainFrame.hIcon			= hiconMain;
+	wcMainFrame.hIconSm			= hiconMain;
+	memset(&wcMainClient,0,sizeof(WNDCLASSEXA));
+	wcMainClient.cbSize			= sizeof(WNDCLASSEXA);
+	wcMainClient.lpfnWndProc	= WndProc_MainClient;
+	wcMainClient.hInstance		= hInstance;
+	wcMainClient.hCursor		= LoadCursorA(NULL,IDC_ARROW);
+	wcMainClient.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
+	wcMainClient.lpszClassName	= "NewYILevelEditor_MainClient";
+	wcMainClient.hIcon			= hiconMain;
+	wcMainClient.hIconSm		= hiconMain;
+	if(!RegisterClassEx(&wcMainFrame) || !RegisterClassEx(&wcMainClient)) {
+		MessageBoxA(NULL,"Main windows registration failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	//Register children window classes
@@ -2596,85 +2659,123 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 0;
 	}
 	
-	//Create main window
-	hwndMain = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor","EggFlutter",WS_VISIBLE|WS_OVERLAPPEDWINDOW|WS_HSCROLL|WS_VSCROLL,
+	//Create main windows
+	hwndMainFrame = CreateWindowExA(0,"NewYILevelEditor_MainFrame","EggFlutter",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		640,
 		480,
 		NULL,NULL,hInstance,NULL);
-	if(hwndMain==NULL) {
-		MessageBoxA(NULL,"Main window creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+	hwndToolbar = CreateWindowExA(0,TOOLBARCLASSNAME,NULL,WS_VISIBLE|WS_CHILD,
+		0,
+		0,
+		0,
+		0,
+		hwndMainFrame,NULL,hInstance,NULL);
+	hwndStatusbar = CreateWindowExA(0,STATUSCLASSNAME,NULL,WS_VISIBLE|WS_CHILD,
+		0,
+		0,
+		0,
+		0,
+		hwndMainFrame,NULL,hInstance,NULL);
+	hwndMainClient = CreateWindowExA(0,"NewYILevelEditor_MainClient",NULL,WS_VISIBLE|WS_CHILD|WS_HSCROLL|WS_VSCROLL,
+		0,
+		0,
+		0,
+		0,
+		hwndMainFrame,NULL,hInstance,NULL);
+	if(hwndMainFrame==NULL || hwndToolbar==NULL || hwndStatusbar==NULL || hwndMainClient==NULL) {
+		MessageBoxA(NULL,"Main windows creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
-	SetTimer(hwndMain,800,33,NULL);
 	//Create children windows
 	RECT refSize = {0,0,256,384};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	int refWidth = refSize.right-refSize.left;
 	int refHeight = refSize.bottom-refSize.top;
-	hwndObject = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Object","Select Object",WS_POPUPWINDOW|WS_CAPTION,
+	hwndObject = CreateWindowExA(0,"NewYILevelEditor_Object","Select Object",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
-	hwndSprite = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Sprite","Select Sprite",WS_POPUPWINDOW|WS_CAPTION,
+		hwndMainClient,NULL,hInstance,NULL);
+	hwndSprite = CreateWindowExA(0,"NewYILevelEditor_Sprite","Select Sprite",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
+		hwndMainClient,NULL,hInstance,NULL);
 	refSize = {0,0,256,256};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndMap8 = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+	hwndMap8 = CreateWindowExA(0,"NewYILevelEditor_Map8","View 8x8 Tiles",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
-	hwndPalette = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Palette","View Palette",WS_POPUPWINDOW|WS_CAPTION,
+		hwndMainClient,NULL,hInstance,NULL);
+	hwndPalette = CreateWindowExA(0,"NewYILevelEditor_Palette","View Palette",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
+		hwndMainClient,NULL,hInstance,NULL);
 	refSize = {0,0,512,512};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndMap16 = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Map16","View 16x16 Tiles",WS_POPUPWINDOW|WS_CAPTION,
+	hwndMap16 = CreateWindowExA(0,"NewYILevelEditor_Map16","View 16x16 Tiles",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
+		hwndMainClient,NULL,hInstance,NULL);
 	refSize = {0,0,1024,1024};
 	AdjustWindowRectEx(&refSize,WS_POPUPWINDOW|WS_CAPTION,false,WS_EX_CLIENTEDGE);
 	refWidth = refSize.right-refSize.left;
 	refHeight = refSize.bottom-refSize.top;
-	hwndBackground = CreateWindowExA(WS_EX_CLIENTEDGE,"NewYILevelEditor_Background","View Background",WS_POPUPWINDOW|WS_CAPTION,
+	hwndBackground = CreateWindowExA(0,"NewYILevelEditor_Background","View Background",WS_POPUPWINDOW|WS_CAPTION,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		refWidth,
 		refHeight,
-		hwndMain,NULL,hInstance,NULL);
+		hwndMainClient,NULL,hInstance,NULL);
 	if(hwndObject==NULL || hwndSprite==NULL || hwndMap8==NULL || hwndMap16==NULL || hwndPalette==NULL || hwndBackground==NULL) {
 		MessageBoxA(NULL,"Children windows creation failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 	
+	//Get original client rect
+	RECT uncutRect,cutRect;
+	GetClientRect(hwndMainFrame,&uncutRect);
+	//Setup toolbar
+	TBADDBITMAP tbab;
+	memset(&tbab,0,sizeof(TBADDBITMAP));
+	tbab.hInst	= hInstance;
+	tbab.nID	= IDB_TOOLBAR_MAIN;
+	SendMessageA(hwndToolbar,TB_ADDBITMAP,16,(LPARAM)&tbab);
+	SendMessageA(hwndToolbar,TB_BUTTONSTRUCTSIZE,sizeof(TBBUTTON),0);
+	SendMessageA(hwndToolbar,TB_ADDBUTTONS,17,(LPARAM)&tbButtonData);
+	GetClientRect(hwndToolbar,&cutRect);
+	cutHeightTb = cutRect.bottom+3;
+	//Setup status bar
+	SendMessageA(hwndStatusbar,SB_SETPARTS,2,(LPARAM)&sbTabData);
+	GetClientRect(hwndStatusbar,&cutRect);
+	cutHeightSb = cutRect.bottom;
+	//Setup animation timer
+	SetTimer(hwndMainClient,800,33,NULL);
+	
 	//Setup menus
 	hmenuMain = LoadMenuA(hInstance,MAKEINTRESOURCE(IDM_MENU_MAIN));
-	SetMenu(hwndMain,hmenuMain);
+	SetMenu(hwndMainFrame,hmenuMain);
 	//Setup accelerators
 	HACCEL haccel = LoadAcceleratorsA(hInstance,MAKEINTRESOURCE(IDA_MENU_MAIN));
+	
 	//Message loop
 	MSG msg;
 	while(GetMessage(&msg,NULL,0,0)>0) {
-		if(!TranslateAcceleratorA(hwndMain,haccel,&msg)) {
+		if(!TranslateAcceleratorA(hwndMainFrame,haccel,&msg)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}

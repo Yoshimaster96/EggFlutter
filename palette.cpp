@@ -471,7 +471,7 @@ LRESULT CALLBACK WndProc_Palette(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			break;
 		}
 		default: {
-			return DefWindowProc(hwnd,msg,wParam,lParam);
+			return DefWindowProcA(hwnd,msg,wParam,lParam);
 		}
 	}
 	return 0;
