@@ -10,27 +10,27 @@ org $01E656
 	stz.w $038E
 	phx
 	rep #$30
-	lda.b LevelID
-	asl
-	tax
-	ldy.w #$7F7F
-	phy
-	plb
-	plb
-	lda.l $17F551,x
-	sta.w $7E01
-	txa
-	lsr
-	sep #$30
-	sta.w $7E00
-	stz.w $7E03
+	lda.b LevelID		;\Get level ID in RAM
+	asl			;|and shift for use as index
+	tax			;/
+	ldy.w #$7F7F		;\Setup bank
+	phy			;|
+	plb			;|
+	plb			;/
+	lda.l $17F551,x		;\Get midpoint X/Y position data
+	sta.w $7E01		;/Set midpoint X/Y position
+	txa			;\Set midpoint level ID
+	lsr			;|
+	sep #$30		;|
+	sta.w $7E00		;/
+	stz.w $7E03		; Set midpoint action
 	plx
 	plb
 	plb
 	rtl
 SetLevel:
-	and.w #$00FF
-	sta.b LevelID
+	and.w #$00FF		;\Set level ID in RAM
+	sta.b LevelID		;/
 	asl
 	jmp.w $01B088
 padbyte $FF
