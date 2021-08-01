@@ -51,19 +51,72 @@ fill $18
 ;TODO
 
 ;Process new custom Map16 graphics
-;TODO
+arch superfx
+org $09FA2A
+	iwt r15,#SetMap16Graphics
+	nop
+org $09FA93
+	iwt r15,#SetMap16Graphics2
+	nop
 org $09FACF
 SetMap16Graphics:
-;TODO
+	ldw (r1)			;\Check for custom Map16 tile
+	iwt r11,#$C000			;|
+	and r11				;|
+	cmp r11				;|
+	beq SetMap16Graphics_Custom	;/
+	nop
+	ibt r0,#$4C			;\Recalculate normal Map16 tile data pointer
+	romb				;|
+	ldw (r1)			;|
+	to r9				;|
+	umult r8			;/
+	iwt r15,#$FA2E
+	nop
+SetMap16Graphics_Custom:
+	ibt r0,#$71			;\Calculate custom Map16 tile data pointer
+	romb				;|
+	iwt r11,#$8000			;|
+	ldw (r1)			;|
+	to r9				;|
+	umult r8			;|
+	from r9				;|
+	to r14				;|
+	add r11				;/
+	iwt r15,#$FA39
+	nop
+;duplicate of above but with different return address, dunno of a way to merge the two...
 SetMap16Graphics2:
-;TODO
-CustomMap16PageOffsetData:
-	dw $8000,$8800,$9000,$9800
-	dw $A000,$A800,$B000,$B800
+	ldw (r1)			;\Check for custom Map16 tile
+	iwt r11,#$C000			;|
+	and r11				;|
+	cmp r11				;|
+	beq SetMap16Graphics2_Custom	;/
+	nop
+	ibt r0,#$4C			;\Recalculate normal Map16 tile data pointer
+	romb				;|
+	ldw (r1)			;|
+	to r9				;|
+	umult r8			;/
+	iwt r15,#$FA97
+	nop
+SetMap16Graphics2_Custom:
+	ibt r0,#$71			;\Calculate custom Map16 tile data pointer
+	romb				;|
+	iwt r11,#$8000			;|
+	ldw (r1)			;|
+	to r9				;|
+	umult r8			;|
+	from r9				;|
+	to r14				;|
+	add r11				;/
+	iwt r15,#$FAA4
+	nop
+arch 65816
 
 ;Process new custom Map16 "act-as"
-org $0BD381
 arch superfx
+org $0BD381
 	iwt r15,#SetMap16ActAs
 	nop
 org $0BA6AD

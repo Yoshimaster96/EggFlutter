@@ -108,8 +108,8 @@ SetLevelMessageDataPointer:
 SetLevelMessageDataPointer_Return:
 	jmp.w $01E1A9
 
-org $09E92F
 arch superfx
+org $09E92F
 	romb			;\Skip over some code which calculates level name data address
 	iwt r15,#$E93B		;|since we do this manually
 	nop			;/
