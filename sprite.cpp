@@ -4507,6 +4507,9 @@ HBITMAP			hbmpSp;
 DWORD *			bmpDataSp;
 HWND			hwndCbSprite,hwndLbSprite;
 RECT invRect_sprite = {0,0,0x100,0x100};
+bool spSearch;
+int spSearchIdx;
+char spSearchStr[256];
 
 BYTE spriteDlgData_t0[] = {
 	//000
@@ -6274,11 +6277,60 @@ void updateWindow_sprite() {
 }
 //Main drawing code
 void updateEntireScreen_sp() {
+	RECT clipRect = {0,0,8,8};
 	memset(bmpDataSp,0x80,0x10000*sizeof(DWORD));
 	updateWindowSub_sprite();
 	int prevCtx = setSpriteContext(1);
 	dispSprites(bmpDataSp,0x100,0x100,&invRect_sprite);
 	setSpriteContext(prevCtx);
+	if(spSearch) {
+		char tempTextStr[256];
+		snprintf(tempTextStr,256,"Search: %s",spSearchStr);
+		int strBufLen = strlen(tempTextStr);
+		int tx = 0;
+		int ty = 0;
+		for(int n=0; n<strBufLen; n++) {
+			dispMap8Char(bmpDataSp,0x100,0x100,0xFFFFFF,0x808080,tempTextStr[n],tx,ty,&clipRect,false);
+			tx += 8;
+			if(tx==0x100) {
+				tx = 0;
+				ty += 8;
+			}
+		}
+	}
+}
+//Search for string
+void searchForString_sprite() {
+	if(!spSearch || spSearchIdx==0) return;
+	char tempTextStr[256];
+	int idx = SendMessageA(hwndLbSprite,LB_GETCURSEL,0,0);
+	int len = SendMessageA(hwndLbSprite,LB_GETCOUNT,0,0);
+	for(int i=(idx+1); i<len; i++) {
+		SendMessageA(hwndLbSprite,LB_GETTEXT,i,(LPARAM)tempTextStr);
+		int strBufLen = strlen(tempTextStr);
+		for(int n=0; n<strBufLen; n++) {
+			tempTextStr[n] = tolower(tempTextStr[n]);
+		}
+		char * result = strstr(tempTextStr,spSearchStr);
+		if(result!=NULL) {
+			SendMessageA(hwndLbSprite,LB_SETCURSEL,i,0);
+			updateWindowSub_sprite();
+			return;
+		}
+	}
+	for(int i=0; i<idx; i++) {
+		SendMessageA(hwndLbSprite,LB_GETTEXT,i,(LPARAM)tempTextStr);
+		int strBufLen = strlen(tempTextStr);
+		for(int n=0; n<strBufLen; n++) {
+			tempTextStr[n] = tolower(tempTextStr[n]);
+		}
+		char * result = strstr(tempTextStr,spSearchStr);
+		if(result!=NULL) {
+			SendMessageA(hwndLbSprite,LB_SETCURSEL,i,0);
+			updateWindowSub_sprite();
+			return;
+		}
+	}
 }
 
 LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
@@ -6321,6 +6373,10 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			SendMessageA(hwndCbSprite,CB_SETCURSEL,0,0);
 			//Init control values
 			updateWindow_sprite();
+			//Init search
+			spSearch = false;
+			spSearchIdx = 0;
+			memset(spSearchStr,0,256);
 			break;
 		}
 		case WM_DESTROY: {
@@ -6330,6 +6386,10 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 			break;
 		}
 		case WM_CLOSE: {
+			//Init search
+			spSearch = false;
+			spSearchIdx = 0;
+			memset(spSearchStr,0,256);
 			//Simply hide the window
 			ShowWindow(hwnd,SW_HIDE);
 			wvisSprite = false;
@@ -6370,6 +6430,44 @@ LRESULT CALLBACK WndProc_Sprite(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) 
 					}
 				}
 			}
+			break;
+		}
+		//Searching
+		case WM_KEYDOWN: {
+			switch(wParam) {
+				case VK_F3: {
+					searchForString_sprite();
+					InvalidateRect(hwnd,&invRect_sprite,false);
+					UpdateWindow(hwnd);
+					break;
+				}
+				case VK_BACK: {
+					spSearch = true;
+					if(spSearchIdx!=0) {
+						spSearchStr[--spSearchIdx] = 0;
+						searchForString_sprite();
+						InvalidateRect(hwnd,&invRect_sprite,false);
+						UpdateWindow(hwnd);
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case WM_CHAR: {
+			spSearch = true;
+			if(spSearchIdx<256) {
+				if(isprint(wParam)) {
+					spSearchStr[spSearchIdx++] = tolower(wParam);
+					searchForString_sprite();
+					InvalidateRect(hwnd,&invRect_sprite,false);
+					UpdateWindow(hwnd);
+				}
+			}
+			break;
+		}
+		case WM_SETFOCUS: {
+			childFocus = true;
 			break;
 		}
 		default: {

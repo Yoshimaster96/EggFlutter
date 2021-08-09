@@ -8,6 +8,7 @@
 extern HICON hiconMain;
 extern HINSTANCE hinstMain;
 extern bool isRomOpen,isRomSaved;
+extern bool childFocus;
 #ifdef YI_4MB_MODE
 extern BYTE romBuf[0x400000];
 #else

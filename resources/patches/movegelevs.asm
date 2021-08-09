@@ -49,15 +49,12 @@ SetSpriteDataPointer:
 	and.w #$00FF				;|
 	sta.l $702602				;|
 	sta.b SRAMCopySrcHi			;/
-	and.w #$0080				;\If not in expanded region, skip this part
-	beq SetSpriteDataPointer_Return		;/
 	ldy.w #$C000				;\Copy sprite data to SRAM
 	jsl.l Copy16KBToBank70			;/
 	lda.w #$C000				;\Modify sprite data pointer
 	sta.l $702600				;|
 	lda.w #$0070				;|
 	sta.l $702602				;/
-SetSpriteDataPointer_Return:
 	jmp.w $01B0AD
 
 SetLevelNameDataPointer:
@@ -73,15 +70,12 @@ SetLevelNameDataPointer:
 	lda.l $515348,x				;|
 	sta.w R0				;|
 	sta.b SRAMCopySrcHi			;/
-	and.w #$0080				;\If not in expanded region, skip this part
-	beq SetLevelNameDataPointer_Return	;/
 	ldy.w #$8000				;\Copy level name data to SRAM
 	jsl.l Copy16KBToBank70			;/
 	lda.w #$8000				;\Modify level name pointer
 	sta.w R10				;|
 	lda.w #$0070				;|
 	sta.w R0				;/
-SetLevelNameDataPointer_Return:
 	ply					;\Restore regs
 	plx					;/
 	jml.l $00C795
@@ -97,15 +91,12 @@ SetLevelMessageDataPointer:
 	and.w #$00FF				;|
 	sta.l $704098				;|
 	sta.b SRAMCopySrcHi			;/
-	and.w #$0080				;\If not in expanded region, skip this part
-	beq SetLevelMessageDataPointer_Return	;/
 	ldy.w #$8000				;\Copy level message data to SRAM
 	jsl.l Copy16KBToBank70			;/
 	lda.w #$8000				;\Modify level message pointer
 	sta.w $704096				;|
 	lda.w #$0070				;|
 	sta.w $704098				;/
-SetLevelMessageDataPointer_Return:
 	jmp.w $01E1A9
 
 arch superfx

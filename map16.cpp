@@ -122,6 +122,10 @@ LRESULT CALLBACK WndProc_Map16(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam) {
 			}
 			break;
 		}
+		case WM_SETFOCUS: {
+			childFocus = true;
+			break;
+		}
 		default: {
 			return DefWindowProcA(hwnd,msg,wParam,lParam);
 		}

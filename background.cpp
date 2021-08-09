@@ -104,6 +104,11 @@ LRESULT CALLBACK WndProc_Background(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPar
 			EndPaint(hwnd,&ps);
 			break;
 		}
+		//Input
+		case WM_SETFOCUS: {
+			childFocus = true;
+			break;
+		}
 		default: {
 			return DefWindowProcA(hwnd,msg,wParam,lParam);
 		}

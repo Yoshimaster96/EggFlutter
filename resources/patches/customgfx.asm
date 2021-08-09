@@ -136,7 +136,7 @@ SetMap16ActAs:
 	romb				;|
 	move r0,r6			;|
 	hib				;|
-	umult #$03			;|
+	umult #3			;|
 	iwt r14,#$BB12			;/
 	bra SetMap16ActAs_Back
 	nop
@@ -146,7 +146,7 @@ SetMap16ActAs_Custom:
 	iwt r2,#$07FF			;|
 	from r6				;|
 	and r2				;|
-	umult #$03			;|
+	umult #3			;|
 	iwt r14,#$C000			;/
 SetMap16ActAs_Back:
 	iwt r15,#$D386
@@ -164,7 +164,7 @@ SetMap16ActAs2:
 	romb				;|
 	move r0,r6			;|
 	hib				;|
-	umult #$03			;|
+	umult #3			;|
 	iwt r14,#$BB12			;/
 	bra SetMap16ActAs2_Back
 	nop
@@ -174,7 +174,7 @@ SetMap16ActAs2_Custom:
 	iwt r2,#$07FF			;|
 	from r6				;|
 	and r2				;|
-	umult #$03			;|
+	umult #3			;|
 	iwt r14,#$C000			;/
 SetMap16ActAs2_Back:
 	iwt r15,#$A6B2

@@ -2518,7 +2518,7 @@ LRESULT CALLBACK WndProc_MainFrame(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPara
 			MoveWindow(hwndMainClient,0,cutHeightTb,xCurSize,yCurSize,TRUE);
 			break;
 		}
-		//Menu input
+		//Input
 		case WM_COMMAND: {
 			for(int i=0; i<NUM_COMMANDS; i++) {
 				if(cmMenuCommand[i] == LOWORD(wParam)) {
@@ -2539,6 +2539,10 @@ LRESULT CALLBACK WndProc_MainFrame(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lPara
 				
 				updateEntireScreen();
 			}
+			break;
+		}
+		case WM_SETFOCUS: {
+			childFocus = false;
 			break;
 		}
 		default: {
@@ -2775,7 +2779,10 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	//Message loop
 	MSG msg;
 	while(GetMessage(&msg,NULL,0,0)>0) {
-		if(!TranslateAcceleratorA(hwndMainFrame,haccel,&msg)) {
+		if(childFocus) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		} else if(!TranslateAcceleratorA(hwndMainFrame,haccel,&msg)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
