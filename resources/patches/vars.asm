@@ -1,5 +1,7 @@
-SRAMCopySrc	= $D8
-SRAMCopySrcLo	= $D8
-SRAMCopySrcHi	= $DA
+SRAMCopySrcLo	= $DC
+SRAMCopySrcHi	= $D8
+SRAMCopyDstLo	= $DE
+SRAMCopyDstHi	= $DA
+SRAMCopySize	= $FC
 SRAMCopyRt	= $DC
 LevelID		= $FE
