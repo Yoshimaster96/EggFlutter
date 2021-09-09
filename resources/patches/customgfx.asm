@@ -1,5 +1,121 @@
-;Custom objects to facilitate various extra features
+;Load in extra assets
 ;TODO
+
+org $11FD87
+PreLoad:
+;TODO
+PostLoad:
+;TODO
+;Allow custom Map16 graphics and "act-as" to be loaded
+	lda.b ExMAP16
+	;TODO
+	lda.w #$8000
+	sta.b SRAMCopyDstLo
+	lda.w #$0071
+	sta.b SRAMCopyDstHi
+	lda.w #$5800
+	sta.b SRAMCopySize
+	jsl.l CopyDataToSRAM
+	;TODO
+;TODO
+
+;Custom objects to facilitate various extra features
+org $1281E0
+	dw ExObjF0_SetExGFX-1			;F0: Set ExGFX file
+	dw ExObjF1_DirectMap16-1		;F1: Direct Map16
+	dw $0000				;F2: (reserved for Super Block)
+	dw $0000				;F3: (reserved for Super Slope)
+	dw ExObjF4_SetMusic-1			;F4: Set music
+	dw $0000				;F5: (reserved)
+
+org $12FF9E
+ExObjF0_SetExGFX:
+	sep #$30
+	lda.b $1B			;\Get RAM address
+	sta.b $00			;|
+	stz.b $01			;/
+	lda.b $1C			;\Get RAM value and store
+	sta.b ($00)			;/
+	rtl
+ExObjF1_DirectMap16:
+	jml.l DirectMap16_B13		; Go to bank 13 since there's more room there
+;ExObjF2_SuperBlock:
+	;jml.l SuperBlock_B13		; Go to bank 13 since there's more room there
+;ExObjF3_SuperSlope:
+	;jml.l SuperSlope_B13		; Go to bank 13 since there's more room there
+ExObjF4_SetMusic:
+	;TODO
+ExObjectDraw:
+	jmp.w $A3DB
+
+org $13FE59
+DirectMap16_B13:
+	rep #$20
+	ldy.b $99
+	lda.b [$32],y			;\Get object width
+	and.w #$00FF			;|
+	sta.b $2A			;/
+	iny
+	lda.b [$32],y			;\Get object height
+	and.w #$00FF			;|
+	sta.b $2E			;/
+	iny
+	lda.b [$32],y			;\Get Map16 base
+	sta.b ExObjTemps+4		;/
+	iny
+	iny
+	lda.b [$32],y			;\Get Map16 width/height
+	sta.b ExObjTemps+6		;/
+	iny
+	iny
+	sty.b $99
+	ldx.b #$13			;\Run common object drawing routine
+	lda.w #DirectMap16Sub-1		;|
+	jml.l ExObjectDraw		;/
+	sep #$20
+	rtl
+;SuperBlock_B13:
+	;rtl
+;SuperSlope_B13:
+	;rtl
+DirectMap16Sub:
+	sep #$30
+	lda.b $28			;\Get horizontal Map16 offset
+	sec				;|
+DirectMap16Sub_LoopX:			;|
+	sbc.b ExObjTemps+6		;|
+	bcs DirectMap16Sub_LoopX	;|
+	clc				;|
+	adc.b ExObjTemps+6		;|
+	sta.b $00			;/
+	lda.b $2C			;\Get vertical Map16 offset
+	sec				;|
+DirectMap16Sub_LoopY:			;|
+	sbc.b ExObjTemps+7		;|
+	bcs DirectMap16Sub_LoopY	;|
+	clc				;|
+	adc.b ExObjTemps+7		;|
+	sta.b $02			;/
+	stz.b $01			;\Extend offsets to 16-bits
+	stz.b $03			;/
+	rep #$30
+	lda.b $02			;\Get total Map16 offset
+	asl				;|
+	asl				;|
+	asl				;|
+	asl				;|
+	clc				;|
+	adc.b $00			;/
+	clc				;\Add offset to base
+	adc.b ExObjTemps+4		;/
+	ldx.b $1D			;\Write tile to background tilemap
+	sta.l $7F8000,x			;/
+	sep #$30
+	rtl
+;SuperBlockSub:
+	;rtl
+;SuperSlopeSub:
+	;rtl
 
 ;;;;;;;
 ;EXGFX;
@@ -46,20 +162,6 @@ org $19FEB7	;(actually $5CFEB7 but ASAR doesn't like SuperFX mappings)
 Map16BankOffsetTable:	;5CFEB7
 fillbyte $00
 fill $18
-
-;Allow custom Map16 graphics and "act-as" to be loaded
-;PostLoad_Map16:
-;	lda.b ExMAP16
-;	;TODO
-;	lda.w #$8000
-;	sta.b SRAMCopyDstLo
-;	lda.w #$0071
-;	sta.b SRAMCopyDstHi
-;	lda.w #$5800
-;	sta.b SRAMCopySize
-;	jsl.l CopyDataToSRAM
-;	;TODO
-;	rtl
 
 ;Process new custom Map16 graphics
 arch superfx
